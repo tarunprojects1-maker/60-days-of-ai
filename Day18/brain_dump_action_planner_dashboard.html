@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Project Strategy & Planning Meeting — June 18, 2026</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f2;
+    --bg-tertiary: #efede6;
+    --text-primary: #1a1a18;
+    --text-secondary: #6b6b67;
+    --border: rgba(0,0,0,0.12);
+    --border-md: rgba(0,0,0,0.18);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1c;
+      --bg-secondary: #272724;
+      --bg-tertiary: #2f2f2c;
+      --text-primary: #f0ede6;
+      --text-secondary: #9a9a94;
+      --border: rgba(255,255,255,0.1);
+      --border-md: rgba(255,255,255,0.18);
+    }
+  }
+  body { font-family: var(--font-sans); background: var(--bg-tertiary); color: var(--text-primary); line-height: 1.6; padding: 2rem 1rem; }
+  .container { max-width: 860px; margin: 0 auto; }
+  .db-header { margin-bottom: 2rem; }
+  .db-title { font-size: 22px; font-weight: 500; color: var(--text-primary); }
+  .db-meta { font-size: 13px; color: var(--text-secondary); margin-top: 6px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .db-meta span { display: flex; align-items: center; gap: 5px; }
+  .section { margin-bottom: 2rem; }
+  .section-title { font-size: 12px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .metric { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px 16px; }
+  .metric-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+  .metric-value { font-size: 26px; font-weight: 500; color: var(--text-primary); }
+  .metric-sub { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+  .card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+  .list { list-style: none; }
+  .list li { font-size: 13px; color: var(--text-primary); padding: 6px 0; border-bottom: 0.5px solid var(--border); display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+  .list li:last-child { border-bottom: none; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+  .dot-red { background: #E24B4A; }
+  .dot-amber { background: #EF9F27; }
+  .dot-green { background: #639922; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: var(--radius-md); white-space: nowrap; }
+  .badge-red { background: #FCEBEB; color: #A32D2D; }
+  .badge-amber { background: #FAEEDA; color: #854F0B; }
+  .badge-green { background: #EAF3DE; color: #3B6D11; }
+  .badge-gray { background: #F1EFE8; color: #5F5E5A; }
+  .badge-blue { background: #E6F1FB; color: #185FA5; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px; border-bottom: 0.5px solid var(--border); }
+  td { padding: 9px 10px; border-bottom: 0.5px solid var(--border); color: var(--text-primary); vertical-align: top; line-height: 1.45; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg-secondary); }
+  .prog-bar { height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+  .prog-fill { height: 100%; border-radius: 3px; background: #1D9E75; }
+  .decision-item { padding: 8px 0; border-bottom: 0.5px solid var(--border); display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text-primary); line-height: 1.5; }
+  .decision-item:last-child { border-bottom: none; }
+  .check { width: 16px; height: 16px; border-radius: 50%; background: #EAF3DE; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-size: 10px; color: #3B6D11; }
+  .attendee-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; }
+  .attendee-row:last-child { border-bottom: none; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+  .highlight-item { padding: 8px 10px; border-radius: 0 var(--radius-md) var(--radius-md) 0; margin-bottom: 8px; font-size: 13px; line-height: 1.5; }
+  .conflict-item { background: #FAEEDA; border-left: 3px solid #EF9F27; color: #633806; }
+  .question-item { background: #EEEDFE; border-left: 3px solid #7F77DD; color: #3C3489; }
+  .risk-item { background: #FCEBEB; border-left: 3px solid #E24B4A; color: #791F1F; }
+  .blocker-item { background: #FBEAF0; border-left: 3px solid #D4537E; color: #72243E; }
+  .summary-box { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 1rem 1.25rem; font-size: 14px; color: var(--text-primary); line-height: 1.75; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 12px; padding: 4px 10px; border-radius: 20px; border: 0.5px solid var(--border-md); color: var(--text-secondary); background: var(--bg-primary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="db-header">
+    <div class="db-title">Project Strategy &amp; Planning Meeting</div>
+    <div class="db-meta">
+      <span>📅 June 18, 2026</span>
+      <span>⏱ 2 hours</span>
+      <span>👥 4 teams</span>
+      <span class="badge badge-amber">⏳ In progress</span>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="section">
+    <div class="grid-4">
+      <div class="metric"><div class="metric-label">Action items</div><div class="metric-value">6</div><div class="metric-sub">3 Tarun · 3 Team</div></div>
+      <div class="metric"><div class="metric-label">Open questions</div><div class="metric-value">5</div><div class="metric-sub">All unresolved</div></div>
+      <div class="metric"><div class="metric-label">Risks identified</div><div class="metric-value">5</div><div class="metric-sub">Burnout flagged</div></div>
+      <div class="metric"><div class="metric-label">AI challenge day</div><div class="metric-value">18</div><div class="metric-sub">Day 16–17 done</div></div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="section">
+    <div class="section-title">📄 Summary</div>
+    <div class="summary-box">
+      The team reviewed progress across four workstreams — portfolio development, AI challenge tasks, cloud learning, and internship preparation. Day 16 (stock fundamental analysis) and Day 17 (vehicle cost analysis) are complete; Day 18 is in progress. Key challenges include time management, inconsistent documentation, and juggling academic commitments. The team agreed to focus on completing current tasks before starting new initiatives, with daily GitHub updates and regular LinkedIn posts as standing commitments.
+    </div>
+  </div>
+
+  <!-- Attendees -->
+  <div class="section">
+    <div class="section-title">👥 Attendees</div>
+    <div class="card">
+      <div class="attendee-row"><div class="avatar" style="background:#EEEDFE;color:#534AB7;">T</div><div><strong style="font-weight:500;">Tarun</strong> — Project Lead</div></div>
+      <div class="attendee-row"><div class="avatar" style="background:#E6F1FB;color:#185FA5;">D</div><div>Development Team</div></div>
+      <div class="attendee-row"><div class="avatar" style="background:#E1F5EE;color:#0F6E56;">D</div><div>Design Team</div></div>
+      <div class="attendee-row"><div class="avatar" style="background:#FAEEDA;color:#854F0B;">T</div><div>Testing Team</div></div>
+    </div>
+  </div>
+
+  <!-- Key Takeaways -->
+  <div class="section">
+    <div class="section-title">💡 Key takeaways</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="color:#7F77DD;">💻 Portfolio development</div>
+        <ul class="list">
+          <li><span class="dot dot-green"></span> Homepage completed</li>
+          <li><span class="dot dot-amber"></span> Dark/light theme toggle partially working</li>
+          <li><span class="dot dot-red"></span> Mobile responsiveness needs improvement</li>
+          <li><span class="dot dot-red"></span> Certificates section missing</li>
+          <li><span class="dot dot-amber"></span> Projects section needs better descriptions</li>
+          <li><span class="dot dot-amber"></span> GitHub READMEs need proper documentation</li>
+          <li><span class="dot dot-amber"></span> Loading speed needs optimization</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#1D9E75;">🤖 AI challenge progress</div>
+        <ul class="list">
+          <li><span class="dot dot-green"></span> Day 16 — stock fundamental analysis ✅</li>
+          <li><span class="dot dot-green"></span> Day 17 — vehicle cost analysis dashboard ✅</li>
+          <li><span class="dot dot-amber"></span> Day 18 — brain dump action planner ⏳</li>
+          <li><span class="dot dot-red"></span> Screenshots and documentation often delayed</li>
+          <li><span class="dot dot-amber"></span> LinkedIn posts need more professional formatting</li>
+        </ul>
+        <div class="prog-bar"><div class="prog-fill" style="width:30%;"></div></div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:5px;">Day 18 of 60 — 30% complete</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#378ADD;">☁️ Cloud learning roadmap</div>
+        <ul class="list">
+          <li><span class="dot dot-green"></span> AWS Lambda — started</li>
+          <li><span class="dot dot-red"></span> API Gateway — hands-on practice needed</li>
+          <li><span class="dot dot-red"></span> DynamoDB integration — pending</li>
+          <li><span class="dot dot-red"></span> EventBridge workflows — pending</li>
+          <li><span class="dot dot-amber"></span> One serverless project before end of month</li>
+          <li><span class="dot dot-amber"></span> AWS Cloud Practitioner concepts — prep needed</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#D4537E;">💼 Internship preparation</div>
+        <ul class="list">
+          <li><span class="dot dot-red"></span> Resume requires optimization</li>
+          <li><span class="dot dot-red"></span> ATS-friendly bullet points needed</li>
+          <li><span class="dot dot-amber"></span> Apply for internships every week</li>
+          <li><span class="dot dot-amber"></span> Practice behavioral interview questions</li>
+          <li><span class="dot dot-amber"></span> Improve LinkedIn profile visibility</li>
+          <li><span class="dot dot-amber"></span> Build stronger GitHub portfolio</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Items -->
+  <div class="section">
+    <div class="section-title">✅ Action items</div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table>
+        <thead>
+          <tr><th>Task</th><th>Owner</th><th>Deadline</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Complete Day 18 challenge documentation</td><td>Tarun</td><td>Not specified</td><td><span class="badge badge-amber">⏳ Pending</span></td></tr>
+          <tr><td>Update GitHub repositories</td><td>Tarun</td><td>Not specified</td><td><span class="badge badge-amber">⏳ Pending</span></td></tr>
+          <tr><td>Improve portfolio responsiveness</td><td>Tarun</td><td>Not specified</td><td><span class="badge badge-red">🔴 High priority</span></td></tr>
+          <tr><td>Review AWS architecture design</td><td>Team</td><td>Not specified</td><td><span class="badge badge-amber">⏳ Pending</span></td></tr>
+          <tr><td>Test dashboard outputs</td><td>Team</td><td>Not specified</td><td><span class="badge badge-amber">⏳ Pending</span></td></tr>
+          <tr><td>Collect feedback on projects</td><td>Team</td><td>Not specified</td><td><span class="badge badge-gray">🟢 Low priority</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Decisions -->
+  <div class="section">
+    <div class="section-title">✔️ Decisions made</div>
+    <div class="card">
+      <div class="decision-item"><div class="check">✓</div>Focus on one project at a time</div>
+      <div class="decision-item"><div class="check">✓</div>Complete challenge tasks before starting new projects</div>
+      <div class="decision-item"><div class="check">✓</div>Maintain GitHub updates daily</div>
+      <div class="decision-item"><div class="check">✓</div>Publish LinkedIn learning posts regularly</div>
+      <div class="decision-item"><div class="check">✓</div>Use AI tools to improve productivity</div>
+    </div>
+  </div>
+
+  <!-- Open Questions -->
+  <div class="section">
+    <div class="section-title">❓ Open questions</div>
+    <div class="highlight-item question-item">❓ Which project should be prioritized for portfolio?</div>
+    <div class="highlight-item question-item">❓ Cloud engineering or AI development — which direction to focus on?</div>
+    <div class="highlight-item question-item">❓ Should deployment use AWS or Vercel?</div>
+    <div class="highlight-item question-item">❓ Which certification should be completed first?</div>
+    <div class="highlight-item question-item">❓ How can project documentation be automated?</div>
+  </div>
+
+  <!-- Risks & Blockers -->
+  <div class="section">
+    <div class="grid-2">
+      <div>
+        <div class="section-title">⚠️ Risks &amp; blockers</div>
+        <div class="highlight-item risk-item">⚠️ Falling behind on challenge tasks if daily consistency is not maintained</div>
+        <div class="highlight-item risk-item">⚠️ Incomplete project documentation accumulating over time</div>
+        <div class="highlight-item risk-item">⚠️ Internship deadlines approaching with resume not yet optimized</div>
+        <div class="highlight-item risk-item">⚠️ Limited free cloud resources may restrict hands-on practice</div>
+        <div class="highlight-item risk-item">⚠️ Potential burnout due to excessive workload</div>
+        <div class="highlight-item blocker-item" style="margin-top:10px;">🔒 Limited access to premium AI tools</div>
+        <div class="highlight-item blocker-item">🔒 Missing project requirements for some project ideas</div>
+        <div class="highlight-item blocker-item">🔒 Lack of real-world datasets</div>
+        <div class="highlight-item blocker-item">🔒 Time constraints due to academic schedule</div>
+      </div>
+      <div>
+        <div class="section-title">⚠️ Challenges &amp; conflicts</div>
+        <div class="highlight-item conflict-item">⚠️ Time management issues — no structured daily plan in place</div>
+        <div class="highlight-item conflict-item">⚠️ Switching between too many learning resources without focus</div>
+        <div class="highlight-item conflict-item">⚠️ Inconsistent documentation conflicts with the goal of a strong GitHub portfolio</div>
+        <div class="highlight-item conflict-item">⚠️ Difficulty balancing college work with self-learning — workload may be unsustainable</div>
+        <div style="margin-top:1.25rem;">
+          <div class="section-title">🔧 Technical issues</div>
+          <div class="card">
+            <ul class="list">
+              <li><span class="dot dot-red"></span> Deployment errors on AWS EC2</li>
+              <li><span class="dot dot-red"></span> Environment variable configuration problems</li>
+              <li><span class="dot dot-amber"></span> API key management confusion</li>
+              <li><span class="dot dot-amber"></span> Database schema design needs improvement</li>
+              <li><span class="dot dot-amber"></span> Authentication module requires testing</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Ideas -->
+  <div class="section">
+    <div class="section-title">🚀 Project ideas discussed</div>
+    <div class="tag-row">
+      <span class="tag">AI Resume Optimizer</span>
+      <span class="tag">AI Career Mentor</span>
+      <span class="tag">Smart Interview Assistant</span>
+      <span class="tag">Attendance Management System</span>
+      <span class="tag">Cloud Cost Optimization Dashboard</span>
+      <span class="tag">Student Productivity Tracker</span>
+    </div>
+  </div>
+
+  <!-- Future Goals -->
+  <div class="section">
+    <div class="section-title">🎯 Future goals</div>
+    <div class="grid-3">
+      <div class="card"><div class="card-title">🏆 AI challenge</div><div style="font-size:13px;color:var(--text-secondary);">Complete all 60 days of the AI challenge</div></div>
+      <div class="card"><div class="card-title">💻 Projects</div><div style="font-size:13px;color:var(--text-secondary);">Build 5 production-ready projects</div></div>
+      <div class="card"><div class="card-title">💼 Internship</div><div style="font-size:13px;color:var(--text-secondary);">Secure an internship opportunity</div></div>
+      <div class="card"><div class="card-title">☁️ Cloud</div><div style="font-size:13px;color:var(--text-secondary);">Gain practical cloud experience</div></div>
+      <div class="card"><div class="card-title">🧠 Engineering</div><div style="font-size:13px;color:var(--text-secondary);">Improve software engineering skills</div></div>
+      <div class="card"><div class="card-title">🧩 Problem-solving</div><div style="font-size:13px;color:var(--text-secondary);">Develop strong problem-solving abilities</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

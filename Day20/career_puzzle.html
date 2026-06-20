@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>Student Career Puzzle Challenge</title>
+<style>
+  :root{
+    --bg-1:#0f1226;
+    --bg-2:#1b1f4b;
+    --accent:#6c5ce7;
+    --accent-2:#00d2d3;
+    --accent-3:#ff9f43;
+    --card:#171a3a;
+    --card-light:#212555;
+    --text:#eef0ff;
+    --text-dim:#a7acd9;
+    --success:#2ecc71;
+    --danger:#ff6b6b;
+    --radius:18px;
+    --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;min-height:100vh;
+    background: radial-gradient(circle at 20% -10%, #2a1f6b 0%, transparent 45%),
+                radial-gradient(circle at 110% 10%, #00343a 0%, transparent 40%),
+                linear-gradient(160deg, var(--bg-1), var(--bg-2) 70%);
+    color:var(--text);
+    overflow-x:hidden;
+  }
+  .app-shell{
+    max-width:1100px;
+    margin:0 auto;
+    padding:18px 16px 60px;
+  }
+  header.topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;margin-bottom:18px;flex-wrap:wrap;
+  }
+  .brand{
+    display:flex;align-items:center;gap:12px;
+  }
+  .brand .logo{
+    width:46px;height:46px;border-radius:14px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;box-shadow:var(--shadow);
+    flex-shrink:0;
+  }
+  .brand h1{
+    font-size:1.25rem;margin:0;line-height:1.2;
+    background:linear-gradient(90deg,#fff,#c9cdff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .brand p{margin:0;color:var(--text-dim);font-size:0.78rem;}
+
+  .stage-pill{
+    display:flex;gap:6px;background:var(--card);
+    padding:6px;border-radius:999px;border:1px solid rgba(255,255,255,0.06);
+  }
+  .stage-pill span{
+    padding:6px 12px;border-radius:999px;font-size:0.72rem;color:var(--text-dim);
+    transition:all .25s ease;white-space:nowrap;
+  }
+  .stage-pill span.active{
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    color:#0b0c1f;font-weight:700;
+  }
+
+  .panel{
+    background:linear-gradient(180deg, var(--card), var(--card-light));
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:var(--radius);
+    padding:22px;
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+    animation:fadeUp .45s ease both;
+  }
+  @keyframes fadeUp{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  h2.panel-title{
+    margin:0 0 6px;font-size:1.15rem;display:flex;align-items:center;gap:8px;
+  }
+  p.panel-sub{margin:0 0 18px;color:var(--text-dim);font-size:0.85rem;}
+
+  .btn{
+    border:none;cursor:pointer;border-radius:12px;
+    padding:12px 20px;font-size:0.92rem;font-weight:600;
+    display:inline-flex;align-items:center;gap:8px;
+    transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+    color:#08091a;
+  }
+  .btn:active{transform:scale(0.96);}
+  .btn-primary{background:linear-gradient(90deg,var(--accent),#8a7cf0);color:#fff;box-shadow:0 6px 18px rgba(108,92,231,0.4);}
+  .btn-accent{background:linear-gradient(90deg,var(--accent-2),#00b8b9);color:#06201f;box-shadow:0 6px 18px rgba(0,210,211,0.35);}
+  .btn-warn{background:linear-gradient(90deg,var(--accent-3),#ff7f1f);color:#2c1300;box-shadow:0 6px 18px rgba(255,159,67,0.35);}
+  .btn-ghost{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid rgba(255,255,255,0.12);}
+  .btn-danger{background:linear-gradient(90deg,#ff6b6b,#ee5253);color:#2c0707;}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+
+  /* CAMERA */
+  .camera-wrap{
+    display:flex;flex-direction:column;align-items:center;gap:16px;
+  }
+  .video-frame{
+    position:relative;width:100%;max-width:480px;
+    border-radius:16px;overflow:hidden;
+    background:#000;
+    aspect-ratio:4/3;
+    border:2px solid rgba(255,255,255,0.08);
+  }
+  .video-frame video, .video-frame canvas, .video-frame img{
+    width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .video-frame.hidden-el{display:none;}
+  .scan-line{
+    position:absolute;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--accent-2),transparent);
+    top:0;animation:scan 2.4s linear infinite;
+    box-shadow:0 0 12px var(--accent-2);
+  }
+  @keyframes scan{0%{top:0%;}50%{top:98%;}100%{top:0%;}}
+  .cam-status{
+    font-size:0.8rem;color:var(--text-dim);
+    display:flex;align-items:center;gap:8px;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--danger);}
+  .dot.live{background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%{opacity:1;}50%{opacity:0.4;}100%{opacity:1;}}
+
+  .upload-zone{
+    border:2px dashed rgba(255,255,255,0.18);
+    border-radius:14px;padding:16px;text-align:center;
+    width:100%;max-width:480px;color:var(--text-dim);font-size:0.82rem;
+    cursor:pointer;transition:.2s;
+  }
+  .upload-zone:hover{border-color:var(--accent-2);color:var(--text);}
+  input[type=file]{display:none;}
+
+  .error-box{
+    background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.4);
+    color:#ffb3b3;padding:14px 16px;border-radius:12px;font-size:0.85rem;
+    max-width:480px;
+  }
+
+  /* SETUP */
+  .setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media (max-width:700px){.setup-grid{grid-template-columns:1fr;}}
+  .preview-thumb{
+    width:100%;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,0.1);
+    aspect-ratio:4/3;
+  }
+  .preview-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+
+  .option-group{margin-bottom:18px;}
+  .option-group label.group-label{
+    display:block;font-size:0.8rem;color:var(--text-dim);margin-bottom:8px;
+    text-transform:uppercase;letter-spacing:0.06em;font-weight:600;
+  }
+  .career-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media (max-width:480px){.career-grid{grid-template-columns:1fr;}}
+  .opt-card{
+    background:rgba(255,255,255,0.04);
+    border:2px solid rgba(255,255,255,0.08);
+    border-radius:12px;padding:12px 14px;cursor:pointer;
+    display:flex;align-items:center;gap:10px;
+    transition:.18s ease;font-size:0.85rem;
+  }
+  .opt-card:hover{border-color:rgba(255,255,255,0.25);}
+  .opt-card.selected{
+    border-color:var(--accent-2);
+    background:rgba(0,210,211,0.1);
+    box-shadow:0 0 0 1px var(--accent-2) inset;
+  }
+  .opt-card .emoji{font-size:1.3rem;}
+  .diff-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .diff-row .opt-card{flex:1;min-width:90px;justify-content:center;text-align:center;flex-direction:column;}
+
+  /* GAME */
+  .game-hud{
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;
+    align-items:center;margin-bottom:16px;
+  }
+  .hud-stats{display:flex;gap:10px;flex-wrap:wrap;}
+  .stat-chip{
+    background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;padding:8px 14px;min-width:90px;
+    text-align:center;
+  }
+  .stat-chip .val{font-size:1.15rem;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;}
+  .stat-chip .lbl{font-size:0.66rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;}
+
+  .puzzle-area{
+    display:flex;justify-content:center;
+  }
+  .puzzle-board{
+    position:relative;
+    background:#05060f;
+    border-radius:14px;
+    border:2px solid rgba(255,255,255,0.08);
+    overflow:hidden;
+    touch-action:none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+  }
+  .puzzle-cell-bg{
+    position:absolute;
+    border:1px dashed rgba(255,255,255,0.08);
+    box-sizing:border-box;
+  }
+  .piece{
+    position:absolute;
+    background-repeat:no-repeat;
+    box-sizing:border-box;
+    border:2px solid rgba(0,0,0,0.5);
+    cursor:grab;
+    transition: box-shadow .15s ease, border-color .15s ease;
+    will-change:transform;
+    z-index:2;
+    border-radius:3px;
+  }
+  .piece.dragging{
+    cursor:grabbing;
+    z-index:50;
+    border-color:var(--accent-3) !important;
+    box-shadow:0 8px 24px rgba(255,159,67,0.5);
+    transition:none;
+  }
+  .piece.correct{
+    border-color:var(--success) !important;
+    box-shadow:0 0 0 2px rgba(46,204,113,0.5);
+  }
+  .piece-num{
+    position:absolute;top:2px;left:3px;
+    font-size:9px;color:rgba(255,255,255,0.55);
+    background:rgba(0,0,0,0.35);
+    padding:1px 4px;border-radius:4px;
+    pointer-events:none;
+    font-family:monospace;
+  }
+
+  /* RESULTS */
+  .results-overlay{
+    position:fixed;inset:0;background:rgba(5,6,18,0.82);
+    backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;
+    z-index:200;padding:16px;
+    animation:fadeIn .3s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  .results-card{
+    background:linear-gradient(180deg,var(--card-light),var(--card));
+    border-radius:22px;max-width:560px;width:100%;
+    padding:28px;border:1px solid rgba(255,255,255,0.1);
+    box-shadow:0 30px 80px rgba(0,0,0,0.6);
+    max-height:90vh;overflow-y:auto;
+    animation:popIn .4s cubic-bezier(.2,.9,.3,1.2);
+  }
+  @keyframes popIn{from{opacity:0;transform:scale(0.85) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+  .badge{
+    width:84px;height:84px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent-3),#ffd76e);
+    display:flex;align-items:center;justify-content:center;
+    font-size:38px;margin:0 auto 14px;
+    box-shadow:0 0 0 8px rgba(255,159,67,0.12), 0 10px 24px rgba(255,159,67,0.4);
+    animation:badgePop .6s cubic-bezier(.2,.9,.3,1.3);
+  }
+  @keyframes badgePop{0%{transform:scale(0) rotate(-30deg);}70%{transform:scale(1.15) rotate(8deg);}100%{transform:scale(1) rotate(0);}}
+  .results-card h2{text-align:center;margin:0 0 4px;font-size:1.4rem;}
+  .results-card .sub-line{text-align:center;color:var(--text-dim);font-size:0.85rem;margin-bottom:18px;}
+  .result-stats{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;
+  }
+  @media (max-width:480px){.result-stats{grid-template-columns:repeat(2,1fr);}}
+  .result-stats .box{
+    background:rgba(255,255,255,0.05);border-radius:12px;padding:10px 6px;text-align:center;
+  }
+  .result-stats .box .v{font-weight:800;font-size:1rem;}
+  .result-stats .box .l{font-size:0.62rem;color:var(--text-dim);text-transform:uppercase;margin-top:2px;}
+
+  .insight-card{
+    background:rgba(108,92,231,0.08);
+    border:1px solid rgba(108,92,231,0.3);
+    border-radius:14px;padding:16px;margin-bottom:18px;
+  }
+  .insight-card h3{margin:0 0 10px;font-size:1rem;display:flex;align-items:center;gap:8px;}
+  .insight-block{margin-bottom:10px;}
+  .insight-block .ib-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent-2);font-weight:700;margin-bottom:4px;}
+  .tag-list{display:flex;flex-wrap:wrap;gap:6px;}
+  .tag{
+    background:rgba(255,255,255,0.08);
+    padding:4px 10px;border-radius:999px;font-size:0.72rem;color:var(--text);
+  }
+  .roadmap-list{margin:0;padding-left:18px;font-size:0.82rem;color:var(--text-dim);line-height:1.6;}
+  .tip-box{
+    font-size:0.82rem;background:rgba(0,210,211,0.08);
+    border-left:3px solid var(--accent-2);padding:8px 12px;border-radius:8px;color:#d7fbfb;
+  }
+
+  .leaderboard{margin-top:18px;}
+  .leaderboard h3{font-size:0.95rem;margin:0 0 10px;display:flex;align-items:center;gap:6px;}
+  .lb-row{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(255,255,255,0.04);
+    padding:8px 12px;border-radius:10px;margin-bottom:6px;font-size:0.78rem;
+  }
+  .lb-row .rank{
+    width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.1);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;flex-shrink:0;
+  }
+  .lb-row.top1 .rank{background:linear-gradient(135deg,#ffd76e,#ff9f43);color:#3a2200;}
+  .lb-row .lb-main{flex:1;display:flex;flex-direction:column;}
+  .lb-row .lb-time{font-weight:700;color:#fff;}
+  .lb-row .lb-meta{color:var(--text-dim);font-size:0.68rem;}
+  .empty-note{color:var(--text-dim);font-size:0.78rem;text-align:center;padding:10px;}
+
+  footer.app-foot{
+    text-align:center;color:var(--text-dim);font-size:0.72rem;margin-top:30px;
+  }
+
+  .hidden{display:none !important;}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:8px;}
+
+  .spinner{
+    width:18px;height:18px;border-radius:50%;
+    border:2px solid rgba(255,255,255,0.25);
+    border-top-color:#fff;
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">🧩</div>
+      <div>
+        <h1>Career Puzzle Challenge</h1>
+        <p>Snap a selfie, build your puzzle, discover your career path</p>
+      </div>
+    </div>
+    <div class="stage-pill" id="stagePill">
+      <span data-stage="camera">1 · Camera</span>
+      <span data-stage="setup">2 · Setup</span>
+      <span data-stage="game">3 · Puzzle</span>
+      <span data-stage="results">4 · Results</span>
+    </div>
+  </header>
+
+  <!-- STAGE 1: CAMERA -->
+  <section class="panel" id="stage-camera">
+    <h2 class="panel-title">📸 Capture Your Photo</h2>
+    <p class="panel-sub">Allow camera access to take a selfie, or upload an image from your device. This photo becomes your puzzle.</p>
+
+    <div class="camera-wrap">
+      <div class="video-frame" id="videoFrame">
+        <video id="video" autoplay playsinline muted></video>
+        <div class="scan-line" id="scanLine"></div>
+      </div>
+      <div class="video-frame hidden-el" id="canvasFrame">
+        <canvas id="snapCanvas"></canvas>
+      </div>
+
+      <div class="cam-status" id="camStatus">
+        <span class="dot" id="camDot"></span>
+        <span id="camStatusText">Requesting camera access…</span>
+      </div>
+
+      <div id="errorArea"></div>
+
+      <div class="btn-row" id="cameraButtons">
+        <button class="btn btn-primary" id="btnTakePhoto" disabled>📷 Take Photo</button>
+        <button class="btn btn-ghost" id="btnRetry" style="display:none;">🔄 Retry Camera</button>
+      </div>
+
+      <div class="upload-zone" id="uploadZone">
+        <strong>📁 Or click here to upload an image</strong>
+        <div style="margin-top:4px;">JPG, PNG, or WEBP — any size</div>
+        <input type="file" id="fileInput" accept="image/*" />
+      </div>
+
+      <div class="btn-row" id="afterSnapButtons" style="display:none;">
+        <button class="btn btn-accent" id="btnUsePhoto">✅ Use This Photo</button>
+        <button class="btn btn-ghost" id="btnRetake">↩️ Retake</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE 2: SETUP -->
+  <section class="panel hidden" id="stage-setup">
+    <h2 class="panel-title">⚙️ Configure Your Puzzle</h2>
+    <p class="panel-sub">Choose a career path and difficulty, then start solving.</p>
+
+    <div class="setup-grid">
+      <div>
+        <div class="preview-thumb">
+          <img id="setupPreviewImg" src="" alt="Your photo" />
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="btnNewPhotoFromSetup">📸 New Photo</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="option-group">
+          <label class="group-label">Choose Career Path</label>
+          <div class="career-grid" id="careerGrid"></div>
+        </div>
+
+        <div class="option-group">
+          <label class="group-label">Choose Difficulty</label>
+          <div class="diff-row" id="diffRow">
+            <div class="opt-card" data-diff="3"><div class="emoji">🟢</div><div>3×3<br><small style="color:var(--text-dim);">Easy</small></div></div>
+            <div class="opt-card" data-diff="4"><div class="emoji">🟡</div><div>4×4<br><small style="color:var(--text-dim);">Medium</small></div></div>
+            <div class="opt-card" data-diff="5"><div class="emoji">🔴</div><div>5×5<br><small style="color:var(--text-dim);">Hard</small></div></div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btnStartPuzzle" disabled>🚀 Start Puzzle</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE 3: GAME -->
+  <section class="panel hidden" id="stage-game">
+    <div class="game-hud">
+      <h2 class="panel-title" style="margin:0;">🧩 <span id="gameCareerLabel">Puzzle</span></h2>
+      <div class="hud-stats">
+        <div class="stat-chip"><div class="val" id="hudTime">00:00.0</div><div class="lbl">Time</div></div>
+        <div class="stat-chip"><div class="val" id="hudMoves">0</div><div class="lbl">Moves</div></div>
+        <div class="stat-chip"><div class="val" id="hudCorrect">0/0</div><div class="lbl">Placed</div></div>
+      </div>
+    </div>
+
+    <div class="puzzle-area">
+      <div class="puzzle-board" id="puzzleBoard"></div>
+    </div>
+
+    <div class="btn-row" style="justify-content:center;">
+      <button class="btn btn-ghost" id="btnShuffleAgain">🔀 Reshuffle</button>
+      <button class="btn btn-danger" id="btnExitPuzzle">✖ Exit Puzzle</button>
+    </div>
+  </section>
+
+  <footer class="app-foot">Built for students exploring tech careers · Your photo never leaves your device</footer>
+</div>
+
+<!-- RESULTS OVERLAY -->
+<div class="results-overlay hidden" id="resultsOverlay">
+  <div class="results-card">
+    <div class="badge">🏆</div>
+    <h2>Puzzle Complete!</h2>
+    <div class="sub-line">You solved the puzzle and unlocked a career insight</div>
+
+    <div class="result-stats">
+      <div class="box"><div class="v" id="resTime">00:00.0</div><div class="l">Final Time</div></div>
+      <div class="box"><div class="v" id="resMoves">0</div><div class="l">Moves</div></div>
+      <div class="box"><div class="v" id="resDiff">3×3</div><div class="l">Difficulty</div></div>
+      <div class="box"><div class="v" id="resCareer" style="font-size:0.78rem;">—</div><div class="l">Career Path</div></div>
+    </div>
+
+    <div class="insight-card" id="insightCard"></div>
+
+    <div class="leaderboard">
+      <h3>🏅 Best Times (Top 5)</h3>
+      <div id="leaderboardList"></div>
+    </div>
+
+    <div class="btn-row" style="justify-content:center;">
+      <button class="btn btn-primary" id="btnPlayAgain">🔁 Play Again</button>
+      <button class="btn btn-accent" id="btnNewPhotoFromResults">📸 New Photo</button>
+      <button class="btn btn-ghost" id="btnCloseResults">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------------------------------------------------
+     CONSTANTS & STATE
+  --------------------------------------------------------- */
+  var CAREERS = {
+    "ai-engineer": {
+      label: "AI Engineer",
+      emoji: "🤖",
+      skills: ["Python", "Linear Algebra & Stats", "Machine Learning", "Neural Networks", "Data Structures"],
+      tools: ["PyTorch", "TensorFlow", "Hugging Face", "Jupyter", "scikit-learn", "Pandas"],
+      roadmap: [
+        "Learn Python fundamentals and core data structures",
+        "Study statistics, linear algebra, and probability",
+        "Take an intro Machine Learning course",
+        "Build small ML projects (classification, regression)",
+        "Learn deep learning with PyTorch or TensorFlow",
+        "Explore NLP / Computer Vision specialisations",
+        "Contribute to an open-source AI project"
+      ],
+      tip: "Document every project on GitHub with clear READMEs — recruiters check your repos before your resume."
+    },
+    "cloud-engineer": {
+      label: "Cloud Engineer",
+      emoji: "☁️",
+      skills: ["Linux Fundamentals", "Networking Basics", "Infrastructure as Code", "Security Basics", "Scripting (Bash/Python)"],
+      tools: ["AWS", "Azure", "Google Cloud", "Terraform", "Docker", "Kubernetes"],
+      roadmap: [
+        "Master Linux command line and basic networking",
+        "Learn one major cloud platform (AWS recommended)",
+        "Get a foundational cloud certification",
+        "Learn Infrastructure as Code with Terraform",
+        "Understand containers with Docker",
+        "Learn Kubernetes for orchestration",
+        "Build a portfolio project deployed on the cloud"
+      ],
+      tip: "Cloud certifications (like AWS Cloud Practitioner) are a fast, recognised way to prove skills to employers."
+    },
+    "full-stack-developer": {
+      label: "Full Stack Developer",
+      emoji: "💻",
+      skills: ["HTML/CSS/JavaScript", "A Frontend Framework", "REST APIs", "Databases (SQL/NoSQL)", "Version Control (Git)"],
+      tools: ["React", "Node.js", "Express", "MongoDB", "PostgreSQL", "Git/GitHub"],
+      roadmap: [
+        "Master HTML, CSS, and core JavaScript",
+        "Learn a frontend framework like React",
+        "Build a backend API with Node.js & Express",
+        "Learn SQL and a NoSQL database",
+        "Understand REST APIs and authentication",
+        "Deploy a full project end-to-end",
+        "Build 3-4 portfolio apps showing both ends of the stack"
+      ],
+      tip: "Ship small full-stack projects often — a deployed app beats a half-finished 'big idea' every time."
+    },
+    "data-analyst": {
+      label: "Data Analyst",
+      emoji: "📊",
+      skills: ["Excel/Sheets", "SQL", "Data Visualization", "Statistics", "Business Communication"],
+      tools: ["SQL", "Power BI", "Tableau", "Python (Pandas)", "Excel", "Looker"],
+      roadmap: [
+        "Get comfortable with Excel/Google Sheets formulas",
+        "Learn SQL for querying databases",
+        "Study basic statistics and data interpretation",
+        "Learn a visualization tool (Power BI or Tableau)",
+        "Practice Python with Pandas for data cleaning",
+        "Build dashboards from real public datasets",
+        "Practice presenting insights, not just numbers"
+      ],
+      tip: "The best analysts tell a story with data — always pair every chart with a one-line business insight."
+    },
+    "devops-engineer": {
+      label: "DevOps Engineer",
+      emoji: "⚙️",
+      skills: ["Linux & Shell Scripting", "CI/CD Concepts", "Containerization", "Monitoring & Logging", "Cloud Basics"],
+      tools: ["Docker", "Kubernetes", "Jenkins", "GitHub Actions", "Terraform", "Prometheus/Grafana"],
+      roadmap: [
+        "Build strong Linux and shell scripting skills",
+        "Learn Git and collaborative version control",
+        "Understand CI/CD pipelines conceptually",
+        "Learn Docker for containerization",
+        "Set up a CI/CD pipeline with GitHub Actions",
+        "Learn Kubernetes basics for orchestration",
+        "Explore monitoring tools like Grafana/Prometheus"
+      ],
+      tip: "Automate one annoying manual task this month — DevOps is a mindset of automation, not just a toolset."
+    }
+  };
+
+  var state = {
+    stream: null,
+    imageDataUrl: null,
+    career: null,
+    difficulty: null,
+    gridSize: 3,
+    pieces: [],          // array of {correctIndex, currentCell}
+    cellOrder: [],        // cellOrder[cellIndex] = pieceIndex currently in that cell
+    moves: 0,
+    startTime: null,
+    timerInterval: null,
+    elapsedMs: 0,
+    finished: false,
+    boardSize: 480,
+    dragInfo: null
+  };
+
+  /* ---------------------------------------------------------
+     DOM REFS
+  --------------------------------------------------------- */
+  var $ = function(id){ return document.getElementById(id); };
+
+  var video = $('video');
+  var snapCanvas = $('snapCanvas');
+  var videoFrame = $('videoFrame');
+  var canvasFrame = $('canvasFrame');
+  var camStatusText = $('camStatusText');
+  var camDot = $('camDot');
+  var errorArea = $('errorArea');
+  var btnTakePhoto = $('btnTakePhoto');
+  var btnRetry = $('btnRetry');
+  var btnRetake = $('btnRetake');
+  var btnUsePhoto = $('btnUsePhoto');
+  var afterSnapButtons = $('afterSnapButtons');
+  var cameraButtons = $('cameraButtons');
+  var uploadZone = $('uploadZone');
+  var fileInput = $('fileInput');
+
+  var stageCamera = $('stage-camera');
+  var stageSetup = $('stage-setup');
+  var stageGame = $('stage-game');
+  var setupPreviewImg = $('setupPreviewImg');
+  var careerGrid = $('careerGrid');
+  var diffRow = $('diffRow');
+  var btnStartPuzzle = $('btnStartPuzzle');
+  var btnNewPhotoFromSetup = $('btnNewPhotoFromSetup');
+
+  var puzzleBoard = $('puzzleBoard');
+  var hudTime = $('hudTime');
+  var hudMoves = $('hudMoves');
+  var hudCorrect = $('hudCorrect');
+  var gameCareerLabel = $('gameCareerLabel');
+  var btnShuffleAgain = $('btnShuffleAgain');
+  var btnExitPuzzle = $('btnExitPuzzle');
+
+  var resultsOverlay = $('resultsOverlay');
+  var resTime = $('resTime');
+  var resMoves = $('resMoves');
+  var resDiff = $('resDiff');
+  var resCareer = $('resCareer');
+  var insightCard = $('insightCard');
+  var leaderboardList = $('leaderboardList');
+  var btnPlayAgain = $('btnPlayAgain');
+  var btnNewPhotoFromResults = $('btnNewPhotoFromResults');
+  var btnCloseResults = $('btnCloseResults');
+
+  var stagePillSpans = document.querySelectorAll('#stagePill span');
+
+  /* ---------------------------------------------------------
+     STAGE NAVIGATION
+  --------------------------------------------------------- */
+  function setStage(name){
+    stageCamera.classList.toggle('hidden', name !== 'camera');
+    stageSetup.classList.toggle('hidden', name !== 'setup');
+    stageGame.classList.toggle('hidden', name !== 'game');
+    stagePillSpans.forEach(function(s){
+      s.classList.toggle('active', s.getAttribute('data-stage') === name);
+    });
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  /* ---------------------------------------------------------
+     CAMERA HANDLING
+  --------------------------------------------------------- */
+  function showCamError(msg){
+    errorArea.innerHTML = '<div class="error-box">⚠️ ' + msg + '</div>';
+    camStatusText.textContent = 'Camera unavailable';
+    camDot.classList.remove('live');
+    btnTakePhoto.disabled = true;
+    btnRetry.style.display = 'inline-flex';
+    videoFrame.classList.add('hidden-el');
+  }
+
+  function initCamera(){
+    errorArea.innerHTML = '';
+    btnRetry.style.display = 'none';
+    camStatusText.textContent = 'Requesting camera access…';
+    videoFrame.classList.remove('hidden-el');
+
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      showCamError('Your browser does not support camera access. Please upload a photo instead.');
+      return;
+    }
+
+    var constraints = {
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+      audio: false
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
+      state.stream = stream;
+      video.srcObject = stream;
+      camStatusText.textContent = 'Camera live — smile! 🙂';
+      camDot.classList.add('live');
+      btnTakePhoto.disabled = false;
+    }).catch(function(err){
+      var msg = 'Camera permission was denied or no camera was found. You can still upload a photo below.';
+      if(err && err.name === 'NotAllowedError'){
+        msg = 'Camera access was denied. Please allow camera permission in your browser settings, or upload a photo below.';
+      } else if(err && err.name === 'NotFoundError'){
+        msg = 'No camera was detected on this device. Please upload a photo below.';
+      }
+      showCamError(msg);
+    });
+  }
+
+  function stopCamera(){
+    if(state.stream){
+      state.stream.getTracks().forEach(function(t){ t.stop(); });
+      state.stream = null;
+    }
+  }
+
+  btnRetry.addEventListener('click', initCamera);
+
+  btnTakePhoto.addEventListener('click', function(){
+    var w = video.videoWidth || 640;
+    var h = video.videoHeight || 480;
+    var size = Math.min(w, h);
+    snapCanvas.width = size;
+    snapCanvas.height = size;
+    var ctx = snapCanvas.getContext('2d');
+    // mirror for natural selfie look + center-crop square
+    var sx = (w - size) / 2;
+    var sy = (h - size) / 2;
+    ctx.save();
+    ctx.translate(size, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, sx, sy, size, size, 0, 0, size, size);
+    ctx.restore();
+
+    state.imageDataUrl = snapCanvas.toDataURL('image/png');
+
+    videoFrame.classList.add('hidden-el');
+    canvasFrame.classList.remove('hidden-el');
+    cameraButtons.style.display = 'none';
+    uploadZone.style.display = 'none';
+    afterSnapButtons.style.display = 'flex';
+  });
+
+  btnRetake.addEventListener('click', function(){
+    canvasFrame.classList.add('hidden-el');
+    videoFrame.classList.remove('hidden-el');
+    cameraButtons.style.display = 'flex';
+    uploadZone.style.display = 'block';
+    afterSnapButtons.style.display = 'none';
+    state.imageDataUrl = null;
+  });
+
+  btnUsePhoto.addEventListener('click', function(){
+    if(!state.imageDataUrl) return;
+    goToSetupWithImage(state.imageDataUrl);
+  });
+
+  uploadZone.addEventListener('click', function(){ fileInput.click(); });
+  uploadZone.addEventListener('dragover', function(e){ e.preventDefault(); uploadZone.style.borderColor = 'var(--accent-2)'; });
+  uploadZone.addEventListener('dragleave', function(e){ uploadZone.style.borderColor = ''; });
+  uploadZone.addEventListener('drop', function(e){
+    e.preventDefault();
+    uploadZone.style.borderColor = '';
+    if(e.dataTransfer.files && e.dataTransfer.files[0]){
+      handleUploadedFile(e.dataTransfer.files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', function(e){
+    if(e.target.files && e.target.files[0]){
+      handleUploadedFile(e.target.files[0]);
+    }
+  });
+
+  function handleUploadedFile(file){
+    if(!file.type.startsWith('image/')){
+      showCamError('Please upload a valid image file.');
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      // crop uploaded image to square as well, for consistent puzzle slicing
+      var img = new Image();
+      img.onload = function(){
+        var size = Math.min(img.width, img.height);
+        var c = document.createElement('canvas');
+        c.width = size; c.height = size;
+        var ctx = c.getContext('2d');
+        var sx = (img.width - size) / 2;
+        var sy = (img.height - size) / 2;
+        ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size);
+        state.imageDataUrl = c.toDataURL('image/png');
+        goToSetupWithImage(state.imageDataUrl);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function goToSetupWithImage(dataUrl){
+    stopCamera();
+    setupPreviewImg.src = dataUrl;
+    setStage('setup');
+  }
+
+  /* ---------------------------------------------------------
+     SETUP STAGE: career + difficulty selection
+  --------------------------------------------------------- */
+  function buildCareerGrid(){
+    careerGrid.innerHTML = '';
+    Object.keys(CAREERS).forEach(function(key){
+      var c = CAREERS[key];
+      var div = document.createElement('div');
+      div.className = 'opt-card';
+      div.setAttribute('data-career', key);
+      div.innerHTML = '<div class="emoji">' + c.emoji + '</div><div>' + c.label + '</div>';
+      div.addEventListener('click', function(){
+        document.querySelectorAll('#careerGrid .opt-card').forEach(function(el){ el.classList.remove('selected'); });
+        div.classList.add('selected');
+        state.career = key;
+        checkSetupReady();
+      });
+      careerGrid.appendChild(div);
+    });
+  }
+  buildCareerGrid();
+
+  diffRow.querySelectorAll('.opt-card').forEach(function(el){
+    el.addEventListener('click', function(){
+      diffRow.querySelectorAll('.opt-card').forEach(function(o){ o.classList.remove('selected'); });
+      el.classList.add('selected');
+      state.difficulty = parseInt(el.getAttribute('data-diff'), 10);
+      state.gridSize = state.difficulty;
+      checkSetupReady();
+    });
+  });
+
+  function checkSetupReady(){
+    btnStartPuzzle.disabled = !(state.career && state.difficulty);
+  }
+
+  btnNewPhotoFromSetup.addEventListener('click', function(){
+    resetToCameraStage();
+  });
+
+  function resetToCameraStage(){
+    state.imageDataUrl = null;
+    canvasFrame.classList.add('hidden-el');
+    videoFrame.classList.remove('hidden-el');
+    cameraButtons.style.display = 'flex';
+    uploadZone.style.display = 'block';
+    afterSnapButtons.style.display = 'none';
+    setStage('camera');
+    initCamera();
+  }
+
+  btnStartPuzzle.addEventListener('click', function(){
+    gameCareerLabel.textContent = CAREERS[state.career].emoji + ' ' + CAREERS[state.career].label + ' Puzzle';
+    setStage('game');
+    buildPuzzle();
+  });
+
+  /* ---------------------------------------------------------
+     PUZZLE ENGINE
+  --------------------------------------------------------- */
+  function computeBoardSize(){
+    var maxW = Math.min(window.innerWidth - 48, 560);
+    state.boardSize = Math.max(280, maxW);
+  }
+
+  function isSolvable(order, n){
+    // order is array of pieceIndex by cell position (0..n*n-1)
+    // count inversions; for odd n*n grid any permutation reachable via adjacent-swap parity isn't required here
+    // since we allow arbitrary swap-based moves (not sliding-tile), any permutation is solvable.
+    return true;
+  }
+
+  function shuffleArray(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function buildPuzzle(){
+    computeBoardSize();
+    var n = state.gridSize;
+    var total = n * n;
+    var cellSize = state.boardSize / n;
+
+    puzzleBoard.style.width = state.boardSize + 'px';
+    puzzleBoard.style.height = state.boardSize + 'px';
+    puzzleBoard.innerHTML = '';
+
+    // draw faint cell grid background
+    for(var r = 0; r < n; r++){
+      for(var c = 0; c < n; c++){
+        var bg = document.createElement('div');
+        bg.className = 'puzzle-cell-bg';
+        bg.style.left = (c * cellSize) + 'px';
+        bg.style.top = (r * cellSize) + 'px';
+        bg.style.width = cellSize + 'px';
+        bg.style.height = cellSize + 'px';
+        puzzleBoard.appendChild(bg);
+      }
+    }
+
+    // build pieces: correctIndex = original cell index (0..total-1)
+    var order = [];
+    for(var i = 0; i < total; i++){ order.push(i); }
+
+    // shuffle until it's not already solved and not trivially same
+    do {
+      shuffleArray(order);
+    } while(order.every(function(v, idx){ return v === idx; }) && total > 1);
+
+    state.cellOrder = order.slice(); // cellOrder[cellPosition] = pieceCorrectIndex
+    state.moves = 0;
+    state.finished = false;
+    updateHud();
+
+    var pieceEls = [];
+    for(var pos = 0; pos < total; pos++){
+      var correctIdx = order[pos];
+      var pr = Math.floor(correctIdx / n);
+      var pc = correctIdx % n;
+
+      var el = document.createElement('div');
+      el.className = 'piece';
+      el.setAttribute('data-correct', correctIdx);
+      el.setAttribute('data-pos', pos);
+      el.style.width = cellSize + 'px';
+      el.style.height = cellSize + 'px';
+      el.style.backgroundImage = 'url(' + state.imageDataUrl + ')';
+      el.style.backgroundSize = (cellSize * n) + 'px ' + (cellSize * n) + 'px';
+      el.style.backgroundPosition = (-pc * cellSize) + 'px ' + (-pr * cellSize) + 'px';
+
+      var curR = Math.floor(pos / n);
+      var curC = pos % n;
+      el.style.left = (curC * cellSize) + 'px';
+      el.style.top = (curR * cellSize) + 'px';
+
+      var numTag = document.createElement('div');
+      numTag.className = 'piece-num';
+      numTag.textContent = (correctIdx + 1);
+      el.appendChild(numTag);
+
+      attachDragHandlers(el);
+      puzzleBoard.appendChild(el);
+      pieceEls.push(el);
+    }
+
+    state.pieceEls = pieceEls;
+    state.cellSize = cellSize;
+    markCorrectness();
+    startTimer();
+  }
+
+  function posFromCell(cellIndex, n){
+    return { r: Math.floor(cellIndex / n), c: cellIndex % n };
+  }
+
+  function getCellIndexFromXY(x, y, n, cellSize, boardSize){
+    var c = Math.floor(x / cellSize);
+    var r = Math.floor(y / cellSize);
+    c = Math.max(0, Math.min(n - 1, c));
+    r = Math.max(0, Math.min(n - 1, r));
+    return r * n + c;
+  }
+
+  function attachDragHandlers(el){
+    var dragging = false;
+    var startX, startY, origLeft, origTop, boardRect;
+
+    function onDown(clientX, clientY){
+      dragging = true;
+      el.classList.add('dragging');
+      boardRect = puzzleBoard.getBoundingClientRect();
+      startX = clientX;
+      startY = clientY;
+      origLeft = parseFloat(el.style.left);
+      origTop = parseFloat(el.style.top);
+      state.dragInfo = { el: el };
+    }
+
+    function onMove(clientX, clientY){
+      if(!dragging) return;
+      var dx = clientX - startX;
+      var dy = clientY - startY;
+      var newLeft = origLeft + dx;
+      var newTop = origTop + dy;
+      var maxPos = state.boardSize - state.cellSize;
+      newLeft = Math.max(-state.cellSize * 0.3, Math.min(maxPos + state.cellSize * 0.3, newLeft));
+      newTop = Math.max(-state.cellSize * 0.3, Math.min(maxPos + state.cellSize * 0.3, newTop));
+      el.style.left = newLeft + 'px';
+      el.style.top = newTop + 'px';
+    }
+
+    function onUp(){
+      if(!dragging) return;
+      dragging = false;
+      el.classList.remove('dragging');
+
+      var n = state.gridSize;
+      var cellSize = state.cellSize;
+      var curLeft = parseFloat(el.style.left);
+      var curTop = parseFloat(el.style.top);
+      var centerX = curLeft + cellSize / 2;
+      var centerY = curTop + cellSize / 2;
+      var targetCell = getCellIndexFromXY(centerX, centerY, n, cellSize, state.boardSize);
+
+      var myPos = parseInt(el.getAttribute('data-pos'), 10);
+
+      if(targetCell !== myPos){
+        // find the piece currently occupying targetCell and swap
+        var otherEl = null;
+        state.pieceEls.forEach(function(p){
+          if(parseInt(p.getAttribute('data-pos'), 10) === targetCell){
+            otherEl = p;
+          }
+        });
+
+        if(otherEl){
+          // swap positions
+          var otherPos = posFromCell(targetCell, n);
+          var myPosRC = posFromCell(myPos, n);
+
+          otherEl.style.left = (myPosRC.c * cellSize) + 'px';
+          otherEl.style.top = (myPosRC.r * cellSize) + 'px';
+          otherEl.setAttribute('data-pos', myPos);
+
+          el.style.left = (otherPos.c * cellSize) + 'px';
+          el.style.top = (otherPos.r * cellSize) + 'px';
+          el.setAttribute('data-pos', targetCell);
+
+          state.moves++;
+          updateHud();
+          markCorrectness();
+          checkWin();
+        } else {
+          snapToOwnCell(el, myPos);
+        }
+      } else {
+        snapToOwnCell(el, myPos);
+      }
+      state.dragInfo = null;
+    }
+
+    function snapToOwnCell(el, pos){
+      var n = state.gridSize;
+      var rc = posFromCell(pos, n);
+      el.style.left = (rc.c * state.cellSize) + 'px';
+      el.style.top = (rc.r * state.cellSize) + 'px';
+    }
+
+    // Mouse events
+    el.addEventListener('mousedown', function(e){
+      e.preventDefault();
+      onDown(e.clientX, e.clientY);
+
+      function mm(ev){ onMove(ev.clientX, ev.clientY); }
+      function mu(ev){
+        onUp();
+        document.removeEventListener('mousemove', mm);
+        document.removeEventListener('mouseup', mu);
+      }
+      document.addEventListener('mousemove', mm);
+      document.addEventListener('mouseup', mu);
+    });
+
+    // Touch events
+    el.addEventListener('touchstart', function(e){
+      e.preventDefault();
+      var t = e.touches[0];
+      onDown(t.clientX, t.clientY);
+
+      function tm(ev){
+        ev.preventDefault();
+        var tt = ev.touches[0];
+        onMove(tt.clientX, tt.clientY);
+      }
+      function te(ev){
+        onUp();
+        document.removeEventListener('touchmove', tm);
+        document.removeEventListener('touchend', te);
+        document.removeEventListener('touchcancel', te);
+      }
+      document.addEventListener('touchmove', tm, { passive:false });
+      document.addEventListener('touchend', te);
+      document.addEventListener('touchcancel', te);
+    }, { passive:false });
+  }
+
+  function markCorrectness(){
+    var n = state.gridSize;
+    var correctCount = 0;
+    state.pieceEls.forEach(function(el){
+      var correctIdx = parseInt(el.getAttribute('data-correct'), 10);
+      var pos = parseInt(el.getAttribute('data-pos'), 10);
+      if(correctIdx === pos){
+        el.classList.add('correct');
+        correctCount++;
+      } else {
+        el.classList.remove('correct');
+      }
+    });
+    hudCorrect.textContent = correctCount + '/' + (n * n);
+    return correctCount;
+  }
+
+  function checkWin(){
+    var n = state.gridSize;
+    var correctCount = markCorrectness();
+    if(correctCount === n * n && !state.finished){
+      state.finished = true;
+      stopTimer();
+      setTimeout(showResults, 350);
+    }
+  }
+
+  /* ---------------------------------------------------------
+     TIMER
+  --------------------------------------------------------- */
+  function startTimer(){
+    state.startTime = Date.now();
+    state.elapsedMs = 0;
+    clearInterval(state.timerInterval);
+    state.timerInterval = setInterval(function(){
+      state.elapsedMs = Date.now() - state.startTime;
+      hudTime.textContent = formatTime(state.elapsedMs);
+    }, 100);
+  }
+
+  function stopTimer(){
+    clearInterval(state.timerInterval);
+  }
+
+  function formatTime(ms){
+    var totalSec = ms / 1000;
+    var mm = Math.floor(totalSec / 60);
+    var ss = Math.floor(totalSec % 60);
+    var t = Math.floor((ms % 1000) / 100);
+    return pad2(mm) + ':' + pad2(ss) + '.' + t;
+  }
+
+  function pad2(num){
+    return (num < 10 ? '0' : '') + num;
+  }
+
+  function updateHud(){
+    hudMoves.textContent = state.moves;
+  }
+
+  /* ---------------------------------------------------------
+     RESULTS, INSIGHTS, LEADERBOARD
+  --------------------------------------------------------- */
+  function showResults(){
+    resTime.textContent = formatTime(state.elapsedMs);
+    resMoves.textContent = state.moves;
+    resDiff.textContent = state.gridSize + '×' + state.gridSize;
+    var c = CAREERS[state.career];
+    resCareer.textContent = c.emoji + ' ' + c.label;
+
+    insightCard.innerHTML = buildInsightHtml(c);
+
+    saveScore({
+      date: new Date().toISOString(),
+      timeMs: state.elapsedMs,
+      timeStr: formatTime(state.elapsedMs),
+      moves: state.moves,
+      difficulty: state.gridSize + '×' + state.gridSize,
+      career: c.label
+    });
+
+    renderLeaderboard();
+
+    resultsOverlay.classList.remove('hidden');
+    setStage('results');
+  }
+
+  function buildInsightHtml(c){
+    var skillsHtml = c.skills.map(function(s){ return '<span class="tag">' + s + '</span>'; }).join('');
+    var toolsHtml = c.tools.map(function(s){ return '<span class="tag">' + s + '</span>'; }).join('');
+    var roadmapHtml = c.roadmap.map(function(s){ return '<li>' + s + '</li>'; }).join('');
+
+    return ''
+      + '<h3>' + c.emoji + ' ' + c.label + ' — Career Insight</h3>'
+      + '<div class="insight-block"><div class="ib-title">Required Skills</div><div class="tag-list">' + skillsHtml + '</div></div>'
+      + '<div class="insight-block"><div class="ib-title">Tools & Technologies</div><div class="tag-list">' + toolsHtml + '</div></div>'
+      + '<div class="insight-block"><div class="ib-title">Beginner Learning Roadmap</div><ol class="roadmap-list">' + roadmapHtml + '</ol></div>'
+      + '<div class="insight-block"><div class="ib-title">Career Growth Tip</div><div class="tip-box">💡 ' + c.tip + '</div></div>';
+  }
+
+  var STORAGE_KEY = 'careerPuzzleBestTimes';
+
+  function loadScores(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function saveScore(entry){
+    var scores = loadScores();
+    scores.push(entry);
+    scores.sort(function(a, b){ return a.timeMs - b.timeMs; });
+    scores = scores.slice(0, 5);
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
+    }catch(e){ /* storage unavailable, ignore */ }
+  }
+
+  function renderLeaderboard(){
+    var scores = loadScores();
+    if(scores.length === 0){
+      leaderboardList.innerHTML = '<div class="empty-note">No best times yet — you are the first!</div>';
+      return;
+    }
+    leaderboardList.innerHTML = scores.map(function(s, idx){
+      var dateStr = new Date(s.date).toLocaleDateString();
+      return ''
+        + '<div class="lb-row ' + (idx === 0 ? 'top1' : '') + '">'
+        + '<div class="rank">' + (idx + 1) + '</div>'
+        + '<div class="lb-main">'
+        + '<div class="lb-time">' + s.timeStr + ' &middot; ' + s.moves + ' moves</div>'
+        + '<div class="lb-meta">' + s.career + ' &middot; ' + s.difficulty + ' &middot; ' + dateStr + '</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  /* ---------------------------------------------------------
+     RESULTS ACTIONS
+  --------------------------------------------------------- */
+  btnPlayAgain.addEventListener('click', function(){
+    resultsOverlay.classList.add('hidden');
+    setStage('game');
+    buildPuzzle();
+  });
+
+  btnCloseResults.addEventListener('click', function(){
+    resultsOverlay.classList.add('hidden');
+    setStage('setup');
+  });
+
+  btnNewPhotoFromResults.addEventListener('click', function(){
+    resultsOverlay.classList.add('hidden');
+    resetToCameraStage();
+  });
+
+  btnShuffleAgain.addEventListener('click', function(){
+    buildPuzzle();
+  });
+
+  btnExitPuzzle.addEventListener('click', function(){
+    stopTimer();
+    setStage('setup');
+  });
+
+  /* ---------------------------------------------------------
+     RESPONSIVE: rebuild board sizing on resize (debounced)
+  --------------------------------------------------------- */
+  var resizeTimeout;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function(){
+      if(!stageGame.classList.contains('hidden') && state.pieceEls && !state.finished){
+        // Recompute layout without losing progress: rebuild positions proportionally
+        var oldSize = state.boardSize;
+        computeBoardSize();
+        var newSize = state.boardSize;
+        if(Math.abs(newSize - oldSize) > 4){
+          var ratio = newSize / oldSize;
+          var n = state.gridSize;
+          var newCellSize = newSize / n;
+          puzzleBoard.style.width = newSize + 'px';
+          puzzleBoard.style.height = newSize + 'px';
+          puzzleBoard.querySelectorAll('.puzzle-cell-bg').forEach(function(bg, i){
+            var r = Math.floor(i / n), c = i % n;
+            bg.style.left = (c * newCellSize) + 'px';
+            bg.style.top = (r * newCellSize) + 'px';
+            bg.style.width = newCellSize + 'px';
+            bg.style.height = newCellSize + 'px';
+          });
+          state.pieceEls.forEach(function(el){
+            var pos = parseInt(el.getAttribute('data-pos'), 10);
+            var rc = posFromCell(pos, n);
+            el.style.width = newCellSize + 'px';
+            el.style.height = newCellSize + 'px';
+            el.style.left = (rc.c * newCellSize) + 'px';
+            el.style.top = (rc.r * newCellSize) + 'px';
+            el.style.backgroundSize = (newCellSize * n) + 'px ' + (newCellSize * n) + 'px';
+            var correctIdx = parseInt(el.getAttribute('data-correct'), 10);
+            var pr = Math.floor(correctIdx / n);
+            var pc = correctIdx % n;
+            el.style.backgroundPosition = (-pc * newCellSize) + 'px ' + (-pr * newCellSize) + 'px';
+          });
+          state.cellSize = newCellSize;
+        }
+      }
+    }, 200);
+  });
+
+  /* ---------------------------------------------------------
+     INIT
+  --------------------------------------------------------- */
+  initCamera();
+
+})();
+</script>
+</body>
+</html>

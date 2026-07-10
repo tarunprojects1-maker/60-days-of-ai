@@ -1,0 +1,57 @@
+TARUN TEJA PATRO
+Palasa, India | taruntejapatro@gmail.com | linkedin.com/in/tarunteja
+
+─────────────────────────────────────
+SUMMARY
+─────────────────────────────────────
+B.Tech Computer Science student (graduating 2027) with hands-on experience in UI/UX design and full-stack web development. Completed a professional UI/UX internship at EdVedha, delivering Figma wireframes and prototypes for live products. Builds independently — projects span Python-based computer vision, JavaScript web apps, and responsive front-end interfaces. Seeking a role where design thinking and development skills intersect.
+
+─────────────────────────────────────
+EXPERIENCE
+─────────────────────────────────────
+UI/UX Design Intern | EdVedha | Feb 2025 – Apr 2025
+- Designed wireframes, user flows, and high-fidelity prototypes in Figma for [quantify: e.g., X product screens or features] across client-facing web interfaces.
+- Applied heuristic evaluation and accessibility guidelines (WCAG) to identify and resolve usability gaps [quantify: e.g., reducing reported UX issues by ~X%].
+- Collaborated with developers to translate design specs into implementation-ready assets, ensuring visual and functional consistency.
+- Iterated on designs based on stakeholder feedback, completing [quantify: e.g., X revision cycles] within a [X-week] sprint timeline.
+
+─────────────────────────────────────
+PROJECTS
+─────────────────────────────────────
+Face Recognition Attendance System | Python, OpenCV [verify], Flask
+- Built a web-based attendance tracking system using facial recognition, automating a manual process that [quantify: e.g., previously required ~X minutes per session or served X users].
+- Integrated OpenCV for real-time face detection with a Flask back-end [quantify: e.g., achieving ~X% detection accuracy under standard lighting conditions].
+[Add GitHub or live demo link]
+
+Interactive Resume Builder | HTML, CSS, JavaScript
+- Developed a browser-based tool allowing users to input data and generate a formatted, downloadable resume in real time.
+- Implemented dynamic DOM manipulation and client-side rendering without external frameworks.
+[Add GitHub or live demo link]
+
+─────────────────────────────────────
+SKILLS
+─────────────────────────────────────
+Design Tools: Figma, Wireframing, Prototyping, User Flows, Accessibility (WCAG)
+Languages & Frameworks: Python, JavaScript, HTML5, CSS3, Java
+Tools & Platforms: Flask, OpenCV [verify], Git [add if applicable], VS Code
+Core Competencies: UI/UX Design, Front-End Development, User-Centered Design, Problem Solving
+
+─────────────────────────────────────
+EDUCATION
+─────────────────────────────────────
+B.Tech in Computer Science Engineering
+Centurion University of Technology and Management, Odisha | 2023–2027 | CGPA: 8.0 / 10
+
+Intermediate (Class XII) | Sri Chaitanya Junior College | 2023 | 74%
+Secondary (Class X) | Mother Teresa High School | 2021 | 97%
+
+─────────────────────────────────────
+CERTIFICATIONS & ACTIVITIES
+─────────────────────────────────────
+Certifications
+- UI/UX Design — EdVedha (2025)
+- [List specific course names and issuers, e.g., 'Google UX Design Certificate — Coursera' or 'JavaScript Algorithms — freeCodeCamp']
+
+Activities
+- Participant, college-level coding competitions and technical symposiums
+- Digital content creator on Instagram focusing on [specify topic, e.g., UI/UX or tech] [add follower/engagement metric if notable]

@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Learning Studio — Python Functions &amp; Error Handling</title>
+<style>
+:root{
+  --bg:#12141c;
+  --bg-elev:#191c26;
+  --bg-elev2:#20232f;
+  --line:#2b2f3d;
+  --text:#edeef0;
+  --text-dim:#9aa0b4;
+  --text-faint:#666c82;
+  --amber:#e8a33d;
+  --amber-dim:#8a6528;
+  --teal:#3ddcb4;
+  --teal-dim:#1f6e58;
+  --red:#e8636b;
+  --red-dim:#4a2226;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  --serif:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.6;
+  min-height:100vh;
+}
+::selection{background:var(--amber-dim);color:#fff;}
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px;}
+
+a{color:var(--teal);}
+code, .mono{font-family:var(--mono);}
+
+/* ===== LAYOUT ===== */
+.app{display:flex;min-height:100vh;}
+.sidebar{
+  width:270px;flex-shrink:0;
+  background:var(--bg-elev);
+  border-right:1px solid var(--line);
+  position:sticky;top:0;height:100vh;
+  overflow-y:auto;
+  padding:24px 16px;
+  z-index:50;
+}
+.sidebar-brand{
+  display:flex;align-items:center;gap:10px;
+  padding:0 8px 20px 8px;margin-bottom:16px;
+  border-bottom:1px solid var(--line);
+}
+.sidebar-brand .dot{width:10px;height:10px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px var(--amber);}
+.sidebar-brand span{font-family:var(--mono);font-size:13px;letter-spacing:0.5px;color:var(--text-dim);}
+.nav-group{margin-bottom:6px;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 10px;border-radius:8px;cursor:pointer;
+  color:var(--text-dim);font-size:14px;
+  transition:background .15s, color .15s;
+  border:1px solid transparent;
+}
+.nav-item:hover{background:var(--bg-elev2);color:var(--text);}
+.nav-item.active{background:var(--bg-elev2);color:var(--amber);border-color:var(--line);}
+.nav-item.locked{opacity:.4;cursor:not-allowed;}
+.nav-item .idx{
+  font-family:var(--mono);font-size:11px;
+  width:22px;height:22px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg);border:1px solid var(--line);flex-shrink:0;
+}
+.nav-item.done .idx{background:var(--teal-dim);color:var(--teal);border-color:var(--teal-dim);}
+.nav-item.active .idx{border-color:var(--amber);color:var(--amber);}
+.sidebar-progress{margin-top:20px;padding:14px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;}
+.sidebar-progress .label{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.progress-track{height:6px;background:var(--line);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--teal));width:0%;transition:width .4s ease;}
+.sidebar-progress .pct{font-family:var(--mono);font-size:12px;color:var(--text-dim);margin-top:6px;}
+.xp-box{margin-top:12px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);}
+.xp-box .badge{font-family:var(--mono);color:var(--amber);font-weight:bold;}
+
+.main{flex:1;min-width:0;}
+.topbar{
+  position:sticky;top:0;z-index:40;
+  background:rgba(18,20,28,.85);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:14px 32px;display:flex;justify-content:space-between;align-items:center;
+}
+.topbar h1{font-family:var(--serif);font-size:18px;font-weight:normal;color:var(--text);}
+.topbar .actions{display:flex;gap:10px;align-items:center;}
+.btn{
+  font-family:var(--sans);font-size:13px;padding:8px 14px;border-radius:8px;
+  border:1px solid var(--line);background:var(--bg-elev2);color:var(--text-dim);
+  cursor:pointer;transition:all .15s;
+}
+.btn:hover{color:var(--text);border-color:var(--amber-dim);}
+.btn.primary{background:var(--amber);color:#1a1408;border-color:var(--amber);font-weight:600;}
+.btn.primary:hover{background:#f0b559;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.content{max-width:880px;margin:0 auto;padding:40px 32px 120px;}
+.section{display:none;animation:fadein .4s ease;}
+.section.visible{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ===== HERO / INTRO ===== */
+.hero{
+  padding:48px 40px;border-radius:16px;
+  background:radial-gradient(circle at 20% 20%, #22283a 0%, var(--bg-elev) 60%);
+  border:1px solid var(--line);position:relative;overflow:hidden;margin-bottom:32px;
+}
+.hero::after{
+  content:"try: raises finally except";
+  position:absolute;right:-20px;bottom:-10px;font-family:var(--mono);
+  font-size:64px;color:rgba(255,255,255,0.02);white-space:nowrap;pointer-events:none;
+}
+.eyebrow{font-family:var(--mono);font-size:12px;color:var(--amber);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.hero h2{font-family:var(--serif);font-size:38px;line-height:1.15;margin-bottom:14px;max-width:600px;}
+.hero p.lead{color:var(--text-dim);font-size:16px;max-width:560px;margin-bottom:24px;}
+.meta-row{display:flex;flex-wrap:wrap;gap:12px;}
+.meta-chip{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg);border:1px solid var(--line);border-radius:20px;
+  padding:8px 14px;font-size:13px;color:var(--text-dim);
+}
+.meta-chip b{color:var(--text);}
+
+.card{
+  background:var(--bg-elev);border:1px solid var(--line);border-radius:14px;
+  padding:26px 28px;margin-bottom:22px;
+}
+.card h3{font-family:var(--serif);font-size:20px;margin-bottom:14px;color:var(--text);}
+.card h3 .tag{font-family:var(--mono);font-size:11px;color:var(--amber);border:1px solid var(--amber-dim);border-radius:6px;padding:2px 8px;margin-right:10px;vertical-align:middle;}
+ul.clean{list-style:none;}
+ul.clean li{position:relative;padding-left:22px;margin-bottom:10px;color:var(--text-dim);font-size:14.5px;}
+ul.clean li::before{content:"›";position:absolute;left:0;color:var(--teal);font-family:var(--mono);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:700px){.grid2{grid-template-columns:1fr;}}
+
+.reward-box{
+  display:flex;align-items:center;gap:16px;background:linear-gradient(90deg, #241d10, var(--bg-elev));
+  border:1px solid var(--amber-dim);border-radius:12px;padding:18px 20px;margin-top:6px;
+}
+.reward-box .medal{font-size:28px;}
+.reward-box .txt{font-size:13.5px;color:var(--text-dim);}
+.reward-box .txt b{color:var(--amber);}
+
+.start-cta{display:flex;justify-content:center;margin-top:10px;}
+
+/* ===== MODULE HEADER ===== */
+.module-head{margin-bottom:28px;}
+.module-head .eyebrow{color:var(--teal);}
+.module-head h2{font-family:var(--serif);font-size:30px;margin-bottom:8px;}
+.module-head p{color:var(--text-dim);font-size:15px;max-width:640px;}
+.diff-meter{display:flex;gap:4px;margin-top:14px;}
+.diff-dot{width:22px;height:6px;border-radius:3px;background:var(--line);}
+.diff-dot.on{background:var(--amber);}
+
+h4.subhead{font-family:var(--sans);font-size:13px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-faint);margin:28px 0 12px;display:flex;align-items:center;gap:10px;}
+h4.subhead::after{content:"";flex:1;height:1px;background:var(--line);}
+
+p.body-text{color:var(--text-dim);font-size:15px;margin-bottom:14px;}
+p.body-text b{color:var(--text);}
+p.body-text code{background:var(--bg-elev2);color:var(--teal);padding:2px 6px;border-radius:4px;font-size:13px;}
+
+/* code block */
+.code-block{
+  background:#0d0f16;border:1px solid var(--line);border-radius:10px;
+  overflow:hidden;margin:14px 0;
+}
+.code-block .code-top{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 14px;background:var(--bg-elev2);border-bottom:1px solid var(--line);
+}
+.code-block .code-top .fname{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);}
+.code-block .dots{display:flex;gap:5px;}
+.code-block .dots span{width:9px;height:9px;border-radius:50%;background:var(--line);}
+.code-block pre{
+  padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.65;color:#dcdfe6;
+}
+.code-block pre .c{color:#6a7185;font-style:italic;}
+.code-block pre .kw{color:#e8a33d;}
+.code-block pre .fn{color:#3ddcb4;}
+.code-block pre .str{color:#a6d189;}
+.code-block pre .num{color:#e78284;}
+.code-block pre .bi{color:#8caaee;}
+
+/* analogy */
+.analogy{
+  border-left:3px solid var(--teal);background:var(--bg-elev2);
+  padding:16px 20px;border-radius:0 10px 10px 0;margin:16px 0;font-size:14.5px;color:var(--text-dim);
+}
+.analogy b{color:var(--teal);}
+
+.misconception{
+  border-left:3px solid var(--red);background:rgba(232,99,107,0.06);
+  padding:16px 20px;border-radius:0 10px 10px 0;margin:10px 0;font-size:14.5px;color:var(--text-dim);
+}
+.misconception b{color:var(--red);}
+
+/* comparison table */
+table.cmp{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;}
+table.cmp th{background:var(--bg-elev2);text-align:left;padding:10px 14px;color:var(--text);font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--line);}
+table.cmp td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--text-dim);}
+table.cmp tr:last-child td{border-bottom:none;}
+
+/* traceback / diagram */
+.traceback{
+  background:#150d0e;border:1px solid var(--red-dim);border-radius:10px;
+  padding:14px 18px;font-family:var(--mono);font-size:12.5px;color:#f0b3b6;margin:14px 0;
+}
+.traceback .head{color:var(--red);margin-bottom:6px;}
+
+/* SVG diagram wrap */
+.diagram-wrap{background:var(--bg-elev2);border:1px solid var(--line);border-radius:12px;padding:20px;margin:16px 0;display:flex;justify-content:center;}
+.diagram-wrap svg{max-width:100%;height:auto;}
+
+/* exercise */
+.exercise{
+  background:var(--bg-elev2);border:1px dashed var(--teal-dim);border-radius:12px;padding:20px 22px;margin:18px 0;
+}
+.exercise .ex-label{font-family:var(--mono);font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.exercise textarea{
+  width:100%;min-height:120px;background:#0d0f16;color:var(--text);
+  border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:13px;
+  resize:vertical;
+}
+.exercise .ex-actions{display:flex;gap:10px;margin-top:10px;}
+.reveal-box{
+  margin-top:12px;padding:14px 16px;background:#0d0f16;border-radius:8px;border:1px solid var(--line);display:none;
+}
+.reveal-box.show{display:block;}
+
+/* interactive sandbox (signature element) */
+.sandbox{
+  background:#0d0f16;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:18px 0;
+}
+.sandbox-top{display:flex;justify-content:space-between;align-items:center;background:var(--bg-elev2);padding:10px 16px;border-bottom:1px solid var(--line);}
+.sandbox-top .title{font-family:var(--mono);font-size:12px;color:var(--text-dim);}
+.sandbox-body{padding:16px 18px;}
+.sandbox select, .sandbox input[type=text]{
+  background:#171a24;border:1px solid var(--line);color:var(--text);border-radius:6px;
+  padding:8px 10px;font-family:var(--mono);font-size:13px;margin-right:8px;margin-bottom:10px;
+}
+.sandbox-output{
+  background:#080a0f;border-radius:8px;padding:14px;font-family:var(--mono);font-size:13px;
+  min-height:60px;white-space:pre-wrap;color:#d5d8e0;border:1px solid var(--line);margin-top:10px;
+}
+.sandbox-output .ok{color:var(--teal);}
+.sandbox-output .err{color:var(--red);}
+
+/* takeaways */
+.takeaways{background:linear-gradient(135deg,#132420,var(--bg-elev));border:1px solid var(--teal-dim);border-radius:12px;padding:20px 24px;margin-top:24px;}
+.takeaways h4{color:var(--teal);font-family:var(--sans);font-size:13px;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+
+/* ===== QUIZ ===== */
+.quiz-wrap{margin-top:40px;border-top:1px solid var(--line);padding-top:30px;}
+.quiz-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.quiz-head .qicon{width:34px;height:34px;border-radius:8px;background:var(--amber-dim);color:var(--amber);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;}
+.quiz-head h3{font-family:var(--serif);font-size:22px;}
+.q-block{background:var(--bg-elev);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-bottom:16px;}
+.q-block .q-text{font-size:15px;margin-bottom:14px;color:var(--text);font-weight:500;}
+.q-opts{display:flex;flex-direction:column;gap:8px;}
+.q-opt{
+  display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:8px;
+  border:1px solid var(--line);background:var(--bg-elev2);cursor:pointer;font-size:14px;color:var(--text-dim);
+  transition:all .15s;
+}
+.q-opt:hover{border-color:var(--amber-dim);}
+.q-opt.selected{border-color:var(--amber);color:var(--text);}
+.q-opt.correct{border-color:var(--teal);background:rgba(61,220,180,.08);color:var(--teal);}
+.q-opt.incorrect{border-color:var(--red);background:rgba(232,99,107,.08);color:var(--red);}
+.q-opt .letter{font-family:var(--mono);font-size:11px;width:20px;height:20px;border-radius:5px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.q-explain{margin-top:12px;padding:12px 14px;background:var(--bg-elev2);border-radius:8px;font-size:13.5px;color:var(--text-dim);display:none;}
+.q-explain.show{display:block;}
+.q-explain b{color:var(--text);}
+
+.quiz-summary{
+  text-align:center;padding:32px;background:var(--bg-elev);border:1px solid var(--line);border-radius:14px;display:none;
+}
+.quiz-summary.show{display:block;}
+.quiz-summary .score{font-family:var(--serif);font-size:48px;color:var(--amber);margin:10px 0;}
+.quiz-summary .msg{color:var(--text-dim);margin-bottom:20px;}
+
+/* ===== FINAL / RESOURCES ===== */
+.resource-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:700px){.resource-grid{grid-template-columns:1fr;}}
+.res-card{background:var(--bg-elev);border:1px solid var(--line);border-radius:12px;padding:18px 20px;}
+.res-card h4{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--amber);margin-bottom:10px;}
+.res-card ul{list-style:none;font-size:13.5px;}
+.res-card li{padding:6px 0;border-bottom:1px solid var(--line);color:var(--text-dim);}
+.res-card li:last-child{border-bottom:none;}
+.res-card li b{color:var(--text);display:block;font-size:13.5px;}
+.res-card li span{font-size:12px;color:var(--text-faint);}
+.kw-pill-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.kw-pill{font-family:var(--mono);font-size:12px;background:var(--bg-elev2);border:1px solid var(--line);padding:6px 12px;border-radius:20px;color:var(--text-dim);}
+
+.print-btn{margin-top:24px;}
+@media print{
+  .sidebar,.topbar,.exercise .ex-actions,.quiz-wrap,.start-cta{display:none !important;}
+  body{background:#fff;color:#111;}
+  .card,.hero,.res-card{border:1px solid #ccc;background:#fff;}
+}
+
+/* completion certificate */
+.cert{
+  text-align:center;padding:50px 30px;background:radial-gradient(circle at 50% 0%,#241d10,var(--bg-elev));
+  border:1px solid var(--amber-dim);border-radius:16px;
+}
+.cert .medal-big{font-size:56px;margin-bottom:14px;}
+.cert h2{font-family:var(--serif);font-size:30px;margin-bottom:10px;}
+.cert p{color:var(--text-dim);margin-bottom:6px;}
+
+footer.done-footer{display:flex;justify-content:space-between;margin-top:30px;}
+
+@media(max-width:900px){
+  .sidebar{position:fixed;left:-280px;transition:left .25s;box-shadow:0 0 40px rgba(0,0,0,.5);}
+  .sidebar.open{left:0;}
+  .menu-toggle{display:inline-flex !important;}
+  .content{padding:28px 18px 100px;}
+  .hero{padding:30px 22px;}
+  .hero h2{font-size:28px;}
+}
+.menu-toggle{display:none;background:none;border:1px solid var(--line);color:var(--text);width:36px;height:36px;border-radius:8px;align-items:center;justify-content:center;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="dot"></div><span>LEARNING STUDIO</span></div>
+    <div class="nav-group" id="navGroup"></div>
+    <div class="sidebar-progress">
+      <div class="label">Overall Progress</div>
+      <div class="progress-track"><div class="progress-fill" id="sideProgressFill"></div></div>
+      <div class="pct" id="sideProgressPct">0% complete</div>
+      <div class="xp-box"><span>⚡</span><span class="badge" id="xpCount">0 XP</span></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <h1>Functions &amp; Error Handling in Python</h1>
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="window.print()">🖨 Print notes</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- INTRO -->
+      <section class="section visible" id="sec-intro">
+        <div class="hero">
+          <div class="eyebrow">Interactive Learning Studio · Python</div>
+          <h2>Master Functions &amp; Error Handling — from first principles to production-grade code.</h2>
+          <p class="lead">A single, complete tutorial covering how Python functions actually work under the hood, and how to make your programs fail gracefully instead of crashing. No prior tutorial-hopping required — everything you need is here.</p>
+          <div class="meta-row">
+            <div class="meta-chip">⏱ <b>≈75–95 min</b> total</div>
+            <div class="meta-chip">📶 <b>4 modules</b>, increasing difficulty</div>
+            <div class="meta-chip">🧩 <b>16 quiz questions</b> + 1 final challenge</div>
+            <div class="meta-chip">🎯 Beginner → Intermediate</div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <h3>Learning objectives</h3>
+            <ul class="clean">
+              <li>Explain how Python passes arguments and manages scope</li>
+              <li>Write functions using positional, keyword, default, <code>*args</code> and <code>**kwargs</code> parameters</li>
+              <li>Build pure functions vs. functions with side effects, and know when each is appropriate</li>
+              <li>Use <code>try / except / else / finally</code> to handle errors deliberately</li>
+              <li>Raise, chain, and design custom exceptions for your own code</li>
+              <li>Apply decorators and context managers as advanced control-flow tools</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Prerequisites &amp; outcomes</h3>
+            <p class="body-text"><b>Prerequisites:</b> Basic Python syntax (variables, if/else, loops, lists/dicts). No prior OOP or advanced knowledge needed.</p>
+            <p class="body-text"><b>By the end you will be able to:</b> design clean function APIs, anticipate and handle failure paths, and debug real Python tracebacks with confidence.</p>
+            <div class="reward-box">
+              <div class="medal">🏅</div>
+              <div class="txt">Earn <b>up to 480 XP</b> and a <b>Completion Badge</b> — 1 quiz question = 10 XP, each module clear = 40 XP bonus, final challenge = 80 XP.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>How this studio works</h3>
+          <ul class="clean">
+            <li>Work through <b>Module 1 → 4</b> in order — each unlocks after you pass its quiz (score ≥ 70%).</li>
+            <li>Every module has explanations, runnable-style examples, diagrams, exercises, and misconceptions to avoid.</li>
+            <li>Quizzes give instant feedback with explanations for every option, right or wrong.</li>
+            <li>Finish with a practical challenge, a printable cheat sheet, and curated resources to keep going.</li>
+          </ul>
+        </div>
+
+        <div class="start-cta">
+          <button class="btn primary" onclick="goTo('m1')">Start Module 1 →</button>
+        </div>
+      </section>
+
+      <!-- MODULE 1 -->
+      <section class="section" id="sec-m1">
+        <div class="module-head">
+          <div class="eyebrow">Module 1 of 4 · Foundations</div>
+          <h2>What a function really is</h2>
+          <p>Build a correct mental model of functions before writing a single fancy one: definition vs. call, parameters vs. arguments, scope, and return values.</p>
+          <div class="diff-meter"><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div><div class="diff-dot"></div></div>
+        </div>
+
+        <h4 class="subhead">The core idea</h4>
+        <p class="body-text">A function is a <b>named, reusable block of instructions</b> that Python only runs when it is <i>called</i>. Writing <code>def greet():</code> does not print or compute anything — it just teaches Python a new word. The work happens at <code>greet()</code>.</p>
+
+        <div class="code-block">
+          <div class="code-top"><span class="fname">basics.py</span><div class="dots"><span></span><span></span><span></span></div></div>
+          <pre><span class="c"># defining does nothing yet</span>
+<span class="kw">def</span> <span class="fn">greet</span>(name):
+    <span class="kw">return</span> <span class="str">f"Hello, {name}!"</span>
+
+<span class="c"># calling actually runs it</span>
+message = <span class="fn">greet</span>(<span class="str">"Asha"</span>)
+<span class="bi">print</span>(message)  <span class="c"># Hello, Asha!</span></pre>
+        </div>
+
+        <div class="analogy"><b>Analogy —</b> A function definition is a recipe card pinned to the fridge. Writing the recipe doesn't cook dinner. Only when someone actually follows it (<i>calls</i> it) with real ingredients (<i>arguments</i>) does a dish (<i>return value</i>) come out.</div>
+
+        <h4 class="subhead">Parameters vs. arguments</h4>
+        <p class="body-text"><code>name</code> in the definition is a <b>parameter</b> — a placeholder. <code>"Asha"</code> at the call site is the <b>argument</b> — the real value filling that placeholder. People use the words interchangeably in conversation, but the distinction matters when reading Python's error messages.</p>
+
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 640 160" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="40" width="260" height="70" rx="10" fill="#20232f" stroke="#2b2f3d"/>
+            <text x="150" y="65" text-anchor="middle" fill="#9aa0b4" font-family="monospace" font-size="12">def greet(</text>
+            <text x="150" y="85" text-anchor="middle" fill="#e8a33d" font-family="monospace" font-size="14" font-weight="bold">name</text>
+            <text x="150" y="103" text-anchor="middle" fill="#666c82" font-family="monospace" font-size="11">parameter</text>
+            <rect x="360" y="40" width="260" height="70" rx="10" fill="#20232f" stroke="#2b2f3d"/>
+            <text x="490" y="65" text-anchor="middle" fill="#9aa0b4" font-family="monospace" font-size="12">greet(</text>
+            <text x="490" y="85" text-anchor="middle" fill="#3ddcb4" font-family="monospace" font-size="14" font-weight="bold">"Asha"</text>
+            <text x="490" y="103" text-anchor="middle" fill="#666c82" font-family="monospace" font-size="11">argument</text>
+            <line x1="280" y1="75" x2="358" y2="75" stroke="#666c82" stroke-width="1.5" marker-end="url(#arrow)"/>
+            <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#666c82"/></marker></defs>
+            <text x="319" y="65" text-anchor="middle" fill="#666c82" font-family="monospace" font-size="10">fills</text>
+          </svg>
+        </div>
+
+        <h4 class="subhead">Scope: where names live</h4>
+        <p class="body-text">Variables created inside a function are <b>local</b> — they exist only during that call and disappear afterward. Python looks up names using the <b>LEGB</b> rule: <code>Local → Enclosing → Global → Built-in</code>.</p>
+
+        <div class="code-block">
+          <pre><span class="fn">x</span> = <span class="num">10</span>  <span class="c"># global</span>
+
+<span class="kw">def</span> <span class="fn">tweak</span>():
+    x = <span class="num">99</span>  <span class="c"># local — a NEW variable, shadows the global one</span>
+    <span class="bi">print</span>(<span class="str">"inside:"</span>, x)
+
+<span class="fn">tweak</span>()
+<span class="bi">print</span>(<span class="str">"outside:"</span>, x)
+<span class="c"># inside: 99
+# outside: 10   -- global x untouched</span></pre>
+        </div>
+
+        <div class="misconception"><b>Misconception —</b> "Assigning to a variable inside a function changes the outer variable." False by default — assignment inside a function creates a local variable unless you explicitly declare <code>global</code> or <code>nonlocal</code>.</div>
+
+        <h4 class="subhead">return vs. print</h4>
+        <table class="cmp">
+          <tr><th>return</th><th>print</th></tr>
+          <tr><td>Sends a value back to the caller so it can be used further</td><td>Displays text to the console; the function itself still returns <code>None</code></td></tr>
+          <tr><td>Ends function execution immediately</td><td>Does not end the function</td></tr>
+          <tr><td>Used for computation and logic</td><td>Used for human-facing output/debugging</td></tr>
+        </table>
+
+        <div class="exercise">
+          <div class="ex-label">Exercise 1.1 — Fix the function</div>
+          <p class="body-text">This function should <i>return</i> the square of a number so it can be reused elsewhere, but right now it only prints it. Rewrite it below.</p>
+          <div class="code-block"><pre><span class="kw">def</span> <span class="fn">square</span>(n):
+    <span class="bi">print</span>(n * n)</pre></div>
+          <textarea placeholder="def square(n):&#10;    ..."></textarea>
+          <div class="ex-actions">
+            <button class="btn" onclick="this.parentElement.nextElementSibling.classList.toggle('show')">Show model answer</button>
+          </div>
+          <div class="reveal-box"><pre class="mono" style="color:#a6d189;">def square(n):
+    return n * n
+
+result = square(5)   # result is now usable: 25</pre></div>
+        </div>
+
+        <div class="takeaways">
+          <h4>Key takeaways</h4>
+          <ul class="clean">
+            <li>Defining ≠ running. Nothing executes until the function is called.</li>
+            <li>Parameters are placeholders in the definition; arguments are real values at the call site.</li>
+            <li>Local variables live and die inside a single call, per the LEGB lookup order.</li>
+            <li><code>return</code> hands data back for reuse; <code>print</code> just displays it.</li>
+          </ul>
+        </div>
+
+        <div class="quiz-wrap">
+          <div class="quiz-head"><div class="qicon">Q1</div><h3>Module 1 Quiz</h3></div>
+          <div id="quiz-m1"></div>
+          <div class="quiz-summary" id="summary-m1">
+            <div class="msg">Your score</div>
+            <div class="score" id="score-m1">0/4</div>
+            <div class="msg" id="feedback-m1"></div>
+            <button class="btn primary" onclick="goTo('m2')" id="unlock-m1" disabled>Unlock Module 2 →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 2 -->
+      <section class="section" id="sec-m2">
+        <div class="module-head">
+          <div class="eyebrow">Module 2 of 4 · Flexible Function Design</div>
+          <h2>Parameters, arguments, and designing clean signatures</h2>
+          <p>Go beyond the basics: default values, keyword arguments, <code>*args</code>/<code>**kwargs</code>, and why mutable defaults are a classic trap.</p>
+          <div class="diff-meter"><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div></div>
+        </div>
+
+        <h4 class="subhead">Default & keyword arguments</h4>
+        <p class="body-text">Defaults make parameters optional. Keyword arguments let callers pass values by name, in any order, which makes call sites self-documenting.</p>
+        <div class="code-block"><pre><span class="kw">def</span> <span class="fn">book_ticket</span>(city, date, seat=<span class="str">"economy"</span>, meal=<span class="kw">None</span>):
+    <span class="kw">return</span> <span class="str">f"{city} on {date}, {seat} seat, meal={meal}"</span>
+
+<span class="fn">book_ticket</span>(<span class="str">"Delhi"</span>, <span class="str">"2026-08-01"</span>)                       <span class="c"># uses defaults</span>
+<span class="fn">book_ticket</span>(date=<span class="str">"2026-08-01"</span>, city=<span class="str">"Delhi"</span>, seat=<span class="str">"business"</span>)  <span class="c"># keyword, any order</span></pre></div>
+
+        <h4 class="subhead">*args and **kwargs</h4>
+        <p class="body-text"><code>*args</code> collects any number of extra positional arguments into a tuple. <code>**kwargs</code> collects extra keyword arguments into a dictionary. Use them when a function genuinely needs to accept a variable amount of input.</p>
+        <div class="code-block"><pre><span class="kw">def</span> <span class="fn">order_summary</span>(customer, *items, **details):
+    <span class="bi">print</span>(customer, items, details)
+
+<span class="fn">order_summary</span>(<span class="str">"Rae"</span>, <span class="str">"pen"</span>, <span class="str">"notebook"</span>, gift_wrap=<span class="kw">True</span>, express=<span class="kw">False</span>)
+<span class="c"># Rae ('pen', 'notebook') {'gift_wrap': True, 'express': False}</span></pre></div>
+
+        <div class="analogy"><b>Analogy —</b> Think of a function signature like a restaurant order form. Required fields (positional args) must be filled. Fields with pre-printed defaults (default args) can be left as-is. A "notes" box that accepts anything extra is <code>**kwargs</code> — a flexible catch-all.</div>
+
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 620 130" xmlns="http://www.w3.org/2000/svg">
+            <text x="10" y="30" fill="#9aa0b4" font-family="monospace" font-size="13">def f(a, b=1, *args, **kwargs):</text>
+            <rect x="46" y="45" width="24" height="26" fill="#20232f" stroke="#e8a33d"/><text x="58" y="63" text-anchor="middle" fill="#e8a33d" font-family="monospace" font-size="11">a</text>
+            <text x="58" y="90" text-anchor="middle" fill="#666c82" font-family="monospace" font-size="10">required</text>
+            <rect x="78" y="45" width="52" height="26" fill="#20232f" stroke="#3ddcb4"/><text x="104" y="63" text-anchor="middle" fill="#3ddcb4" font-family="monospace" font-size="11">b=1</text>
+            <text x="104" y="90" text-anchor="middle" fill="#666c82" font-family="monospace" font-size="10">optional</text>
+            <rect x="138" y="45" width="70" height="26" fill="#20232f" stroke="#8caaee"/><text x="173" y="63" text-anchor="middle" fill="#8caaee" font-family="monospace" font-size="11">*args</text>
+            <text x="173" y="90" text-anchor="middle" fill="#666c82" font-family="monospace" font-size="10">extra tuple</text>
+            <rect x="216" y="45" width="90" height="26" fill="#20232f" stroke="#e78284"/><text x="261" y="63" text-anchor="middle" fill="#e78284" font-family="monospace" font-size="11">**kwargs</text>
+            <text x="261" y="90" text-anchor="middle" fill="#666c82" font-family="monospace" font-size="10">extra dict</text>
+          </svg>
+        </div>
+
+        <div class="misconception"><b>Misconception —</b> "Mutable default arguments reset every call." They don't. <code>def f(items=[]):</code> creates the list <b>once</b>, at definition time, and reuses the same object across all calls — a notorious Python bug source.</div>
+        <div class="traceback">
+          <div class="head">Demonstration of the mutable-default trap</div>
+def add(item, bucket=[]):
+    bucket.append(item)
+    return bucket
+
+add("a")   # ['a']
+add("b")   # ['a', 'b']   ← unexpected! same list reused
+        </div>
+        <p class="body-text">Fix it with <code>bucket=None</code> and create a fresh list inside the function when <code>bucket is None</code>.</p>
+
+        <h4 class="subhead">Comparison: argument styles</h4>
+        <table class="cmp">
+          <tr><th>Style</th><th>Best for</th></tr>
+          <tr><td>Positional</td><td>Small, obvious argument lists (e.g. <code>add(a, b)</code>)</td></tr>
+          <tr><td>Keyword</td><td>Many parameters, improving call-site readability</td></tr>
+          <tr><td><code>*args</code></td><td>Unknown number of same-type positional inputs (e.g. <code>sum_all(*numbers)</code>)</td></tr>
+          <tr><td><code>**kwargs</code></td><td>Passing through flexible options/config to another function</td></tr>
+        </table>
+
+        <div class="exercise">
+          <div class="ex-label">Exercise 2.1 — Design a signature</div>
+          <p class="body-text">Write a function <code>make_profile(name, age, **extra)</code> that returns a dictionary combining name, age, and any extra keyword fields. Try calling it with an email and a city.</p>
+          <textarea placeholder="def make_profile(name, age, **extra):&#10;    ..."></textarea>
+          <div class="ex-actions"><button class="btn" onclick="this.parentElement.nextElementSibling.classList.toggle('show')">Show model answer</button></div>
+          <div class="reveal-box"><pre class="mono" style="color:#a6d189;">def make_profile(name, age, **extra):
+    profile = {"name": name, "age": age}
+    profile.update(extra)
+    return profile
+
+make_profile("Rae", 29, email="rae@x.com", city="Pune")</pre></div>
+        </div>
+
+        <div class="takeaways">
+          <h4>Key takeaways</h4>
+          <ul class="clean">
+            <li>Default values make arguments optional; keyword arguments improve readability.</li>
+            <li><code>*args</code>/<code>**kwargs</code> collect variable-length positional/keyword input.</li>
+            <li>Never use a mutable object (list, dict) as a default value — use <code>None</code> and build fresh inside.</li>
+          </ul>
+        </div>
+
+        <div class="quiz-wrap">
+          <div class="quiz-head"><div class="qicon">Q2</div><h3>Module 2 Quiz</h3></div>
+          <div id="quiz-m2"></div>
+          <div class="quiz-summary" id="summary-m2">
+            <div class="msg">Your score</div><div class="score" id="score-m2">0/4</div>
+            <div class="msg" id="feedback-m2"></div>
+            <button class="btn primary" onclick="goTo('m3')" id="unlock-m2" disabled>Unlock Module 3 →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 3 -->
+      <section class="section" id="sec-m3">
+        <div class="module-head">
+          <div class="eyebrow">Module 3 of 4 · Handling Errors Deliberately</div>
+          <h2>try / except / else / finally</h2>
+          <p>Errors are not failures of your code — they're events your code can plan for. Learn to catch the right exceptions, and only the right ones.</p>
+          <div class="diff-meter"><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div></div>
+        </div>
+
+        <h4 class="subhead">Anatomy of a traceback</h4>
+        <p class="body-text">When Python can't continue, it raises an <b>exception</b> — an object describing what went wrong — and prints a traceback showing the call chain that led there.</p>
+        <div class="traceback">
+          <div class="head">Traceback (most recent call last):</div>
+  File "app.py", line 4, in &lt;module&gt;
+    result = 10 / 0
+ZeroDivisionError: division by zero
+        </div>
+        <p class="body-text">Read tracebacks <b>bottom-up</b>: the last line names the exception type and message; the lines above trace which call led there.</p>
+
+        <h4 class="subhead">The four-part structure</h4>
+        <div class="code-block"><pre><span class="kw">try</span>:
+    value = <span class="bi">int</span>(user_input)
+<span class="kw">except</span> ValueError <span class="kw">as</span> e:
+    <span class="bi">print</span>(<span class="str">f"Not a number: {e}"</span>)
+<span class="kw">else</span>:
+    <span class="bi">print</span>(<span class="str">"Parsed successfully:"</span>, value)  <span class="c"># runs only if no exception</span>
+<span class="kw">finally</span>:
+    <span class="bi">print</span>(<span class="str">"Done trying."</span>)  <span class="c"># always runs, error or not</span></pre></div>
+
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="10" width="600" height="34" rx="8" fill="#20232f" stroke="#e8a33d"/>
+            <text x="320" y="32" text-anchor="middle" fill="#e8a33d" font-family="monospace" font-size="12">try: risky code runs here</text>
+            <path d="M320,44 L320,64" stroke="#666c82" marker-end="url(#a2)"/>
+            <defs><marker id="a2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#666c82"/></marker></defs>
+            <rect x="20" y="68" width="280" height="46" rx="8" fill="#20232f" stroke="#e78284"/>
+            <text x="160" y="88" text-anchor="middle" fill="#e78284" font-family="monospace" font-size="11">exception raised?</text>
+            <text x="160" y="104" text-anchor="middle" fill="#666c82" font-family="monospace" font-size="10">→ run matching except block</text>
+            <rect x="340" y="68" width="280" height="46" rx="8" fill="#20232f" stroke="#3ddcb4"/>
+            <text x="480" y="88" text-anchor="middle" fill="#3ddcb4" font-family="monospace" font-size="11">no exception?</text>
+            <text x="480" y="104" text-anchor="middle" fill="#666c82" font-family="monospace" font-size="10">→ run else block</text>
+            <path d="M160,114 L320,140" stroke="#666c82"/>
+            <path d="M480,114 L320,140" stroke="#666c82"/>
+            <rect x="170" y="144" width="300" height="46" rx="8" fill="#20232f" stroke="#8caaee"/>
+            <text x="320" y="164" text-anchor="middle" fill="#8caaee" font-family="monospace" font-size="11">finally: always runs</text>
+            <text x="320" y="180" text-anchor="middle" fill="#666c82" font-family="monospace" font-size="10">cleanup, closing files, logging</text>
+          </svg>
+        </div>
+
+        <h4 class="subhead">Catch specific exceptions, not everything</h4>
+        <table class="cmp">
+          <tr><th>Pattern</th><th>Verdict</th></tr>
+          <tr><td><code>except ValueError:</code></td><td>✅ Precise — you know exactly what you're handling</td></tr>
+          <tr><td><code>except (ValueError, TypeError):</code></td><td>✅ Fine — handle multiple known cases together</td></tr>
+          <tr><td><code>except Exception:</code></td><td>⚠️ Broad — use only at a top-level boundary, and log it</td></tr>
+          <tr><td><code>except:</code> (bare)</td><td>❌ Dangerous — silently swallows <i>everything</i>, including Ctrl+C and real bugs</td></tr>
+        </table>
+
+        <div class="analogy"><b>Analogy —</b> A bare <code>except:</code> is a smoke alarm you've disconnected because it kept beeping. You stop getting warned about anything — including the fire that actually matters.</div>
+
+        <h4 class="subhead">Raising your own exceptions</h4>
+        <div class="code-block"><pre><span class="kw">def</span> <span class="fn">withdraw</span>(balance, amount):
+    <span class="kw">if</span> amount &gt; balance:
+        <span class="kw">raise</span> ValueError(<span class="str">"Insufficient funds"</span>)
+    <span class="kw">return</span> balance - amount</pre></div>
+        <p class="body-text">Raising early with a clear message ("fail fast") is far easier to debug than letting bad data silently propagate deeper into a program.</p>
+
+        <div class="misconception"><b>Misconception —</b> "<code>finally</code> only runs if there's an error." It runs <i>unconditionally</i> — success, failure, or even a <code>return</code> inside the <code>try</code> block.</div>
+
+        <div class="sandbox">
+          <div class="sandbox-top"><span class="title">🧪 Live sandbox — simulate the safe_divide() function</span></div>
+          <div class="sandbox-body">
+            <label class="body-text" style="display:block;margin-bottom:6px;">Numerator</label>
+            <input type="text" id="sbA" value="10">
+            <label class="body-text" style="display:block;margin-bottom:6px;">Denominator</label>
+            <input type="text" id="sbB" value="0">
+            <br>
+            <button class="btn primary" onclick="runSandbox()">Run safe_divide(a, b)</button>
+            <div class="sandbox-output" id="sbOut">// output will appear here</div>
+          </div>
+        </div>
+
+        <div class="exercise">
+          <div class="ex-label">Exercise 3.1 — Handle the right exception</div>
+          <p class="body-text">Write a <code>try/except</code> block that reads a dictionary key <code>config["timeout"]</code> and handles the case where the key is missing, printing a default of <code>30</code> instead of crashing.</p>
+          <textarea placeholder="try:&#10;    ...&#10;except ...:&#10;    ..."></textarea>
+          <div class="ex-actions"><button class="btn" onclick="this.parentElement.nextElementSibling.classList.toggle('show')">Show model answer</button></div>
+          <div class="reveal-box"><pre class="mono" style="color:#a6d189;">try:
+    timeout = config["timeout"]
+except KeyError:
+    timeout = 30
+    print("Using default timeout: 30")</pre></div>
+        </div>
+
+        <div class="takeaways">
+          <h4>Key takeaways</h4>
+          <ul class="clean">
+            <li>Read tracebacks bottom-up: exception type + message first, then the call chain.</li>
+            <li><code>else</code> runs only on success; <code>finally</code> always runs.</li>
+            <li>Catch specific exception types — bare <code>except:</code> hides real bugs.</li>
+            <li>Use <code>raise</code> to fail fast with a clear message instead of propagating bad data.</li>
+          </ul>
+        </div>
+
+        <div class="quiz-wrap">
+          <div class="quiz-head"><div class="qicon">Q3</div><h3>Module 3 Quiz</h3></div>
+          <div id="quiz-m3"></div>
+          <div class="quiz-summary" id="summary-m3">
+            <div class="msg">Your score</div><div class="score" id="score-m3">0/4</div>
+            <div class="msg" id="feedback-m3"></div>
+            <button class="btn primary" onclick="goTo('m4')" id="unlock-m3" disabled>Unlock Module 4 →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODULE 4 -->
+      <section class="section" id="sec-m4">
+        <div class="module-head">
+          <div class="eyebrow">Module 4 of 4 · Mastery</div>
+          <h2>Custom exceptions, decorators &amp; context managers</h2>
+          <p>Combine functions and error handling into production-grade patterns used in real Python codebases.</p>
+          <div class="diff-meter"><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div></div>
+        </div>
+
+        <h4 class="subhead">Custom exception classes</h4>
+        <p class="body-text">Subclass <code>Exception</code> to create domain-specific errors. This lets callers catch <i>your</i> errors specifically, without swallowing unrelated ones.</p>
+        <div class="code-block"><pre><span class="kw">class</span> <span class="fn">InsufficientFundsError</span>(Exception):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, balance, amount):
+        <span class="bi">super</span>().__init__(<span class="str">f"Tried to withdraw {amount}, only {balance} available"</span>)
+        self.balance = balance
+        self.amount = amount
+
+<span class="kw">def</span> <span class="fn">withdraw</span>(balance, amount):
+    <span class="kw">if</span> amount &gt; balance:
+        <span class="kw">raise</span> InsufficientFundsError(balance, amount)
+    <span class="kw">return</span> balance - amount</pre></div>
+
+        <h4 class="subhead">Exception chaining</h4>
+        <p class="body-text">Use <code>raise NewError(...) from original_error</code> to preserve the original cause while raising a more meaningful, higher-level exception — common when wrapping low-level errors (e.g. network failures) into domain errors.</p>
+        <div class="code-block"><pre><span class="kw">try</span>:
+    parse_config(file)
+<span class="kw">except</span> FileNotFoundError <span class="kw">as</span> e:
+    <span class="kw">raise</span> ConfigError(<span class="str">"config missing"</span>) <span class="kw">from</span> e</pre></div>
+
+        <h4 class="subhead">Decorators: functions that wrap functions</h4>
+        <p class="body-text">A decorator takes a function and returns a new function that adds behavior — commonly used to retry on failure, log calls, or measure timing, without touching the original function's body.</p>
+        <div class="code-block"><pre><span class="kw">def</span> <span class="fn">retry</span>(times):
+    <span class="kw">def</span> <span class="fn">decorator</span>(func):
+        <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+            <span class="kw">for</span> attempt <span class="kw">in</span> <span class="bi">range</span>(times):
+                <span class="kw">try</span>:
+                    <span class="kw">return</span> func(*args, **kwargs)
+                <span class="kw">except</span> ConnectionError:
+                    <span class="bi">print</span>(<span class="str">f"attempt {attempt+1} failed, retrying..."</span>)
+            <span class="kw">raise</span> ConnectionError(<span class="str">"all retries failed"</span>)
+        <span class="kw">return</span> wrapper
+    <span class="kw">return</span> decorator
+
+<span class="kw">@retry</span>(times=3)
+<span class="kw">def</span> <span class="fn">fetch_data</span>(url):
+    ...</pre></div>
+
+        <div class="analogy"><b>Analogy —</b> A decorator is like a phone case: it doesn't change the phone inside, it wraps around it and adds protection (retry logic, logging) that activates automatically every time you use the phone.</div>
+
+        <h4 class="subhead">Context managers: guaranteed cleanup</h4>
+        <p class="body-text"><code>with</code> statements guarantee that setup and teardown code run — even if an exception occurs in between. This is the modern replacement for manual <code>try/finally</code> cleanup around resources like files or connections.</p>
+        <div class="code-block"><pre><span class="kw">with</span> <span class="bi">open</span>(<span class="str">"data.txt"</span>) <span class="kw">as</span> f:
+    contents = f.read()
+<span class="c"># file is automatically closed here, even if read() raised</span></pre></div>
+
+        <h4 class="subhead">Comparison: cleanup strategies</h4>
+        <table class="cmp">
+          <tr><th>Approach</th><th>Trade-off</th></tr>
+          <tr><td>Manual <code>try/finally</code></td><td>Explicit but verbose; easy to forget in new code paths</td></tr>
+          <tr><td><code>with</code> context manager</td><td>Concise, guaranteed cleanup, the idiomatic Python choice</td></tr>
+          <tr><td>No cleanup handling</td><td>Resource leaks (open files, connections) under error conditions</td></tr>
+        </table>
+
+        <div class="misconception"><b>Misconception —</b> "Custom exceptions are overkill for small scripts." Even a two-function script benefits: catching <code>InsufficientFundsError</code> specifically is safer and clearer than guessing what a generic <code>ValueError</code> meant six months later.</div>
+
+        <div class="exercise">
+          <div class="ex-label">Exercise 4.1 — Build a guarded resource pattern</div>
+          <p class="body-text">Write a decorator <code>@log_errors</code> that wraps any function, catches any exception it raises, prints <code>f"Error in {func.__name__}: {e}"</code>, and re-raises it.</p>
+          <textarea placeholder="def log_errors(func):&#10;    def wrapper(*args, **kwargs):&#10;        ..."></textarea>
+          <div class="ex-actions"><button class="btn" onclick="this.parentElement.nextElementSibling.classList.toggle('show')">Show model answer</button></div>
+          <div class="reveal-box"><pre class="mono" style="color:#a6d189;">def log_errors(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            print(f"Error in {func.__name__}: {e}")
+            raise
+    return wrapper</pre></div>
+        </div>
+
+        <div class="takeaways">
+          <h4>Key takeaways</h4>
+          <ul class="clean">
+            <li>Custom exception classes make error handling specific and self-documenting.</li>
+            <li><code>raise ... from ...</code> preserves the original cause when wrapping errors.</li>
+            <li>Decorators add cross-cutting behavior (retries, logging) without modifying the original function.</li>
+            <li><code>with</code> blocks guarantee cleanup runs, replacing manual <code>try/finally</code> for resources.</li>
+          </ul>
+        </div>
+
+        <div class="quiz-wrap">
+          <div class="quiz-head"><div class="qicon">Q4</div><h3>Module 4 Quiz</h3></div>
+          <div id="quiz-m4"></div>
+          <div class="quiz-summary" id="summary-m4">
+            <div class="msg">Your score</div><div class="score" id="score-m4">0/4</div>
+            <div class="msg" id="feedback-m4"></div>
+            <button class="btn primary" onclick="goTo('final')" id="unlock-m4" disabled>Continue to Final Challenge →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FINAL -->
+      <section class="section" id="sec-final">
+        <div class="module-head">
+          <div class="eyebrow">Final Practical Challenge</div>
+          <h2>Build a resilient config loader</h2>
+          <p>Combine everything: flexible function signatures, precise exception handling, a custom exception, and cleanup.</p>
+        </div>
+
+        <div class="card">
+          <h3><span class="tag">CHALLENGE</span>Task</h3>
+          <p class="body-text">Write a function <code>load_setting(config, key, default=None, *, required=False)</code> that:</p>
+          <ul class="clean">
+            <li>Returns <code>config[key]</code> if present</li>
+            <li>Returns <code>default</code> if missing and <code>required=False</code></li>
+            <li>Raises a custom <code>MissingSettingError</code> if missing and <code>required=True</code></li>
+            <li>Uses <code>try/except/else/finally</code> to log every lookup attempt, success or failure</li>
+          </ul>
+          <div class="exercise" style="margin-top:16px;">
+            <div class="ex-label">Your solution</div>
+            <textarea style="min-height:180px;" placeholder="class MissingSettingError(Exception):&#10;    pass&#10;&#10;def load_setting(config, key, default=None, *, required=False):&#10;    ..."></textarea>
+            <div class="ex-actions"><button class="btn primary" onclick="this.parentElement.nextElementSibling.classList.toggle('show')">Reveal reference solution</button></div>
+            <div class="reveal-box"><pre class="mono" style="color:#a6d189;">class MissingSettingError(Exception):
+    pass
+
+def load_setting(config, key, default=None, *, required=False):
+    try:
+        value = config[key]
+    except KeyError:
+        print(f"[log] '{key}' not found")
+        if required:
+            raise MissingSettingError(f"'{key}' is required but missing")
+        value = default
+    else:
+        print(f"[log] '{key}' found: {value}")
+        return value
+    finally:
+        print(f"[log] lookup attempt finished for '{key}'")
+    return value</pre></div>
+          </div>
+          <div style="text-align:center;margin-top:20px;">
+            <button class="btn primary" onclick="completeChallenge()" id="challengeBtn">Mark Challenge Complete (+80 XP)</button>
+          </div>
+        </div>
+
+        <h4 class="subhead">Cheat sheet</h4>
+        <div class="grid2">
+          <div class="card">
+            <h3>Function syntax</h3>
+            <div class="code-block"><pre><span class="kw">def</span> <span class="fn">f</span>(a, b=<span class="num">1</span>, *args, **kwargs):
+    <span class="kw">return</span> a</pre></div>
+          </div>
+          <div class="card">
+            <h3>Error handling syntax</h3>
+            <div class="code-block"><pre><span class="kw">try</span>:
+    ...
+<span class="kw">except</span> SpecificError <span class="kw">as</span> e:
+    ...
+<span class="kw">else</span>:
+    ...
+<span class="kw">finally</span>:
+    ...</pre></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Summary notes</h3>
+          <ul class="clean">
+            <li>Functions: definition ≠ execution; local scope by default; return over print for reusable results.</li>
+            <li>Design signatures with defaults and keyword args for readability; never mutable defaults.</li>
+            <li><code>*args</code>/<code>**kwargs</code> for variable-length input.</li>
+            <li>Catch specific exceptions; use <code>else</code> for success-only code and <code>finally</code> for guaranteed cleanup.</li>
+            <li>Fail fast with <code>raise</code>; build custom exceptions for domain-specific clarity.</li>
+            <li>Decorators and <code>with</code> blocks are the idiomatic tools for cross-cutting concerns and cleanup.</li>
+          </ul>
+        </div>
+
+        <h4 class="subhead">Continue learning</h4>
+        <div class="resource-grid">
+          <div class="res-card">
+            <h4>📚 Books</h4>
+            <ul>
+              <li><b>Fluent Python</b> — Luciano Ramalho <span>Deep dive into idiomatic functions & decorators</span></li>
+              <li><b>Effective Python</b> — Brett Slatkin <span>Item-based best practices, incl. error handling</span></li>
+              <li><b>Python Tricks</b> — Dan Bader <span>Practical patterns for functions and exceptions</span></li>
+            </ul>
+          </div>
+          <div class="res-card">
+            <h4>📄 Documentation &amp; papers</h4>
+            <ul>
+              <li><b>docs.python.org/3/tutorial/errors.html</b> <span>Official errors & exceptions tutorial</span></li>
+              <li><b>docs.python.org/3/reference/compound_stmts.html</b> <span>Official function & try statement reference</span></li>
+              <li><b>PEP 3134</b> <span>Exception chaining and embedded tracebacks proposal</span></li>
+            </ul>
+          </div>
+          <div class="res-card">
+            <h4>👥 Communities</h4>
+            <ul>
+              <li><b>r/learnpython</b> <span>Beginner-friendly Q&A community</span></li>
+              <li><b>Python Discord</b> <span>Real-time help channels</span></li>
+              <li><b>Stack Overflow [python] tag</b> <span>Searchable Q&A archive</span></li>
+            </ul>
+          </div>
+          <div class="res-card">
+            <h4>🛠 Practice platforms</h4>
+            <ul>
+              <li><b>Exercism (Python track)</b> <span>Mentored practice exercises</span></li>
+              <li><b>LeetCode / HackerRank</b> <span>Applied problem-solving with functions</span></li>
+              <li><b>Python Morsels</b> <span>Weekly focused skill drills</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Search keywords</h3>
+          <div class="kw-pill-wrap">
+            <span class="kw-pill">python function scope LEGB</span>
+            <span class="kw-pill">python mutable default argument bug</span>
+            <span class="kw-pill">python try except else finally</span>
+            <span class="kw-pill">python custom exception class</span>
+            <span class="kw-pill">python exception chaining "raise from"</span>
+            <span class="kw-pill">python decorators explained</span>
+            <span class="kw-pill">python context manager with statement</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Additional AI prompts to keep learning</h3>
+          <ul class="clean">
+            <li>"Explain Python closures and how they relate to decorators, with an example."</li>
+            <li>"Show me 5 real-world uses of custom exceptions in a web API."</li>
+            <li>"Quiz me on the difference between except Exception and except BaseException."</li>
+            <li>"Refactor this function to use *args/**kwargs cleanly: [paste code]"</li>
+            <li>"Explain how Python's traceback module can be used for structured logging."</li>
+          </ul>
+        </div>
+
+        <div class="cert" id="certBox" style="display:none;">
+          <div class="medal-big">🏆</div>
+          <h2>Tutorial Complete</h2>
+          <p>Functions &amp; Error Handling in Python</p>
+          <p id="certXp" class="mono" style="color:var(--amber);font-size:15px;margin-top:10px;"></p>
+        </div>
+        <div class="print-btn" style="text-align:center;">
+          <button class="btn" onclick="window.print()">🖨 Print full notes / cheat sheet</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== STATE ===================== */
+const sections = ['intro','m1','m2','m3','m4','final'];
+const navLabels = {
+  intro:'Introduction', m1:'M1 · Foundations', m2:'M2 · Function Design',
+  m3:'M3 · Error Handling', m4:'M4 · Mastery', final:'Final Challenge'
+};
+let state = {
+  unlocked: {intro:true, m1:true, m2:false, m3:false, m4:false, final:false},
+  done: {intro:false, m1:false, m2:false, m3:false, m4:false, final:false},
+  xp: 0
+};
+
+function buildNav(){
+  const wrap = document.getElementById('navGroup');
+  wrap.innerHTML = '';
+  sections.forEach((s,i)=>{
+    const el = document.createElement('div');
+    el.className = 'nav-item' + (state.unlocked[s] ? '' : ' locked') + (state.done[s] ? ' done' : '');
+    el.id = 'nav-'+s;
+    el.innerHTML = `<span class="idx">${state.done[s] ? '✓' : i}</span><span>${navLabels[s]}</span>`;
+    el.onclick = () => { if(state.unlocked[s]) goTo(s); };
+    wrap.appendChild(el);
+  });
+  updateActiveNav(currentSection);
+}
+function updateActiveNav(cur){
+  sections.forEach(s=>{
+    const el = document.getElementById('nav-'+s);
+    if(!el) return;
+    el.classList.toggle('active', s===cur);
+    el.classList.toggle('locked', !state.unlocked[s]);
+    el.classList.toggle('done', state.done[s]);
+    el.querySelector('.idx').textContent = state.done[s] ? '✓' : sections.indexOf(s);
+  });
+}
+function updateProgress(){
+  const doneCount = Object.values(state.done).filter(Boolean).length;
+  const pct = Math.round((doneCount/sections.length)*100);
+  document.getElementById('sideProgressFill').style.width = pct+'%';
+  document.getElementById('sideProgressPct').textContent = pct+'% complete';
+  document.getElementById('xpCount').textContent = state.xp+' XP';
+}
+
+let currentSection = 'intro';
+function goTo(s){
+  if(!state.unlocked[s]) return;
+  document.querySelectorAll('.section').forEach(sec=>sec.classList.remove('visible'));
+  document.getElementById('sec-'+s).classList.add('visible');
+  currentSection = s;
+  updateActiveNav(s);
+  window.scrollTo({top:0, behavior:'smooth'});
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+document.getElementById('menuToggle').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+});
+
+/* ===================== QUIZ DATA ===================== */
+const quizzes = {
+  m1: [
+    {
+      q: "What happens when Python encounters a `def` statement?",
+      opts: [
+        "The function body executes immediately",
+        "Python creates the function object but does not run its body",
+        "Python raises a SyntaxError until the function is called",
+        "The function's return value is computed and cached"
+      ],
+      correct: 1,
+      explain: [
+        "Incorrect — nothing inside the body runs at definition time; that only happens on a call.",
+        "Correct — `def` just teaches Python a new name bound to a function object; the body runs only when called.",
+        "Incorrect — `def` on its own is perfectly valid syntax and doesn't raise anything.",
+        "Incorrect — there's no value to compute yet since the code hasn't run."
+      ]
+    },
+    {
+      q: "In `def greet(name): ...`, what is `name`?",
+      opts: ["An argument","A parameter","A global variable","A return value"],
+      correct: 1,
+      explain: [
+        "Incorrect — `name` is a placeholder in the definition, not the actual value passed at the call site.",
+        "Correct — `name` is a parameter: a named placeholder that will receive an argument when the function is called.",
+        "Incorrect — it's local to the function, not global.",
+        "Incorrect — parameters aren't return values."
+      ]
+    },
+    {
+      q: "What does this print?\n\nx = 5\ndef f():\n    x = 10\nf()\nprint(x)",
+      opts: ["10","5","None","UnboundLocalError"],
+      correct: 1,
+      explain: [
+        "Incorrect — the `x = 10` inside f() creates a separate local variable; it never touches the global x.",
+        "Correct — assignment inside a function creates a local variable by default, leaving the global `x` at 5.",
+        "Incorrect — the global x still holds its original value, not None.",
+        "Incorrect — no error occurs here since x=10 is a fresh local assignment, not a reference before assignment."
+      ]
+    },
+    {
+      q: "Which best describes the difference between `return` and `print`?",
+      opts: [
+        "They are functionally identical",
+        "`print` sends data back to the caller; `return` displays it",
+        "`return` sends data back to the caller for reuse; `print` only displays text",
+        "`return` can only be used once per program"
+      ],
+      correct: 2,
+      explain: [
+        "Incorrect — they serve very different purposes.",
+        "Incorrect — this has the definitions swapped.",
+        "Correct — `return` passes a value back so calling code can use it; `print` is purely for display and the function still returns None.",
+        "Incorrect — `return` can be used in every function, including many times across a program."
+      ]
+    }
+  ],
+  m2: [
+    {
+      q: "What does `*args` collect inside a function?",
+      opts: ["A dictionary of keyword arguments","A tuple of extra positional arguments","A list that must be pre-declared","Nothing unless **kwargs is also present"],
+      correct: 1,
+      explain: [
+        "Incorrect — that's what `**kwargs` does.",
+        "Correct — `*args` gathers any extra positional arguments into a tuple.",
+        "Incorrect — no pre-declaration is needed; Python builds it automatically.",
+        "Incorrect — `*args` works independently of `**kwargs`."
+      ]
+    },
+    {
+      q: "Why is `def f(items=[]):` considered risky?",
+      opts: [
+        "It causes a SyntaxError",
+        "The empty list is recreated fresh on every call",
+        "The same list object is reused across all calls, causing shared mutable state",
+        "Lists cannot be used as default values at all"
+      ],
+      correct: 2,
+      explain: [
+        "Incorrect — it's valid syntax.",
+        "Incorrect — this is exactly the wrong assumption that causes the bug.",
+        "Correct — default values are evaluated once at definition time, so the same list persists and accumulates across calls.",
+        "Incorrect — lists can be used as defaults, it's just usually a mistake to do so."
+      ]
+    },
+    {
+      q: "What is the safer alternative to a mutable default argument?",
+      opts: [
+        "Use a tuple instead of a list",
+        "Use `None` as the default and create a new object inside the function",
+        "Always pass the list explicitly at every call site",
+        "There is no safe alternative"
+      ],
+      correct: 1,
+      explain: [
+        "Incorrect — tuples avoid mutation issues for tuples themselves, but doesn't solve wanting a fresh list.",
+        "Correct — `def f(items=None): items = items or []` (or `if items is None`) creates a new list each call.",
+        "Incorrect — this works but defeats the purpose of having a default at all.",
+        "Incorrect — the None-default pattern is a well-established safe alternative."
+      ]
+    },
+    {
+      q: "Which call correctly uses keyword arguments to override just the `seat` default in `book_ticket(city, date, seat='economy', meal=None)`?",
+      opts: [
+        "book_ticket('Delhi','2026-08-01','business')",
+        "book_ticket('Delhi','2026-08-01', seat='business')",
+        "book_ticket(seat='business')",
+        "book_ticket('Delhi', seat='business', '2026-08-01')"
+      ],
+      correct: 1,
+      explain: [
+        "Incorrect — this works but passes 'business' positionally as `seat`, which happens to be correct here only by position, not by explicit keyword — less clear and error-prone as signatures grow.",
+        "Correct — required positional args are given normally, then `seat` is explicitly overridden by keyword.",
+        "Incorrect — this omits the required `city` and `date` arguments, causing a TypeError.",
+        "Incorrect — positional arguments cannot appear after a keyword argument; this is a SyntaxError."
+      ]
+    }
+  ],
+  m3: [
+    {
+      q: "In what order should you read a Python traceback?",
+      opts: ["Top to bottom","Bottom to top","Left to right only","Order doesn't matter"],
+      correct: 1,
+      explain: [
+        "Incorrect — reading top to bottom, you'd hit call-chain details before the actual error type.",
+        "Correct — the exception type and message are on the last line; read upward to trace the call chain that caused it.",
+        "Incorrect — tracebacks are structured line by line, not by horizontal position.",
+        "Incorrect — order matters a lot for understanding causality."
+      ]
+    },
+    {
+      q: "When does the `else` block in a try/except/else run?",
+      opts: [
+        "Only when an exception occurs",
+        "Only when no exception occurs in the try block",
+        "Always, regardless of exceptions",
+        "Only if finally is also present"
+      ],
+      correct: 1,
+      explain: [
+        "Incorrect — that's the except block's job.",
+        "Correct — `else` runs only if the try block completed with no exception raised.",
+        "Incorrect — that describes `finally`, not `else`.",
+        "Incorrect — `else` works independently of whether `finally` is present."
+      ]
+    },
+    {
+      q: "Why is a bare `except:` considered bad practice?",
+      opts: [
+        "It's a syntax error in Python 3",
+        "It catches every exception, including ones you didn't anticipate, hiding real bugs",
+        "It only works inside classes",
+        "It automatically re-raises the exception anyway"
+      ],
+      correct: 1,
+      explain: [
+        "Incorrect — it's valid syntax, just discouraged.",
+        "Correct — a bare except swallows everything, from typos (NameError) to interrupts, making debugging much harder.",
+        "Incorrect — it works anywhere try/except is valid.",
+        "Incorrect — a bare except suppresses the exception rather than re-raising it."
+      ]
+    },
+    {
+      q: "What is true about the `finally` block?",
+      opts: [
+        "It only runs if an exception was raised",
+        "It runs only if no exception was raised",
+        "It always runs, whether or not an exception occurred",
+        "It replaces the need for except entirely"
+      ],
+      correct: 2,
+      explain: [
+        "Incorrect — it runs regardless of whether an exception occurred.",
+        "Incorrect — same reasoning, it's unconditional either way.",
+        "Correct — `finally` is guaranteed to run for cleanup, success or failure.",
+        "Incorrect — finally handles cleanup, not catching; except is still needed to handle errors."
+      ]
+    }
+  ],
+  m4: [
+    {
+      q: "Why create a custom exception class like `InsufficientFundsError`?",
+      opts: [
+        "Because built-in exceptions are deprecated",
+        "To let callers catch that specific domain error without accidentally catching unrelated ones",
+        "It's required by Python syntax for all raise statements",
+        "It makes the code run faster"
+      ],
+      correct: 1,
+      explain: [
+        "Incorrect — built-in exceptions are not deprecated and remain widely used.",
+        "Correct — custom exceptions give callers precise, self-documenting error types to catch.",
+        "Incorrect — `raise` works fine with built-in exceptions too.",
+        "Incorrect — custom exceptions don't affect runtime performance meaningfully."
+      ]
+    },
+    {
+      q: "What does `raise ConfigError(...) from e` accomplish?",
+      opts: [
+        "It silently discards the original exception `e`",
+        "It preserves `e` as the documented cause while raising a new, higher-level exception",
+        "It converts `e` into a warning instead of an exception",
+        "It retries the operation that raised `e`"
+      ],
+      correct: 1,
+      explain: [
+        "Incorrect — the opposite is true; `from e` preserves it in the traceback as the cause.",
+        "Correct — exception chaining keeps the original cause visible while communicating a clearer, higher-level error.",
+        "Incorrect — it stays an exception; nothing becomes a warning.",
+        "Incorrect — chaining doesn't retry anything automatically."
+      ]
+    },
+    {
+      q: "What is the main purpose of a decorator like `@retry(times=3)`?",
+      opts: [
+        "To change the return type of a function permanently",
+        "To add reusable behavior (like retry logic) around a function without modifying its body",
+        "To delete a function after it's used",
+        "To convert a function into a class"
+      ],
+      correct: 1,
+      explain: [
+        "Incorrect — decorators wrap behavior; they don't inherently change return types.",
+        "Correct — decorators wrap the original function with extra behavior, keeping the core logic untouched and reusable.",
+        "Incorrect — decorators don't delete functions.",
+        "Incorrect — a decorator returns a wrapped function, not a class, by default."
+      ]
+    },
+    {
+      q: "What advantage does a `with` block have over manual `try/finally` for resource cleanup?",
+      opts: [
+        "It's functionally different and cannot guarantee cleanup",
+        "It's more concise while still guaranteeing cleanup runs, even on exceptions",
+        "It disables exception propagation entirely",
+        "It only works with files, never with other resources"
+      ],
+      correct: 1,
+      explain: [
+        "Incorrect — `with` does guarantee cleanup, via the context manager protocol.",
+        "Correct — `with` is the idiomatic, concise way to guarantee `__exit__`/cleanup logic runs regardless of exceptions.",
+        "Incorrect — exceptions still propagate normally after cleanup unless explicitly suppressed by the context manager.",
+        "Incorrect — `with` works with any object implementing the context manager protocol (files, locks, connections, etc.)."
+      ]
+    }
+  ]
+};
+
+/* ===================== QUIZ RENDER/LOGIC ===================== */
+function renderQuiz(moduleId){
+  const container = document.getElementById('quiz-'+moduleId);
+  const data = quizzes[moduleId];
+  container.innerHTML = '';
+  const answers = new Array(data.length).fill(null);
+
+  data.forEach((item, qi)=>{
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    block.innerHTML = `<div class="q-text">${qi+1}. ${item.q.replace(/\n/g,'<br>')}</div>
+      <div class="q-opts" data-qi="${qi}"></div>
+      <div class="q-explain" id="explain-${moduleId}-${qi}"></div>`;
+    const optsWrap = block.querySelector('.q-opts');
+    item.opts.forEach((opt, oi)=>{
+      const optEl = document.createElement('div');
+      optEl.className = 'q-opt';
+      optEl.innerHTML = `<span class="letter">${String.fromCharCode(65+oi)}</span><span>${opt}</span>`;
+      optEl.onclick = ()=> selectAnswer(moduleId, qi, oi, answers);
+      optsWrap.appendChild(optEl);
+    });
+    container.appendChild(block);
+  });
+
+  container._answers = answers;
+}
+
+function selectAnswer(moduleId, qi, oi, answers){
+  if(answers[qi] !== null) return; // lock after first pick
+  answers[qi] = oi;
+  const item = quizzes[moduleId][qi];
+  const optsWrap = document.querySelectorAll(`#quiz-${moduleId} .q-opts`)[qi];
+  const opts = optsWrap.querySelectorAll('.q-opt');
+  opts.forEach((el, idx)=>{
+    el.classList.add('selected');
+    if(idx === item.correct) el.classList.add('correct');
+    else if(idx === oi) el.classList.add('incorrect');
+  });
+  const explainEl = document.getElementById(`explain-${moduleId}-${qi}`);
+  explainEl.innerHTML = item.explain.map((e,i)=>{
+    const label = i===item.correct ? '<b>✓ Correct answer.</b> ' : (i===oi ? '<b>Your answer.</b> ' : '');
+    return (i===oi || i===item.correct) ? `<div style="margin-bottom:6px;">${label}${e}</div>` : '';
+  }).join('');
+  explainEl.classList.add('show');
+
+  const allAnswered = answers.every(a=>a!==null);
+  if(allAnswered){
+    finishQuiz(moduleId, answers);
+  }
+  state.xp += 10;
+  updateProgress();
+}
+
+function finishQuiz(moduleId, answers){
+  const data = quizzes[moduleId];
+  let score = 0;
+  answers.forEach((a,i)=>{ if(a===data[i].correct) score++; });
+  document.getElementById('score-'+moduleId).textContent = score+'/4';
+  const pct = (score/data.length)*100;
+  const fb = document.getElementById('feedback-'+moduleId);
+  const nextMap = {m1:'m2',m2:'m3',m3:'m4',m4:'final'};
+  const unlockBtn = document.getElementById('unlock-'+moduleId);
+
+  if(pct >= 70){
+    fb.textContent = pct===100 ? "Perfect score! You've mastered this module." : "Nice work — you've cleared the threshold to continue.";
+    state.xp += 40;
+    unlockBtn.disabled = false;
+    state.unlocked[nextMap[moduleId]] = true;
+  } else {
+    fb.textContent = "Below the 70% mark — review the explanations above, then continue when ready.";
+    unlockBtn.disabled = false; // allow progressing anyway, but flag it
+    unlockBtn.textContent = unlockBtn.textContent.replace('Unlock','Continue to');
+    state.unlocked[nextMap[moduleId]] = true;
+  }
+  state.done[moduleId] = true;
+  document.getElementById('summary-'+moduleId).classList.add('show');
+  buildNav();
+  updateProgress();
+}
+
+/* ===================== SANDBOX (signature interactive element) ===================== */
+function runSandbox(){
+  const a = document.getElementById('sbA').value.trim();
+  const b = document.getElementById('sbB').value.trim();
+  const out = document.getElementById('sbOut');
+  const code = `def safe_divide(a, b):
+    try:
+        result = a / b
+    except ZeroDivisionError:
+        return "Error: cannot divide by zero"
+    except TypeError:
+        return "Error: both inputs must be numbers"
+    else:
+        return result
+    finally:
+        print("safe_divide() attempt finished")
+
+>>> safe_divide(${a}, ${b})`;
+
+  const numA = parseFloat(a), numB = parseFloat(b);
+  let resultLine;
+  if(isNaN(numA) || isNaN(numB)){
+    resultLine = `<span class="err">Error: both inputs must be numbers</span>`;
+  } else if(numB === 0){
+    resultLine = `<span class="err">Error: cannot divide by zero</span>`;
+  } else {
+    resultLine = `<span class="ok">${(numA/numB)}</span>`;
+  }
+  out.innerHTML = code.replace(`>>> safe_divide(${a}, ${b})`, `>>> safe_divide(${a}, ${b})\nsafe_divide() attempt finished\n${resultLine}`);
+}
+
+/* ===================== FINAL CHALLENGE ===================== */
+function completeChallenge(){
+  if(!state.done.final){
+    state.xp += 80;
+    state.done.final = true;
+    document.getElementById('challengeBtn').disabled = true;
+    document.getElementById('challengeBtn').textContent = '✓ Challenge Complete';
+    document.getElementById('certBox').style.display = 'block';
+    document.getElementById('certXp').textContent = `Total XP earned: ${state.xp}`;
+    buildNav();
+    updateProgress();
+  }
+}
+
+/* ===================== INIT ===================== */
+buildNav();
+updateProgress();
+renderQuiz('m1');
+renderQuiz('m2');
+renderQuiz('m3');
+renderQuiz('m4');
+</script>
+</body>
+</html>

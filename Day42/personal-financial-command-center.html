@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ledger — Financial Command Center</title>
+<style>
+:root{
+  --ink:#10151a;
+  --ink-2:#161d24;
+  --ink-3:#1d262e;
+  --paper:#efe6d0;
+  --paper-dim:#d9d0ba;
+  --brass:#b08d57;
+  --brass-bright:#d1ac72;
+  --green:#3f7f68;
+  --green-bright:#57a888;
+  --brick:#a04a42;
+  --brick-bright:#c56158;
+  --slate:#8a978f;
+  --line:#2a343b;
+  --shadow: 0 12px 30px rgba(0,0,0,.35);
+  --radius:10px;
+  --font-display: 'Iowan Old Style','Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+  --font-body: -apple-system, 'Segoe UI', 'Inter', system-ui, sans-serif;
+  --font-mono: 'Courier New', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+[data-theme="light"]{
+  --ink:#f1ecdd;
+  --ink-2:#e8e1cc;
+  --ink-3:#ddd4ba;
+  --paper:#1a2027;
+  --paper-dim:#232b33;
+  --line:#c9bfa1;
+  --slate:#5c6b60;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--font-body);
+  min-height:100vh;
+  transition:background .4s ease,color .4s ease;
+}
+::selection{background:var(--brass); color:var(--ink);}
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--ink-3); border-radius:6px;}
+
+.tabular{font-variant-numeric: tabular-nums; font-family:var(--font-mono);}
+
+/* ===== App shell ===== */
+.app{display:grid; grid-template-columns:248px 1fr; min-height:100vh;}
+@media (max-width: 900px){ .app{grid-template-columns:1fr;} }
+
+/* ===== Sidebar ===== */
+.sidebar{
+  background:var(--ink-2);
+  border-right:1px solid var(--line);
+  padding:26px 18px;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+  display:flex; flex-direction:column; gap:22px;
+}
+@media (max-width:900px){ .sidebar{position:relative; height:auto;} }
+.brand{display:flex; align-items:center; gap:10px; padding:0 6px 16px; border-bottom:1px solid var(--line);}
+.brand-mark{
+  width:34px;height:34px;border-radius:50%;
+  background:conic-gradient(from 220deg, var(--brass), var(--green), var(--brass-bright), var(--brass));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display); font-weight:700; color:var(--ink); font-size:15px;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.25);
+}
+.brand-name{font-family:var(--font-display); font-size:19px; letter-spacing:.02em;}
+.brand-sub{font-size:10.5px; color:var(--slate); text-transform:uppercase; letter-spacing:.14em; margin-top:1px;}
+
+nav.tabs{display:flex; flex-direction:column; gap:2px;}
+.tab-group-label{font-size:10px; text-transform:uppercase; letter-spacing:.16em; color:var(--slate); margin:14px 8px 6px; }
+.tab-btn{
+  display:flex; align-items:center; gap:10px;
+  background:none; border:none; color:var(--paper); opacity:.72;
+  font-family:var(--font-body); font-size:13.5px; text-align:left;
+  padding:9px 10px; border-radius:7px; cursor:pointer;
+  transition:background .18s ease, opacity .18s ease, transform .18s ease;
+}
+.tab-btn:hover{background:var(--ink-3); opacity:1;}
+.tab-btn.active{background:var(--ink-3); opacity:1; color:var(--brass-bright); box-shadow:inset 2px 0 0 var(--brass);}
+.tab-btn .ic{font-size:15px; width:18px; text-align:center;}
+
+.sidebar-foot{margin-top:auto; padding-top:14px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:10px;}
+.theme-toggle{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  background:var(--ink-3); border:1px solid var(--line); border-radius:20px; padding:5px 6px;
+  cursor:pointer; font-size:12px; color:var(--paper);
+}
+.theme-toggle span{padding:3px 8px;}
+.print-btn, .reset-btn{
+  font-size:11.5px; color:var(--slate); background:none; border:1px dashed var(--line);
+  border-radius:7px; padding:7px 8px; cursor:pointer; text-align:center;
+}
+.print-btn:hover{color:var(--brass-bright); border-color:var(--brass);}
+.reset-btn:hover{color:var(--brick-bright); border-color:var(--brick);}
+
+/* ===== Main ===== */
+main{padding:32px 40px 80px; max-width:1180px;}
+@media(max-width:700px){ main{padding:22px 16px 60px;} }
+
+.section{display:none; animation:rise .5s ease both;}
+.section.active{display:block;}
+@keyframes rise{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+
+.page-head{display:flex; justify-content:space-between; align-items:flex-end; gap:18px; margin-bottom:24px; flex-wrap:wrap;}
+.eyebrow{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--brass-bright); margin-bottom:6px;}
+h1.page-title{font-family:var(--font-display); font-size:32px; font-weight:600; letter-spacing:.01em;}
+.page-desc{color:var(--slate); font-size:13.5px; max-width:480px; margin-top:6px; line-height:1.5;}
+
+/* ===== Cards / grid ===== */
+.grid{display:grid; gap:16px;}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:1000px){ .grid-4{grid-template-columns:repeat(2,1fr);} .grid-3{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:640px){ .grid-4,.grid-3,.grid-2{grid-template-columns:1fr;} }
+
+.card{
+  background:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:18px 18px; position:relative; overflow:hidden;
+}
+.card.pad-lg{padding:24px;}
+.card-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.13em; color:var(--slate); margin-bottom:8px;}
+.card-value{font-family:var(--font-mono); font-size:26px; font-weight:700; letter-spacing:-.01em;}
+.card-value.small{font-size:19px;}
+.card-delta{font-size:11.5px; margin-top:6px; color:var(--slate);}
+.delta-up{color:var(--green-bright);}
+.delta-down{color:var(--brick-bright);}
+.card-foot-line{height:3px; width:100%; background:var(--ink-3); border-radius:3px; margin-top:14px; overflow:hidden;}
+.card-foot-fill{height:100%; background:linear-gradient(90deg,var(--brass),var(--green-bright));}
+
+.section-title{font-family:var(--font-display); font-size:20px; margin:34px 0 14px; display:flex; align-items:center; gap:10px;}
+.section-title .rule{flex:1; height:1px; background:var(--line);}
+
+/* ===== Ledger stamp (health score) ===== */
+.stamp-row{display:flex; gap:26px; align-items:center; flex-wrap:wrap;}
+.stamp{
+  width:150px; height:150px; border-radius:50%;
+  border:3px double var(--brass);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:relative; flex-shrink:0;
+  background:radial-gradient(circle at 30% 25%, var(--ink-3), var(--ink-2) 70%);
+}
+.stamp::before{
+  content:""; position:absolute; inset:8px; border-radius:50%; border:1px dashed var(--line);
+}
+.stamp-score{font-family:var(--font-display); font-size:42px; font-weight:700; color:var(--brass-bright);}
+.stamp-label{font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--slate); margin-top:2px;}
+.stamp-tier{font-size:11px; margin-top:4px; color:var(--green-bright); font-weight:600;}
+
+.health-breakdown{flex:1; min-width:260px; display:flex; flex-direction:column; gap:10px;}
+.hb-row{display:flex; align-items:center; gap:10px; font-size:12.5px;}
+.hb-name{width:150px; color:var(--slate);}
+.hb-bar{flex:1; height:7px; background:var(--ink-3); border-radius:5px; overflow:hidden;}
+.hb-fill{height:100%; background:linear-gradient(90deg,var(--green),var(--green-bright));}
+.hb-val{width:34px; text-align:right; font-family:var(--font-mono);}
+
+/* ===== Forms ===== */
+.form-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+input, select, textarea{
+  background:var(--ink-3); border:1px solid var(--line); color:var(--paper);
+  padding:9px 11px; border-radius:7px; font-family:var(--font-body); font-size:13px;
+  outline:none; transition:border-color .15s ease;
+}
+input:focus, select:focus, textarea:focus{border-color:var(--brass);}
+input::placeholder{color:var(--slate);}
+label.field{display:flex; flex-direction:column; gap:5px; font-size:11px; color:var(--slate); flex:1; min-width:110px;}
+button.btn{
+  background:var(--brass); color:var(--ink); border:none; font-weight:700;
+  padding:10px 16px; border-radius:7px; cursor:pointer; font-size:13px;
+  transition:transform .15s ease, background .15s ease;
+}
+button.btn:hover{background:var(--brass-bright); transform:translateY(-1px);}
+button.btn.secondary{background:none; border:1px solid var(--brass); color:var(--brass-bright);}
+button.btn.danger{background:none; border:1px solid var(--brick); color:var(--brick-bright);}
+button.btn:focus-visible, .tab-btn:focus-visible, input:focus-visible{outline:2px solid var(--brass-bright); outline-offset:2px;}
+
+/* ===== Tables ===== */
+table{width:100%; border-collapse:collapse; font-size:13px;}
+th{text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--slate); padding:8px 10px; border-bottom:1px solid var(--line);}
+td{padding:9px 10px; border-bottom:1px solid var(--ink-3);}
+tr:last-child td{border-bottom:none;}
+.tag{display:inline-block; font-size:10px; padding:2px 8px; border-radius:20px; border:1px solid var(--line);}
+.tag.deductible{color:var(--green-bright); border-color:var(--green);}
+.tag.personal{color:var(--slate);}
+.row-del{background:none;border:none;color:var(--slate);cursor:pointer;font-size:13px;}
+.row-del:hover{color:var(--brick-bright);}
+.empty-state{padding:30px 12px; text-align:center; color:var(--slate); font-size:13px; border:1px dashed var(--line); border-radius:8px;}
+
+/* ===== Charts (SVG) ===== */
+.chart-wrap{width:100%; overflow-x:auto;}
+svg.chart{width:100%; height:auto; display:block;}
+.axis-label{font-size:9px; fill:var(--slate); font-family:var(--font-mono);}
+.grid-line{stroke:var(--line); stroke-width:1;}
+
+/* ===== Tax stamp envelopes ===== */
+.envelope{
+  border:1px solid var(--line); border-radius:var(--radius); padding:16px;
+  background:var(--ink-2); position:relative;
+}
+.envelope::after{
+  content:"SET ASIDE"; position:absolute; top:10px; right:12px; font-size:9px;
+  letter-spacing:.14em; color:var(--brass); border:1px solid var(--brass); padding:2px 6px; border-radius:3px; opacity:.7; transform:rotate(4deg);
+}
+
+/* ===== Insights ===== */
+.insight{
+  display:flex; gap:12px; padding:14px; border-left:3px solid var(--brass);
+  background:var(--ink-2); border-radius:0 8px 8px 0; margin-bottom:10px; font-size:13px; line-height:1.5;
+}
+.insight.warn{border-color:var(--brick);}
+.insight.good{border-color:var(--green);}
+.insight .ic{font-size:16px;}
+
+/* ===== Checklist ===== */
+.checklist-item{display:flex; align-items:flex-start; gap:10px; padding:10px 4px; border-bottom:1px solid var(--ink-3); font-size:13.5px;}
+.checklist-item input{width:16px;height:16px;margin-top:2px; accent-color:var(--brass);}
+.checklist-item.done label{text-decoration:line-through; color:var(--slate);}
+
+.tip-card{background:var(--ink-2); border:1px solid var(--line); border-radius:var(--radius); padding:16px; font-size:13px; line-height:1.6;}
+.tip-card h4{font-family:var(--font-display); font-size:15px; margin-bottom:6px; color:var(--brass-bright);}
+
+.resource-link{display:flex; justify-content:space-between; padding:10px 4px; border-bottom:1px solid var(--ink-3); font-size:13px;}
+.resource-link:last-child{border-bottom:none;}
+
+.prompt-box{
+  background:var(--ink-3); border:1px dashed var(--brass); border-radius:8px; padding:12px 14px;
+  font-family:var(--font-mono); font-size:12px; margin-bottom:10px; position:relative; line-height:1.5;
+}
+.copy-btn{position:absolute; top:8px; right:8px; font-size:10px; background:var(--brass); color:var(--ink); border:none; border-radius:4px; padding:3px 7px; cursor:pointer;}
+
+.slider-row{display:flex; flex-direction:column; gap:6px; margin-bottom:18px;}
+input[type=range]{-webkit-appearance:none; height:5px; background:var(--ink-3); border-radius:5px;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--brass-bright); cursor:pointer; border:2px solid var(--ink);}
+.slider-out{font-family:var(--font-mono); color:var(--brass-bright); font-weight:700;}
+
+.two-col{display:grid; grid-template-columns:1.3fr 1fr; gap:20px;}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+
+footer.print-only{display:none;}
+@media print{
+  .sidebar, .no-print{display:none !important;}
+  .app{display:block;}
+  main{padding:0; max-width:100%;}
+  body{background:#fff; color:#111;}
+  .section{display:block !important;}
+  .card, .envelope, .insight, .tip-card{background:#fafafa; border-color:#ccc;}
+}
+.toast{
+  position:fixed; bottom:20px; right:20px; background:var(--brass); color:var(--ink);
+  padding:11px 18px; border-radius:8px; font-size:13px; font-weight:600; box-shadow:var(--shadow);
+  transform:translateY(20px); opacity:0; pointer-events:none; transition:all .3s ease; z-index:99;
+}
+.toast.show{transform:translateY(0); opacity:1;}
+</style>
+</head>
+<body data-theme="dark">
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar no-print">
+    <div class="brand">
+      <div class="brand-mark">₤</div>
+      <div>
+        <div class="brand-name">The Ledger</div>
+        <div class="brand-sub">Freelance Command Center</div>
+      </div>
+    </div>
+
+    <nav class="tabs" id="tabNav">
+      <button class="tab-btn active" data-tab="overview"><span class="ic">◈</span> Overview</button>
+
+      <div class="tab-group-label">Money In / Out</div>
+      <button class="tab-btn" data-tab="income"><span class="ic">↳</span> Income Log</button>
+      <button class="tab-btn" data-tab="expenses"><span class="ic">↱</span> Expenses</button>
+      <button class="tab-btn" data-tab="cashflow"><span class="ic">∿</span> Cash Flow</button>
+
+      <div class="tab-group-label">Tax &amp; Business</div>
+      <button class="tab-btn" data-tab="tax"><span class="ic">✒</span> Tax Center</button>
+      <button class="tab-btn" data-tab="budget"><span class="ic">▤</span> Budget</button>
+      <button class="tab-btn" data-tab="subscriptions"><span class="ic">↻</span> Subscriptions</button>
+
+      <div class="tab-group-label">Ahead</div>
+      <button class="tab-btn" data-tab="savings"><span class="ic">◔</span> Savings &amp; Buffer</button>
+      <button class="tab-btn" data-tab="goals"><span class="ic">◎</span> Goals</button>
+      <button class="tab-btn" data-tab="whatif"><span class="ic">⇄</span> What-if Lab</button>
+
+      <div class="tab-group-label">Understand</div>
+      <button class="tab-btn" data-tab="insights"><span class="ic">✦</span> Insights</button>
+      <button class="tab-btn" data-tab="calculators"><span class="ic">÷</span> Calculators</button>
+      <button class="tab-btn" data-tab="reports"><span class="ic">▣</span> Reports</button>
+      <button class="tab-btn" data-tab="learn"><span class="ic">◆</span> Tips &amp; Resources</button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="theme-toggle" id="themeToggle"><span>☀ Light</span><span>☾ Dark</span></div>
+      <button class="print-btn" id="printBtn">Print / Export report</button>
+      <button class="reset-btn" id="resetBtn">Reset all data</button>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main>
+
+    <!-- OVERVIEW -->
+    <section class="section active" id="overview">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Ledger — Overview</div>
+          <h1 class="page-title">Good standing, freelancer.</h1>
+          <p class="page-desc">A single glance at income, tax exposure, and business health — the way your finances actually move, not a static balance sheet.</p>
+        </div>
+      </div>
+
+      <div class="card pad-lg" style="margin-bottom:22px;">
+        <div class="stamp-row">
+          <div class="stamp">
+            <div class="stamp-score tabular" id="healthScore">--</div>
+            <div class="stamp-label">Health Score</div>
+            <div class="stamp-tier" id="healthTier">—</div>
+          </div>
+          <div class="health-breakdown" id="healthBreakdown"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-4" id="overviewCards"></div>
+
+      <div class="section-title"><span>Cash flow, last 6 months</span><span class="rule"></span></div>
+      <div class="card pad-lg">
+        <div class="chart-wrap"><svg class="chart" id="overviewCashflowChart" viewBox="0 0 900 260"></svg></div>
+      </div>
+
+      <div class="two-col" style="margin-top:20px;">
+        <div>
+          <div class="section-title"><span>Where the money goes</span><span class="rule"></span></div>
+          <div class="card pad-lg">
+            <div class="chart-wrap"><svg class="chart" id="overviewDonut" viewBox="0 0 280 280"></svg></div>
+          </div>
+        </div>
+        <div>
+          <div class="section-title"><span>Top insight</span><span class="rule"></span></div>
+          <div id="overviewInsights"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INCOME -->
+    <section class="section" id="income">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Money In</div>
+          <h1 class="page-title">Income Log</h1>
+          <p class="page-desc">Freelance income is lumpy by nature. Track every payment so averages and volatility become visible, not guessed at.</p>
+        </div>
+      </div>
+      <div class="card pad-lg" style="margin-bottom:20px;">
+        <div class="form-row">
+          <label class="field">Client / Source<input id="incClient" placeholder="e.g. Nimbus Studio"></label>
+          <label class="field">Amount<input id="incAmount" type="number" placeholder="1500"></label>
+          <label class="field">Date<input id="incDate" type="date"></label>
+          <label class="field">Type
+            <select id="incType"><option>Project</option><option>Retainer</option><option>Royalty</option><option>Other</option></select>
+          </label>
+        </div>
+        <button class="btn" id="addIncomeBtn">Add income</button>
+      </div>
+
+      <div class="grid grid-3" style="margin-bottom:20px;">
+        <div class="card"><div class="card-label">Avg monthly income</div><div class="card-value tabular" id="incAvg">$0</div></div>
+        <div class="card"><div class="card-label">Income volatility</div><div class="card-value small tabular" id="incVol">—</div><div class="card-delta">Higher = less predictable month to month</div></div>
+        <div class="card"><div class="card-label">Best client (YTD)</div><div class="card-value small" id="incBest">—</div></div>
+      </div>
+
+      <div class="card pad-lg">
+        <table id="incomeTable"><thead><tr><th>Date</th><th>Client</th><th>Type</th><th>Amount</th><th></th></tr></thead><tbody></tbody></table>
+        <div class="empty-state" id="incomeEmpty" style="display:none;">No income logged yet. Add your first payment above.</div>
+      </div>
+    </section>
+
+    <!-- EXPENSES -->
+    <section class="section" id="expenses">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Money Out</div>
+          <h1 class="page-title">Expenses</h1>
+          <p class="page-desc">Tag each expense as business or personal — this single tag drives your deduction estimate and tax set-aside.</p>
+        </div>
+      </div>
+      <div class="card pad-lg" style="margin-bottom:20px;">
+        <div class="form-row">
+          <label class="field">Description<input id="expDesc" placeholder="e.g. Adobe subscription"></label>
+          <label class="field">Amount<input id="expAmount" type="number" placeholder="55"></label>
+          <label class="field">Date<input id="expDate" type="date"></label>
+          <label class="field">Category
+            <select id="expCategory"><option>Software</option><option>Equipment</option><option>Travel</option><option>Marketing</option><option>Office</option><option>Meals</option><option>Rent/Utilities</option><option>Health</option><option>Personal</option><option>Other</option></select>
+          </label>
+          <label class="field">Nature
+            <select id="expNature"><option value="business">Business (deductible)</option><option value="personal">Personal</option></select>
+          </label>
+        </div>
+        <button class="btn" id="addExpenseBtn">Add expense</button>
+      </div>
+
+      <div class="grid grid-3" style="margin-bottom:20px;">
+        <div class="card"><div class="card-label">Business spend (YTD)</div><div class="card-value tabular" id="expBiz">$0</div></div>
+        <div class="card"><div class="card-label">Personal spend (YTD)</div><div class="card-value tabular" id="expPersonal">$0</div></div>
+        <div class="card"><div class="card-label">Est. deductible total</div><div class="card-value tabular" id="expDeductible">$0</div><div class="card-delta">Business-tagged expenses, YTD</div></div>
+      </div>
+
+      <div class="card pad-lg" style="margin-bottom:20px;">
+        <div class="chart-wrap"><svg class="chart" id="expenseByCategoryChart" viewBox="0 0 900 240"></svg></div>
+      </div>
+
+      <div class="card pad-lg">
+        <table id="expenseTable"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Nature</th><th>Amount</th><th></th></tr></thead><tbody></tbody></table>
+        <div class="empty-state" id="expenseEmpty" style="display:none;">No expenses logged yet.</div>
+      </div>
+    </section>
+
+    <!-- CASH FLOW -->
+    <section class="section" id="cashflow">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Movement</div>
+          <h1 class="page-title">Cash Flow</h1>
+          <p class="page-desc">Income minus expenses, month by month — the true pulse of a freelance business.</p>
+        </div>
+      </div>
+      <div class="card pad-lg" style="margin-bottom:20px;">
+        <div class="chart-wrap"><svg class="chart" id="cashflowMainChart" viewBox="0 0 900 300"></svg></div>
+      </div>
+      <div class="grid grid-3">
+        <div class="card"><div class="card-label">Net this month</div><div class="card-value tabular" id="cfNetMonth">$0</div></div>
+        <div class="card"><div class="card-label">Net YTD</div><div class="card-value tabular" id="cfNetYtd">$0</div></div>
+        <div class="card"><div class="card-label">Runway if income stopped</div><div class="card-value tabular" id="cfRunway">—</div><div class="card-delta">Based on current buffer ÷ avg monthly spend</div></div>
+      </div>
+    </section>
+
+    <!-- TAX CENTER -->
+    <section class="section" id="tax">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Tax &amp; Business</div>
+          <h1 class="page-title">Tax Center</h1>
+          <p class="page-desc">Self-employment tax doesn't withhold itself. Set an aside-rate, watch your envelope fill, and see what's owed each quarter.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-bottom:20px;">
+        <div class="envelope">
+          <div class="card-label">Tax set-aside envelope</div>
+          <div class="card-value tabular" id="taxEnvelopeAmt">$0</div>
+          <div class="card-delta">at <span id="taxRateLabel">25</span>% of net business income, YTD</div>
+          <div class="card-foot-line"><div class="card-foot-fill" id="taxEnvelopeFill" style="width:0%;"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Set your set-aside rate</div>
+          <div class="slider-row">
+            <input type="range" id="taxRateSlider" min="10" max="40" value="25" step="1">
+            <div>Setting aside <span class="slider-out" id="taxRateOut">25%</span> of net business income for taxes</div>
+          </div>
+          <p class="page-desc" style="max-width:100%;">A common starting point for self-employed filers is 25–30%, covering income tax and self-employment tax — confirm your actual bracket with a tax professional.</p>
+        </div>
+      </div>
+
+      <div class="section-title"><span>Quarterly estimated payments</span><span class="rule"></span></div>
+      <div class="card pad-lg" style="margin-bottom:20px;">
+        <table id="quarterlyTaxTable">
+          <thead><tr><th>Quarter</th><th>Net business income</th><th>Est. tax owed</th><th>Due (typical US dates)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="section-title"><span>Deduction tracker</span><span class="rule"></span></div>
+      <div class="card pad-lg">
+        <div class="chart-wrap"><svg class="chart" id="deductionChart" viewBox="0 0 900 220"></svg></div>
+        <p class="page-desc" style="max-width:100%; margin-top:10px;">Built from expenses tagged “Business” in your Expense log. Keep receipts — this dashboard estimates, it does not file.</p>
+      </div>
+    </section>
+
+    <!-- BUDGET -->
+    <section class="section" id="budget">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Tax &amp; Business</div>
+          <h1 class="page-title">Budget</h1>
+          <p class="page-desc">Set monthly ceilings by category and track actual spend against them.</p>
+        </div>
+      </div>
+      <div class="card pad-lg" style="margin-bottom:20px;">
+        <div class="form-row">
+          <label class="field">Category
+            <select id="budgetCategory"><option>Software</option><option>Equipment</option><option>Travel</option><option>Marketing</option><option>Office</option><option>Meals</option><option>Rent/Utilities</option><option>Health</option><option>Personal</option><option>Other</option></select>
+          </label>
+          <label class="field">Monthly limit<input id="budgetLimit" type="number" placeholder="200"></label>
+        </div>
+        <button class="btn" id="addBudgetBtn">Set budget</button>
+      </div>
+      <div class="grid grid-2" id="budgetCards"></div>
+    </section>
+
+    <!-- SUBSCRIPTIONS -->
+    <section class="section" id="subscriptions">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Tax &amp; Business</div>
+          <h1 class="page-title">Subscriptions</h1>
+          <p class="page-desc">Recurring charges are the easiest business cost to lose track of. List them once, see the annual toll.</p>
+        </div>
+      </div>
+      <div class="card pad-lg" style="margin-bottom:20px;">
+        <div class="form-row">
+          <label class="field">Name<input id="subName" placeholder="e.g. Figma"></label>
+          <label class="field">Amount<input id="subAmount" type="number" placeholder="15"></label>
+          <label class="field">Billing
+            <select id="subCycle"><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select>
+          </label>
+          <label class="field">Nature
+            <select id="subNature"><option value="business">Business</option><option value="personal">Personal</option></select>
+          </label>
+        </div>
+        <button class="btn" id="addSubBtn">Add subscription</button>
+      </div>
+      <div class="grid grid-3" style="margin-bottom:20px;">
+        <div class="card"><div class="card-label">Monthly total</div><div class="card-value tabular" id="subMonthly">$0</div></div>
+        <div class="card"><div class="card-label">Annualized cost</div><div class="card-value tabular" id="subYearly">$0</div></div>
+        <div class="card"><div class="card-label">Active subscriptions</div><div class="card-value tabular" id="subCount">0</div></div>
+      </div>
+      <div class="card pad-lg">
+        <table id="subTable"><thead><tr><th>Name</th><th>Nature</th><th>Billing</th><th>Monthly equiv.</th><th></th></tr></thead><tbody></tbody></table>
+        <div class="empty-state" id="subEmpty" style="display:none;">No subscriptions added yet.</div>
+      </div>
+    </section>
+
+    <!-- SAVINGS -->
+    <section class="section" id="savings">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Ahead</div>
+          <h1 class="page-title">Savings &amp; Emergency Buffer</h1>
+          <p class="page-desc">With irregular income, a cash buffer matters more than almost any other number. Aim for 3–6 months of essential expenses.</p>
+        </div>
+      </div>
+      <div class="card pad-lg" style="margin-bottom:20px;">
+        <div class="form-row">
+          <label class="field">Current buffer balance<input id="bufferBalance" type="number" placeholder="4000"></label>
+          <label class="field">Target (months of expenses)
+            <select id="bufferMonths"><option value="3">3 months</option><option value="6" selected>6 months</option><option value="9">9 months</option></select>
+          </label>
+        </div>
+        <button class="btn" id="saveBufferBtn">Save</button>
+      </div>
+      <div class="card pad-lg">
+        <div class="card-label">Buffer progress</div>
+        <div class="card-value tabular" id="bufferAmt">$0 / $0</div>
+        <div class="card-foot-line" style="height:8px;"><div class="card-foot-fill" id="bufferFill" style="width:0%;"></div></div>
+        <p class="page-desc" style="max-width:100%; margin-top:12px;" id="bufferNote"></p>
+      </div>
+    </section>
+
+    <!-- GOALS -->
+    <section class="section" id="goals">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Ahead</div>
+          <h1 class="page-title">Goals</h1>
+          <p class="page-desc">New equipment fund, tax-prep software, a slow-season cushion — track anything you're saving toward.</p>
+        </div>
+      </div>
+      <div class="card pad-lg" style="margin-bottom:20px;">
+        <div class="form-row">
+          <label class="field">Goal name<input id="goalName" placeholder="e.g. New laptop"></label>
+          <label class="field">Target amount<input id="goalTarget" type="number" placeholder="2000"></label>
+          <label class="field">Saved so far<input id="goalSaved" type="number" placeholder="500"></label>
+        </div>
+        <button class="btn" id="addGoalBtn">Add goal</button>
+      </div>
+      <div class="grid grid-2" id="goalCards"></div>
+    </section>
+
+    <!-- WHAT IF -->
+    <section class="section" id="whatif">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Ahead</div>
+          <h1 class="page-title">What-if Lab</h1>
+          <p class="page-desc">Simulate rate changes, new clients, or slow months before they happen.</p>
+        </div>
+      </div>
+
+      <div class="card pad-lg" style="margin-bottom:20px;">
+        <div class="slider-row">
+          <label>Change monthly income by <span class="slider-out" id="wiIncomeOut">0%</span></label>
+          <input type="range" id="wiIncome" min="-50" max="50" value="0" step="5">
+        </div>
+        <div class="slider-row">
+          <label>Change monthly expenses by <span class="slider-out" id="wiExpenseOut">0%</span></label>
+          <input type="range" id="wiExpense" min="-50" max="50" value="0" step="5">
+        </div>
+        <div class="slider-row">
+          <label>Tax set-aside rate <span class="slider-out" id="wiTaxOut">25%</span></label>
+          <input type="range" id="wiTax" min="10" max="40" value="25" step="1">
+        </div>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="card"><div class="card-label">Simulated monthly income</div><div class="card-value tabular" id="wiResIncome">$0</div></div>
+        <div class="card"><div class="card-label">Simulated monthly expenses</div><div class="card-value tabular" id="wiResExpense">$0</div></div>
+        <div class="card"><div class="card-label">Simulated take-home (after tax set-aside)</div><div class="card-value tabular" id="wiResTakeHome">$0</div></div>
+      </div>
+    </section>
+
+    <!-- INSIGHTS -->
+    <section class="section" id="insights">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Understand</div>
+          <h1 class="page-title">Insights</h1>
+          <p class="page-desc">Plain-language observations generated from your own numbers — no external data, everything stays on this device.</p>
+        </div>
+      </div>
+      <div id="insightsList"></div>
+    </section>
+
+    <!-- CALCULATORS -->
+    <section class="section" id="calculators">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Understand</div>
+          <h1 class="page-title">Calculators</h1>
+          <p class="page-desc">Quick tools built for freelance decisions.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card pad-lg">
+          <h4 style="font-family:var(--font-display); font-size:16px; margin-bottom:10px; color:var(--brass-bright);">Effective hourly rate</h4>
+          <div class="form-row">
+            <label class="field">Desired annual income<input id="calcAnnual" type="number" placeholder="70000"></label>
+            <label class="field">Billable hours / week<input id="calcHours" type="number" placeholder="25"></label>
+            <label class="field">Weeks worked / year<input id="calcWeeks" type="number" placeholder="46"></label>
+          </div>
+          <button class="btn secondary" id="calcRateBtn">Calculate</button>
+          <div class="card-value tabular" id="calcRateOut" style="margin-top:14px;">—</div>
+        </div>
+
+        <div class="card pad-lg">
+          <h4 style="font-family:var(--font-display); font-size:16px; margin-bottom:10px; color:var(--brass-bright);">Quarterly tax set-aside</h4>
+          <div class="form-row">
+            <label class="field">Net income this quarter<input id="calcQNet" type="number" placeholder="12000"></label>
+            <label class="field">Set-aside rate %<input id="calcQRate" type="number" placeholder="25"></label>
+          </div>
+          <button class="btn secondary" id="calcQBtn">Calculate</button>
+          <div class="card-value tabular" id="calcQOut" style="margin-top:14px;">—</div>
+        </div>
+
+        <div class="card pad-lg">
+          <h4 style="font-family:var(--font-display); font-size:16px; margin-bottom:10px; color:var(--brass-bright);">Break-even client count</h4>
+          <div class="form-row">
+            <label class="field">Monthly fixed costs<input id="calcFixed" type="number" placeholder="1800"></label>
+            <label class="field">Avg revenue per client<input id="calcPerClient" type="number" placeholder="600"></label>
+          </div>
+          <button class="btn secondary" id="calcBreakBtn">Calculate</button>
+          <div class="card-value tabular" id="calcBreakOut" style="margin-top:14px;">—</div>
+        </div>
+
+        <div class="card pad-lg">
+          <h4 style="font-family:var(--font-display); font-size:16px; margin-bottom:10px; color:var(--brass-bright);">Raise-your-rate impact</h4>
+          <div class="form-row">
+            <label class="field">Current rate<input id="calcCurRate" type="number" placeholder="50"></label>
+            <label class="field">Increase %<input id="calcRaisePct" type="number" placeholder="10"></label>
+            <label class="field">Hours / month<input id="calcRaiseHours" type="number" placeholder="80"></label>
+          </div>
+          <button class="btn secondary" id="calcRaiseBtn">Calculate</button>
+          <div class="card-value tabular" id="calcRaiseOut" style="margin-top:14px;">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="section" id="reports">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Understand</div>
+          <h1 class="page-title">Reports</h1>
+          <p class="page-desc">A printable summary — use <em>Print / Export report</em> in the sidebar to save as PDF.</p>
+        </div>
+      </div>
+      <div class="card pad-lg" id="reportSummary"></div>
+    </section>
+
+    <!-- LEARN -->
+    <section class="section" id="learn">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Understand</div>
+          <h1 class="page-title">Tips, Checklist &amp; Resources</h1>
+          <p class="page-desc">Freelance financial literacy, distilled.</p>
+        </div>
+      </div>
+
+      <div class="section-title"><span>Financial tips for freelancers</span><span class="rule"></span></div>
+      <div class="grid grid-2" style="margin-bottom:24px;">
+        <div class="tip-card"><h4>Pay yourself in two transfers</h4>Split every incoming payment immediately: one transfer to your tax envelope, one to your operating account. Doing it at the moment of deposit removes the decision later.</div>
+        <div class="tip-card"><h4>Invoice on a schedule, not a whim</h4>Irregular invoicing creates irregular income. A fixed billing day each month smooths your cash flow more than almost any other habit.</div>
+        <div class="tip-card"><h4>Separate bank accounts, always</h4>A dedicated business checking account makes deduction tracking and quarterly tax estimates dramatically simpler at filing time.</div>
+        <div class="tip-card"><h4>Price for slow months</h4>Your rate should account for unbilled admin time, gaps between contracts, and the buffer you're not currently earning interest on.</div>
+      </div>
+
+      <div class="section-title"><span>Freelancer financial checklist</span><span class="rule"></span></div>
+      <div class="card pad-lg" style="margin-bottom:24px;" id="checklistCard"></div>
+
+      <div class="section-title"><span>Resources</span><span class="rule"></span></div>
+      <div class="card pad-lg" style="margin-bottom:24px;">
+        <div class="resource-link"><span>IRS Self-Employed Individuals Tax Center</span><span style="color:var(--slate);">irs.gov</span></div>
+        <div class="resource-link"><span>Estimated Tax Payment Guidelines (Form 1040-ES)</span><span style="color:var(--slate);">irs.gov</span></div>
+        <div class="resource-link"><span>Local Small Business Development Center</span><span style="color:var(--slate);">sba.gov</span></div>
+        <div class="resource-link"><span>Freelancers Union — benefits &amp; guides</span><span style="color:var(--slate);">freelancersunion.org</span></div>
+      </div>
+
+      <div class="section-title"><span>Prompts to ask an AI assistant</span><span class="rule"></span></div>
+      <div class="card pad-lg">
+        <div class="prompt-box">“Given my average monthly income of $[X] and expenses of $[Y], what quarterly estimated tax payment should I plan for as a self-employed freelancer in [state/country]?”<button class="copy-btn" data-copy="prompt1">Copy</button></div>
+        <div class="prompt-box">“Review this list of business expenses and flag any that are commonly misclassified as personal or vice versa: [paste expense list].”<button class="copy-btn" data-copy="prompt2">Copy</button></div>
+        <div class="prompt-box">“I bill $[rate]/hour and work [hours]/week. Help me model what raising my rate by 10% would do to my annual income if I lose one client.”<button class="copy-btn" data-copy="prompt3">Copy</button></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   STATE
+========================================================= */
+const STORE_KEY = 'ledger_freelancer_v1';
+const defaultState = {
+  theme: 'dark',
+  income: [],
+  expenses: [],
+  subscriptions: [],
+  budgets: [],
+  goals: [],
+  buffer: { balance: 0, months: 6 },
+  taxRate: 25,
+  checklist: [
+    {id:'c1', text:'Open a separate business bank account', done:false},
+    {id:'c2', text:'Set a fixed weekly/monthly invoicing day', done:false},
+    {id:'c3', text:'Choose a tax set-aside rate and automate the transfer', done:false},
+    {id:'c4', text:'Build a 3–6 month emergency buffer', done:false},
+    {id:'c5', text:'Track every business expense with receipts', done:false},
+    {id:'c6', text:'Calendar quarterly estimated tax due dates', done:false},
+    {id:'c7', text:'Review and raise rates at least once a year', done:false},
+    {id:'c8', text:'Back up contracts and invoices off-platform', done:false},
+  ]
+};
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) return Object.assign(structuredClone(defaultState), JSON.parse(raw));
+  }catch(e){}
+  return structuredClone(defaultState);
+}
+function saveState(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+}
+function fmt(n){
+  n = Number(n)||0;
+  const neg = n<0;
+  n = Math.abs(n);
+  const s = '$' + n.toLocaleString(undefined,{maximumFractionDigits:0});
+  return neg ? '-'+s : s;
+}
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function monthKey(d){ const dt=new Date(d); return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0'); }
+function monthLabel(key){ const [y,m]=key.split('-'); return new Date(y,m-1,1).toLocaleString('default',{month:'short'}); }
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* =========================================================
+   NAV
+========================================================= */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+/* Theme */
+function applyTheme(){
+  document.body.setAttribute('data-theme', state.theme);
+  document.getElementById('themeToggle').style.background = 'var(--ink-3)';
+}
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(); saveState();
+});
+applyTheme();
+
+document.getElementById('printBtn').addEventListener('click', ()=>{ renderReport(); window.print(); });
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(confirm('This clears all locally saved data on this device. Continue?')){
+    localStorage.removeItem(STORE_KEY);
+    state = structuredClone(defaultState);
+    renderAll();
+    toast('All data reset.');
+  }
+});
+
+/* =========================================================
+   INCOME
+========================================================= */
+document.getElementById('addIncomeBtn').addEventListener('click', ()=>{
+  const client = document.getElementById('incClient').value.trim();
+  const amount = parseFloat(document.getElementById('incAmount').value);
+  const date = document.getElementById('incDate').value || new Date().toISOString().slice(0,10);
+  const type = document.getElementById('incType').value;
+  if(!client || !amount){ toast('Add a client and amount first.'); return; }
+  state.income.push({id:uid(), client, amount, date, type});
+  document.getElementById('incClient').value=''; document.getElementById('incAmount').value='';
+  saveState(); renderAll();
+  toast('Income logged.');
+});
+
+function renderIncome(){
+  const tbody = document.querySelector('#incomeTable tbody');
+  tbody.innerHTML='';
+  const sorted = [...state.income].sort((a,b)=> new Date(b.date)-new Date(a.date));
+  document.getElementById('incomeEmpty').style.display = sorted.length? 'none':'block';
+  sorted.forEach(row=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${row.date}</td><td>${escapeHtml(row.client)}</td><td>${row.type}</td><td class="tabular">${fmt(row.amount)}</td>
+      <td><button class="row-del" data-id="${row.id}">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('.row-del').forEach(b=>b.addEventListener('click', ()=>{
+    state.income = state.income.filter(r=>r.id!==b.dataset.id); saveState(); renderAll();
+  }));
+
+  // Averages / volatility by month
+  const byMonth = {};
+  state.income.forEach(r=>{ const k=monthKey(r.date); byMonth[k]=(byMonth[k]||0)+Number(r.amount); });
+  const vals = Object.values(byMonth);
+  const avg = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+  document.getElementById('incAvg').textContent = fmt(avg);
+  if(vals.length>1){
+    const variance = vals.reduce((a,b)=>a+Math.pow(b-avg,2),0)/vals.length;
+    const sd = Math.sqrt(variance);
+    const cv = avg ? (sd/avg*100) : 0;
+    document.getElementById('incVol').textContent = cv.toFixed(0)+'% swing';
+  } else {
+    document.getElementById('incVol').textContent = 'Add 2+ months';
+  }
+  const byClient = {};
+  state.income.forEach(r=>{ byClient[r.client]=(byClient[r.client]||0)+Number(r.amount); });
+  const best = Object.entries(byClient).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('incBest').textContent = best ? `${best[0]} · ${fmt(best[1])}` : '—';
+}
+
+/* =========================================================
+   EXPENSES
+========================================================= */
+document.getElementById('addExpenseBtn').addEventListener('click', ()=>{
+  const desc = document.getElementById('expDesc').value.trim();
+  const amount = parseFloat(document.getElementById('expAmount').value);
+  const date = document.getElementById('expDate').value || new Date().toISOString().slice(0,10);
+  const category = document.getElementById('expCategory').value;
+  const nature = document.getElementById('expNature').value;
+  if(!desc || !amount){ toast('Add a description and amount first.'); return; }
+  state.expenses.push({id:uid(), desc, amount, date, category, nature});
+  document.getElementById('expDesc').value=''; document.getElementById('expAmount').value='';
+  saveState(); renderAll();
+  toast('Expense logged.');
+});
+
+function renderExpenses(){
+  const tbody = document.querySelector('#expenseTable tbody');
+  tbody.innerHTML='';
+  const sorted = [...state.expenses].sort((a,b)=> new Date(b.date)-new Date(a.date));
+  document.getElementById('expenseEmpty').style.display = sorted.length? 'none':'block';
+  sorted.forEach(row=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${row.date}</td><td>${escapeHtml(row.desc)}</td><td>${row.category}</td>
+      <td><span class="tag ${row.nature==='business'?'deductible':'personal'}">${row.nature==='business'?'Business':'Personal'}</span></td>
+      <td class="tabular">${fmt(row.amount)}</td><td><button class="row-del" data-id="${row.id}">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('.row-del').forEach(b=>b.addEventListener('click', ()=>{
+    state.expenses = state.expenses.filter(r=>r.id!==b.dataset.id); saveState(); renderAll();
+  }));
+
+  const biz = state.expenses.filter(e=>e.nature==='business').reduce((a,b)=>a+Number(b.amount),0);
+  const personal = state.expenses.filter(e=>e.nature==='personal').reduce((a,b)=>a+Number(b.amount),0);
+  document.getElementById('expBiz').textContent = fmt(biz);
+  document.getElementById('expPersonal').textContent = fmt(personal);
+  document.getElementById('expDeductible').textContent = fmt(biz);
+
+  drawCategoryChart();
+  drawDeductionChart();
+}
+
+/* =========================================================
+   SVG CHART HELPERS
+========================================================= */
+function svgEl(tag, attrs){
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for(const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function clearSvg(svg){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+function cssVar(name){ return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+
+function last6Months(){
+  const arr=[];
+  const now = new Date();
+  for(let i=5;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    arr.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));
+  }
+  return arr;
+}
+function monthlyTotals(){
+  const months = last6Months();
+  const inc = {}, exp = {};
+  months.forEach(m=>{inc[m]=0; exp[m]=0;});
+  state.income.forEach(r=>{ const k=monthKey(r.date); if(k in inc) inc[k]+=Number(r.amount); });
+  state.expenses.forEach(r=>{ const k=monthKey(r.date); if(k in exp) exp[k]+=Number(r.amount); });
+  return {months, inc, exp};
+}
+
+function drawBarLineChart(svgId, opts){
+  const svg = document.getElementById(svgId);
+  clearSvg(svg);
+  const {months, inc, exp} = monthlyTotals();
+  const W = svg.viewBox.baseVal.width || 900, H = svg.viewBox.baseVal.height || 260;
+  const padL=50, padR=20, padT=20, padB=34;
+  const plotW = W-padL-padR, plotH = H-padT-padB;
+  const maxVal = Math.max(1, ...months.map(m=>Math.max(inc[m],exp[m])));
+  const step = plotW/months.length;
+
+  // gridlines
+  for(let i=0;i<=4;i++){
+    const y = padT + plotH - (plotH*i/4);
+    svg.appendChild(svgEl('line',{x1:padL,y1:y,x2:W-padR,y2:y,class:'grid-line'}));
+    const label = svgEl('text',{x:8,y:y+4,class:'axis-label'});
+    label.textContent = fmt(Math.round(maxVal*i/4));
+    svg.appendChild(label);
+  }
+
+  months.forEach((m,i)=>{
+    const x0 = padL + i*step;
+    const bw = step*0.28;
+    const incH = (inc[m]/maxVal)*plotH;
+    const expH = (exp[m]/maxVal)*plotH;
+    svg.appendChild(svgEl('rect',{x:x0+step*0.15, y:padT+plotH-incH, width:bw, height:Math.max(incH,1), fill:'url(#gradGreen)', rx:2}));
+    svg.appendChild(svgEl('rect',{x:x0+step*0.15+bw+4, y:padT+plotH-expH, width:bw, height:Math.max(expH,1), fill:'url(#gradBrick)', rx:2}));
+    const label = svgEl('text',{x:x0+step/2, y:H-10, class:'axis-label', 'text-anchor':'middle'});
+    label.textContent = monthLabel(m);
+    svg.appendChild(label);
+  });
+
+  const defs = svgEl('defs',{});
+  defs.innerHTML = `
+    <linearGradient id="gradGreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${cssVar('--green-bright')}"/><stop offset="100%" stop-color="${cssVar('--green')}"/>
+    </linearGradient>
+    <linearGradient id="gradBrick" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${cssVar('--brick-bright')}"/><stop offset="100%" stop-color="${cssVar('--brick')}"/>
+    </linearGradient>`;
+  svg.insertBefore(defs, svg.firstChild);
+
+  // legend
+  const lg = svgEl('text',{x:padL, y:14, class:'axis-label'}); lg.textContent='■ Income   ■ Expenses'; svg.appendChild(lg);
+}
+
+function drawCashflowLine(svgId){
+  const svg = document.getElementById(svgId);
+  clearSvg(svg);
+  const {months, inc, exp} = monthlyTotals();
+  const W = svg.viewBox.baseVal.width||900, H = svg.viewBox.baseVal.height||300;
+  const padL=55, padR=20, padT=20, padB=34;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const nets = months.map(m=>inc[m]-exp[m]);
+  const maxAbs = Math.max(1,...nets.map(v=>Math.abs(v)));
+  const zeroY = padT + plotH/2;
+  const step = plotW/(months.length-1||1);
+
+  svg.appendChild(svgEl('line',{x1:padL,y1:zeroY,x2:W-padR,y2:zeroY,class:'grid-line'}));
+  [1,-1].forEach(dir=>{
+    const y = zeroY - dir*plotH/2;
+    const label = svgEl('text',{x:8,y:y+4,class:'axis-label'});
+    label.textContent = fmt(Math.round(dir*maxAbs));
+    svg.appendChild(label);
+  });
+
+  let pathD = '';
+  const points = [];
+  nets.forEach((v,i)=>{
+    const x = padL + i*step;
+    const y = zeroY - (v/maxAbs)*(plotH/2);
+    points.push([x,y]);
+    pathD += (i===0?'M':'L') + x + ' ' + y + ' ';
+  });
+  svg.appendChild(svgEl('path',{d:pathD, fill:'none', stroke:cssVar('--brass-bright'), 'stroke-width':2.5}));
+  points.forEach(([x,y],i)=>{
+    svg.appendChild(svgEl('circle',{cx:x,cy:y,r:4,fill: nets[i]>=0? cssVar('--green-bright'):cssVar('--brick-bright')}));
+    const label = svgEl('text',{x, y:H-10, class:'axis-label', 'text-anchor':'middle'});
+    label.textContent = monthLabel(months[i]);
+    svg.appendChild(label);
+  });
+}
+
+function drawDonut(svgId, dataObj){
+  const svg = document.getElementById(svgId);
+  clearSvg(svg);
+  const entries = Object.entries(dataObj).filter(([,v])=>v>0);
+  const total = entries.reduce((a,[,v])=>a+v,0);
+  const cx=140, cy=140, r=100, rInner=58;
+  if(!total){
+    const t = svgEl('text',{x:cx,y:cy,'text-anchor':'middle',class:'axis-label'}); t.textContent='No expenses yet';
+    svg.appendChild(t); return;
+  }
+  const colors = [cssVar('--brass-bright'), cssVar('--green-bright'), cssVar('--brick-bright'), cssVar('--slate'), '#7d8fae', '#c98fc9', '#e0b060', '#7ec9b0', '#a58fd6'];
+  let angle = -Math.PI/2;
+  entries.forEach(([k,v],i)=>{
+    const frac = v/total;
+    const a2 = angle + frac*2*Math.PI;
+    const x1 = cx + r*Math.cos(angle), y1 = cy + r*Math.sin(angle);
+    const x2 = cx + r*Math.cos(a2), y2 = cy + r*Math.sin(a2);
+    const large = (a2-angle) > Math.PI ? 1 : 0;
+    const d = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
+    svg.appendChild(svgEl('path',{d, fill: colors[i%colors.length]}));
+    angle = a2;
+  });
+  svg.appendChild(svgEl('circle',{cx,cy,r:rInner, fill: cssVar('--ink-2')}));
+  const label = svgEl('text',{x:cx,y:cy-4,'text-anchor':'middle', class:'axis-label', style:'font-size:11px;'}); label.textContent='Total';
+  const val = svgEl('text',{x:cx,y:cy+14,'text-anchor':'middle', class:'tabular'}); val.setAttribute('fill', cssVar('--paper')); val.setAttribute('font-size','15'); val.textContent = fmt(total);
+  svg.appendChild(label); svg.appendChild(val);
+
+  // legend below via foreignObject-free text list appended after svg
+  let legendHost = svg.parentElement.querySelector('.donut-legend');
+  if(!legendHost){ legendHost = document.createElement('div'); legendHost.className='donut-legend'; legendHost.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:11px;'; svg.parentElement.appendChild(legendHost); }
+  legendHost.innerHTML='';
+  entries.forEach(([k,v],i)=>{
+    const chip = document.createElement('span');
+    chip.style.cssText=`display:inline-flex;align-items:center;gap:5px;color:${cssVar('--slate')}`;
+    chip.innerHTML = `<span style="width:9px;height:9px;border-radius:2px;background:${colors[i%colors.length]};display:inline-block;"></span>${k} · ${fmt(v)}`;
+    legendHost.appendChild(chip);
+  });
+}
+
+function drawCategoryChart(){
+  const svg = document.getElementById('expenseByCategoryChart');
+  clearSvg(svg);
+  const byCat = {};
+  state.expenses.forEach(e=>{ byCat[e.category]=(byCat[e.category]||0)+Number(e.amount); });
+  const entries = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const W=900,H=240, padL=110, padR=40, padT=20, padB=20;
+  if(!entries.length){
+    const t = svgEl('text',{x:W/2,y:H/2,'text-anchor':'middle',class:'axis-label'}); t.textContent='No expenses yet'; svg.appendChild(t); return;
+  }
+  const max = Math.max(...entries.map(e=>e[1]));
+  const rowH = (H-padT-padB)/entries.length;
+  entries.forEach(([cat,val],i)=>{
+    const y = padT + i*rowH + rowH*0.2;
+    const bw = (val/max)*(W-padL-padR);
+    svg.appendChild(svgEl('text',{x:padL-10,y:y+rowH*0.35,'text-anchor':'end',class:'axis-label'})).textContent=cat;
+    svg.appendChild(svgEl('rect',{x:padL,y:y,width:Math.max(bw,2),height:rowH*0.55, rx:4, fill: state.expenses.find(e=>e.category===cat)?.nature==='business'? cssVar('--green-bright'):cssVar('--slate')}));
+    const lbl = svgEl('text',{x:padL+bw+8,y:y+rowH*0.35,class:'axis-label'}); lbl.textContent=fmt(val); svg.appendChild(lbl);
+  });
+}
+
+function drawDeductionChart(){
+  const svg = document.getElementById('deductionChart');
+  if(!svg) return;
+  clearSvg(svg);
+  const byCat = {};
+  state.expenses.filter(e=>e.nature==='business').forEach(e=>{ byCat[e.category]=(byCat[e.category]||0)+Number(e.amount); });
+  drawDonutInto(svg, byCat, 900, 220);
+}
+function drawDonutInto(svg, dataObj, W, H){
+  const entries = Object.entries(dataObj).filter(([,v])=>v>0);
+  const total = entries.reduce((a,[,v])=>a+v,0);
+  const cx=110, cy=H/2, r=85, rInner=50;
+  if(!total){
+    const t = svgEl('text',{x:W/2,y:H/2,'text-anchor':'middle',class:'axis-label'}); t.textContent='No business expenses tagged yet'; svg.appendChild(t); return;
+  }
+  const colors = [cssVar('--brass-bright'), cssVar('--green-bright'), cssVar('--brick-bright'), cssVar('--slate'), '#7d8fae', '#c98fc9', '#e0b060', '#7ec9b0'];
+  let angle=-Math.PI/2;
+  entries.forEach(([k,v],i)=>{
+    const frac=v/total; const a2=angle+frac*2*Math.PI;
+    const x1=cx+r*Math.cos(angle), y1=cy+r*Math.sin(angle);
+    const x2=cx+r*Math.cos(a2), y2=cy+r*Math.sin(a2);
+    const large=(a2-angle)>Math.PI?1:0;
+    svg.appendChild(svgEl('path',{d:`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`, fill:colors[i%colors.length]}));
+    angle=a2;
+  });
+  svg.appendChild(svgEl('circle',{cx,cy,r:rInner, fill:cssVar('--ink-2')}));
+  entries.forEach(([k,v],i)=>{
+    const t = svgEl('text',{x:240, y:30+i*22, class:'axis-label'});
+    t.innerHTML=''; t.textContent = `${k} — ${fmt(v)} (${(v/total*100).toFixed(0)}%)`;
+    const chip = svgEl('rect',{x:224,y:22+i*22,width:9,height:9,fill:colors[i%colors.length]});
+    svg.appendChild(chip); svg.appendChild(t);
+  });
+}
+
+/* =========================================================
+   TAX CENTER
+========================================================= */
+document.getElementById('taxRateSlider').addEventListener('input', e=>{
+  document.getElementById('taxRateOut').textContent = e.target.value+'%';
+  state.taxRate = Number(e.target.value);
+  saveState(); renderTax(); renderOverview();
+});
+
+function ytdNetBusinessIncome(){
+  const yr = new Date().getFullYear();
+  const inc = state.income.filter(r=> new Date(r.date).getFullYear()===yr).reduce((a,b)=>a+Number(b.amount),0);
+  const bizExp = state.expenses.filter(e=> e.nature==='business' && new Date(e.date).getFullYear()===yr).reduce((a,b)=>a+Number(b.amount),0);
+  return Math.max(0, inc-bizExp);
+}
+function renderTax(){
+  document.getElementById('taxRateSlider').value = state.taxRate;
+  document.getElementById('taxRateOut').textContent = state.taxRate+'%';
+  document.getElementById('taxRateLabel').textContent = state.taxRate;
+  const net = ytdNetBusinessIncome();
+  const setAside = net * state.taxRate/100;
+  document.getElementById('taxEnvelopeAmt').textContent = fmt(setAside);
+  const targetFill = Math.min(100, net? 100 : 0);
+  document.getElementById('taxEnvelopeFill').style.width = targetFill+'%';
+
+  // Quarterly table
+  const quarters = [
+    {label:'Q1', months:[0,1,2], due:'Apr 15'},
+    {label:'Q2', months:[3,4,5], due:'Jun 15'},
+    {label:'Q3', months:[6,7,8], due:'Sep 15'},
+    {label:'Q4', months:[9,10,11], due:'Jan 15 (next yr)'},
+  ];
+  const yr = new Date().getFullYear();
+  const tbody = document.querySelector('#quarterlyTaxTable tbody');
+  tbody.innerHTML='';
+  quarters.forEach(q=>{
+    const qInc = state.income.filter(r=>{ const d=new Date(r.date); return d.getFullYear()===yr && q.months.includes(d.getMonth()); }).reduce((a,b)=>a+Number(b.amount),0);
+    const qExp = state.expenses.filter(r=>{ const d=new Date(r.date); return d.getFullYear()===yr && r.nature==='business' && q.months.includes(d.getMonth()); }).reduce((a,b)=>a+Number(b.amount),0);
+    const qNet = Math.max(0, qInc-qExp);
+    const qTax = qNet*state.taxRate/100;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${q.label} ${yr}</td><td class="tabular">${fmt(qNet)}</td><td class="tabular">${fmt(qTax)}</td><td>${q.due}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* =========================================================
+   BUDGET
+========================================================= */
+document.getElementById('addBudgetBtn').addEventListener('click', ()=>{
+  const category = document.getElementById('budgetCategory').value;
+  const limit = parseFloat(document.getElementById('budgetLimit').value);
+  if(!limit){ toast('Enter a monthly limit.'); return; }
+  const existing = state.budgets.find(b=>b.category===category);
+  if(existing) existing.limit = limit; else state.budgets.push({id:uid(), category, limit});
+  document.getElementById('budgetLimit').value='';
+  saveState(); renderBudget();
+  toast('Budget saved.');
+});
+function renderBudget(){
+  const host = document.getElementById('budgetCards');
+  host.innerHTML='';
+  if(!state.budgets.length){ host.innerHTML = '<div class="empty-state">No budgets set yet. Add a category limit above.</div>'; return; }
+  const thisMonth = monthKey(new Date());
+  state.budgets.forEach(b=>{
+    const spent = state.expenses.filter(e=> e.category===b.category && monthKey(e.date)===thisMonth).reduce((a,c)=>a+Number(c.amount),0);
+    const pct = Math.min(100,(spent/b.limit)*100);
+    const over = spent>b.limit;
+    const card = document.createElement('div');
+    card.className='card';
+    card.innerHTML = `<div class="card-label">${b.category}</div>
+      <div class="card-value small tabular">${fmt(spent)} <span style="color:var(--slate); font-weight:400; font-size:13px;">/ ${fmt(b.limit)}</span></div>
+      <div class="card-foot-line"><div class="card-foot-fill" style="width:${pct}%; background:${over?'linear-gradient(90deg,var(--brick),var(--brick-bright))':'linear-gradient(90deg,var(--brass),var(--green-bright))'};"></div></div>
+      <div class="card-delta ${over?'delta-down':''}">${over? 'Over budget this month' : (100-pct).toFixed(0)+'% remaining'}</div>`;
+    host.appendChild(card);
+  });
+}
+
+/* =========================================================
+   SUBSCRIPTIONS
+========================================================= */
+document.getElementById('addSubBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('subName').value.trim();
+  const amount = parseFloat(document.getElementById('subAmount').value);
+  const cycle = document.getElementById('subCycle').value;
+  const nature = document.getElementById('subNature').value;
+  if(!name||!amount){ toast('Add a name and amount.'); return; }
+  state.subscriptions.push({id:uid(), name, amount, cycle, nature});
+  document.getElementById('subName').value=''; document.getElementById('subAmount').value='';
+  saveState(); renderSubs();
+  toast('Subscription added.');
+});
+function renderSubs(){
+  const tbody = document.querySelector('#subTable tbody');
+  tbody.innerHTML='';
+  document.getElementById('subEmpty').style.display = state.subscriptions.length? 'none':'block';
+  let monthly=0;
+  state.subscriptions.forEach(s=>{
+    const monthlyEquiv = s.cycle==='monthly'? Number(s.amount) : Number(s.amount)/12;
+    monthly += monthlyEquiv;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${escapeHtml(s.name)}</td><td><span class="tag ${s.nature==='business'?'deductible':'personal'}">${s.nature}</span></td><td>${s.cycle}</td><td class="tabular">${fmt(monthlyEquiv)}</td><td><button class="row-del" data-id="${s.id}">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('.row-del').forEach(b=>b.addEventListener('click', ()=>{
+    state.subscriptions = state.subscriptions.filter(s=>s.id!==b.dataset.id); saveState(); renderSubs();
+  }));
+  document.getElementById('subMonthly').textContent = fmt(monthly);
+  document.getElementById('subYearly').textContent = fmt(monthly*12);
+  document.getElementById('subCount').textContent = state.subscriptions.length;
+}
+
+/* =========================================================
+   SAVINGS / BUFFER
+========================================================= */
+document.getElementById('saveBufferBtn').addEventListener('click', ()=>{
+  state.buffer.balance = parseFloat(document.getElementById('bufferBalance').value)||0;
+  state.buffer.months = Number(document.getElementById('bufferMonths').value);
+  saveState(); renderBuffer();
+  toast('Buffer updated.');
+});
+function avgMonthlyExpense(){
+  const {months, exp} = monthlyTotals();
+  const vals = months.map(m=>exp[m]);
+  const nonzero = vals.filter(v=>v>0);
+  return nonzero.length ? nonzero.reduce((a,b)=>a+b,0)/nonzero.length : 0;
+}
+function renderBuffer(){
+  document.getElementById('bufferBalance').value = state.buffer.balance || '';
+  document.getElementById('bufferMonths').value = state.buffer.months;
+  const avgExp = avgMonthlyExpense();
+  const target = avgExp * state.buffer.months;
+  const pct = target? Math.min(100, state.buffer.balance/target*100) : 0;
+  document.getElementById('bufferAmt').textContent = `${fmt(state.buffer.balance)} / ${fmt(target)}`;
+  document.getElementById('bufferFill').style.width = pct+'%';
+  document.getElementById('bufferNote').textContent = target
+    ? (pct>=100 ? 'Buffer target met — consider directing extra cash to goals or investments.' : `${pct.toFixed(0)}% of your ${state.buffer.months}-month target, based on average monthly spend of ${fmt(avgExp)}.`)
+    : 'Log a few months of expenses to calculate a buffer target.';
+}
+
+/* =========================================================
+   GOALS
+========================================================= */
+document.getElementById('addGoalBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('goalName').value.trim();
+  const target = parseFloat(document.getElementById('goalTarget').value);
+  const saved = parseFloat(document.getElementById('goalSaved').value)||0;
+  if(!name||!target){ toast('Add a goal name and target.'); return; }
+  state.goals.push({id:uid(), name, target, saved});
+  document.getElementById('goalName').value=''; document.getElementById('goalTarget').value=''; document.getElementById('goalSaved').value='';
+  saveState(); renderGoals();
+  toast('Goal added.');
+});
+function renderGoals(){
+  const host = document.getElementById('goalCards');
+  host.innerHTML='';
+  if(!state.goals.length){ host.innerHTML='<div class="empty-state">No goals yet. Add one above.</div>'; return; }
+  state.goals.forEach(g=>{
+    const pct = Math.min(100,(g.saved/g.target)*100);
+    const card = document.createElement('div');
+    card.className='card';
+    card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="card-label" style="margin-bottom:0;">${escapeHtml(g.name)}</div>
+        <button class="row-del" data-id="${g.id}">✕</button>
+      </div>
+      <div class="card-value small tabular">${fmt(g.saved)} <span style="color:var(--slate); font-weight:400; font-size:13px;">/ ${fmt(g.target)}</span></div>
+      <div class="card-foot-line"><div class="card-foot-fill" style="width:${pct}%;"></div></div>
+      <div class="card-delta">${pct.toFixed(0)}% funded</div>`;
+    host.appendChild(card);
+  });
+  host.querySelectorAll('.row-del').forEach(b=>b.addEventListener('click', ()=>{
+    state.goals = state.goals.filter(g=>g.id!==b.dataset.id); saveState(); renderGoals();
+  }));
+}
+
+/* =========================================================
+   WHAT-IF LAB
+========================================================= */
+['wiIncome','wiExpense','wiTax'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', renderWhatIf);
+});
+function renderWhatIf(){
+  const incPct = Number(document.getElementById('wiIncome').value);
+  const expPct = Number(document.getElementById('wiExpense').value);
+  const taxPct = Number(document.getElementById('wiTax').value);
+  document.getElementById('wiIncomeOut').textContent = (incPct>=0?'+':'')+incPct+'%';
+  document.getElementById('wiExpenseOut').textContent = (expPct>=0?'+':'')+expPct+'%';
+  document.getElementById('wiTaxOut').textContent = taxPct+'%';
+
+  const {months, inc, exp} = monthlyTotals();
+  const avgInc = months.reduce((a,m)=>a+inc[m],0)/months.length || 0;
+  const avgExp = months.reduce((a,m)=>a+exp[m],0)/months.length || 0;
+  const simInc = avgInc * (1+incPct/100);
+  const simExp = avgExp * (1+expPct/100);
+  const takeHome = (simInc - simExp) - (Math.max(0,simInc-simExp)*taxPct/100);
+  document.getElementById('wiResIncome').textContent = fmt(simInc);
+  document.getElementById('wiResExpense').textContent = fmt(simExp);
+  document.getElementById('wiResTakeHome').textContent = fmt(takeHome);
+}
+
+/* =========================================================
+   CALCULATORS
+========================================================= */
+document.getElementById('calcRateBtn').addEventListener('click', ()=>{
+  const annual = parseFloat(document.getElementById('calcAnnual').value)||0;
+  const hours = parseFloat(document.getElementById('calcHours').value)||1;
+  const weeks = parseFloat(document.getElementById('calcWeeks').value)||1;
+  const rate = annual/(hours*weeks);
+  document.getElementById('calcRateOut').textContent = isFinite(rate) ? fmt(rate)+' / hour' : '—';
+});
+document.getElementById('calcQBtn').addEventListener('click', ()=>{
+  const net = parseFloat(document.getElementById('calcQNet').value)||0;
+  const rate = parseFloat(document.getElementById('calcQRate').value)||0;
+  document.getElementById('calcQOut').textContent = fmt(net*rate/100)+' to set aside';
+});
+document.getElementById('calcBreakBtn').addEventListener('click', ()=>{
+  const fixed = parseFloat(document.getElementById('calcFixed').value)||0;
+  const perClient = parseFloat(document.getElementById('calcPerClient').value)||1;
+  const n = Math.ceil(fixed/perClient);
+  document.getElementById('calcBreakOut').textContent = n + ' client' + (n===1?'':'s') + ' / month to break even';
+});
+document.getElementById('calcRaiseBtn').addEventListener('click', ()=>{
+  const cur = parseFloat(document.getElementById('calcCurRate').value)||0;
+  const pct = parseFloat(document.getElementById('calcRaisePct').value)||0;
+  const hrs = parseFloat(document.getElementById('calcRaiseHours').value)||0;
+  const before = cur*hrs;
+  const after = cur*(1+pct/100)*hrs;
+  document.getElementById('calcRaiseOut').textContent = `${fmt(before)} → ${fmt(after)} / month (+${fmt(after-before)})`;
+});
+
+/* =========================================================
+   HEALTH SCORE
+========================================================= */
+function computeHealth(){
+  const {months, inc, exp} = monthlyTotals();
+  const vals = months.map(m=>inc[m]);
+  const avgInc = vals.reduce((a,b)=>a+b,0)/6 || 0;
+  const sd = Math.sqrt(vals.reduce((a,b)=>a+Math.pow(b-avgInc,2),0)/6);
+  const cv = avgInc ? sd/avgInc : 1;
+  const stability = Math.max(0, Math.min(100, 100 - cv*100)); // lower volatility = higher score
+
+  const avgExp = avgMonthlyExpense();
+  const bufferTarget = avgExp*state.buffer.months;
+  const bufferScore = bufferTarget ? Math.min(100, state.buffer.balance/bufferTarget*100) : (state.buffer.balance>0?60:0);
+
+  const net = ytdNetBusinessIncome();
+  const envelope = net*state.taxRate/100;
+  const taxReadiness = net ? 100 : 50; // presence of a plan; simplistic given no external liability tracking
+
+  const savingsRate = avgInc ? Math.max(0, Math.min(100, ((avgInc-avgExp)/avgInc)*100*1.5)) : 0;
+
+  const spendControl = state.budgets.length ? (()=>{
+    const thisMonth = monthKey(new Date());
+    const overs = state.budgets.filter(b=>{
+      const spent = state.expenses.filter(e=>e.category===b.category && monthKey(e.date)===thisMonth).reduce((a,c)=>a+Number(c.amount),0);
+      return spent>b.limit;
+    }).length;
+    return Math.max(0,100 - overs*25);
+  })() : 55;
+
+  const weighted = (stability*0.25 + bufferScore*0.25 + taxReadiness*0.2 + savingsRate*0.15 + spendControl*0.15);
+  return {
+    score: Math.round(weighted),
+    breakdown: [
+      {name:'Income stability', val: Math.round(stability)},
+      {name:'Emergency buffer', val: Math.round(bufferScore)},
+      {name:'Tax readiness', val: Math.round(taxReadiness)},
+      {name:'Savings rate', val: Math.round(savingsRate)},
+      {name:'Spend control', val: Math.round(spendControl)},
+    ]
+  };
+}
+function renderHealth(){
+  const h = computeHealth();
+  document.getElementById('healthScore').textContent = h.score;
+  const tier = h.score>=80?'Thriving':h.score>=60?'Steady':h.score>=40?'Building':'Needs attention';
+  document.getElementById('healthTier').textContent = tier;
+  const host = document.getElementById('healthBreakdown');
+  host.innerHTML='';
+  h.breakdown.forEach(b=>{
+    const row = document.createElement('div');
+    row.className='hb-row';
+    row.innerHTML = `<div class="hb-name">${b.name}</div><div class="hb-bar"><div class="hb-fill" style="width:${b.val}%;"></div></div><div class="hb-val">${b.val}</div>`;
+    host.appendChild(row);
+  });
+  return h;
+}
+
+/* =========================================================
+   INSIGHTS (rule-based)
+========================================================= */
+function generateInsights(){
+  const list = [];
+  const {months, inc, exp} = monthlyTotals();
+  const avgInc = months.reduce((a,m)=>a+inc[m],0)/6;
+  const avgExp = months.reduce((a,m)=>a+exp[m],0)/6;
+  const net = ytdNetBusinessIncome();
+
+  if(!state.income.length){
+    list.push({type:'warn', ic:'◇', text:'No income logged yet — add your recent payments so the dashboard can calculate averages, volatility, and your tax set-aside.'});
+  }
+  if(state.income.length && !state.expenses.length){
+    list.push({type:'warn', ic:'◇', text:'Income is logged but no expenses yet — your health score and tax envelope are more accurate once business costs are tracked.'});
+  }
+  if(avgInc>0){
+    const vals = months.map(m=>inc[m]);
+    const sd = Math.sqrt(vals.reduce((a,b)=>a+Math.pow(b-avgInc,2),0)/6);
+    const cv = sd/avgInc;
+    if(cv>0.4) list.push({type:'warn', ic:'∿', text:`Your income swings roughly ${(cv*100).toFixed(0)}% month to month. Consider a retainer client or fixed monthly billing to smooth this out.`});
+    else if(cv>0 && cv<=0.2) list.push({type:'good', ic:'✓', text:'Your income is relatively stable month to month — a strong foundation for budgeting confidently.'});
+  }
+  const bufferTarget = avgExp*state.buffer.months;
+  if(bufferTarget>0){
+    if(state.buffer.balance < bufferTarget*0.5) list.push({type:'warn', ic:'◔', text:`Your emergency buffer covers less than half of your ${state.buffer.months}-month target. Consider redirecting a portion of each payment there.`});
+    else if(state.buffer.balance >= bufferTarget) list.push({type:'good', ic:'✓', text:'Your emergency buffer has reached its target — great position for a freelancer with variable income.'});
+  }
+  if(net>0){
+    list.push({type:'', ic:'✒', text:`Based on ${state.taxRate}% set-aside, you should be holding roughly ${fmt(net*state.taxRate/100)} for taxes on ${fmt(net)} of YTD net business income.`});
+  }
+  const bizExp = state.expenses.filter(e=>e.nature==='business').length;
+  const totalExp = state.expenses.length;
+  if(totalExp>0 && bizExp/totalExp < 0.3){
+    list.push({type:'warn', ic:'✎', text:'Less than 30% of logged expenses are tagged “Business.” Double check you are not under-reporting deductible costs.'});
+  }
+  const subsMonthly = state.subscriptions.reduce((a,s)=>a+(s.cycle==='monthly'?Number(s.amount):Number(s.amount)/12),0);
+  if(subsMonthly>0 && avgInc>0 && subsMonthly/avgInc>0.1){
+    list.push({type:'warn', ic:'↻', text:`Subscriptions total ${fmt(subsMonthly)}/month — over 10% of average income. Worth a quick audit for unused tools.`});
+  }
+  if(!list.length){
+    list.push({type:'good', ic:'✓', text:'Everything looks on track. Keep logging income and expenses for sharper insights over time.'});
+  }
+  return list;
+}
+function renderInsights(){
+  const list = generateInsights();
+  const host = document.getElementById('insightsList');
+  host.innerHTML='';
+  list.forEach(i=>{
+    const div = document.createElement('div');
+    div.className = 'insight ' + (i.type||'');
+    div.innerHTML = `<span class="ic">${i.ic}</span><span>${i.text}</span>`;
+    host.appendChild(div);
+  });
+  const ov = document.getElementById('overviewInsights');
+  ov.innerHTML='';
+  list.slice(0,2).forEach(i=>{
+    const div = document.createElement('div');
+    div.className = 'insight ' + (i.type||'');
+    div.innerHTML = `<span class="ic">${i.ic}</span><span>${i.text}</span>`;
+    ov.appendChild(div);
+  });
+}
+
+/* =========================================================
+   OVERVIEW CARDS
+========================================================= */
+function renderOverview(){
+  const {months, inc, exp} = monthlyTotals();
+  const thisMonthKey = monthKey(new Date());
+  const incThis = inc[thisMonthKey]||0;
+  const expThis = exp[thisMonthKey]||0;
+  const netThis = incThis-expThis;
+  const net = ytdNetBusinessIncome();
+  const envelope = net*state.taxRate/100;
+
+  const cards = [
+    {label:'Income this month', value: fmt(incThis)},
+    {label:'Expenses this month', value: fmt(expThis)},
+    {label:'Net this month', value: fmt(netThis)},
+    {label:'Tax envelope (YTD)', value: fmt(envelope)},
+  ];
+  const host = document.getElementById('overviewCards');
+  host.innerHTML='';
+  cards.forEach(c=>{
+    const div = document.createElement('div'); div.className='card';
+    div.innerHTML = `<div class="card-label">${c.label}</div><div class="card-value tabular">${c.value}</div>`;
+    host.appendChild(div);
+  });
+
+  drawBarLineChart('overviewCashflowChart');
+  const byCat = {};
+  state.expenses.forEach(e=>{ byCat[e.category]=(byCat[e.category]||0)+Number(e.amount); });
+  drawDonut('overviewDonut', byCat);
+}
+
+/* =========================================================
+   CASH FLOW TAB
+========================================================= */
+function renderCashflowTab(){
+  drawCashflowLine('cashflowMainChart');
+  const {months, inc, exp} = monthlyTotals();
+  const thisMonthKey = monthKey(new Date());
+  const netMonth = (inc[thisMonthKey]||0)-(exp[thisMonthKey]||0);
+  document.getElementById('cfNetMonth').textContent = fmt(netMonth);
+  const yr = new Date().getFullYear();
+  const incYtd = state.income.filter(r=>new Date(r.date).getFullYear()===yr).reduce((a,b)=>a+Number(b.amount),0);
+  const expYtd = state.expenses.filter(r=>new Date(r.date).getFullYear()===yr).reduce((a,b)=>a+Number(b.amount),0);
+  document.getElementById('cfNetYtd').textContent = fmt(incYtd-expYtd);
+  const avgExp = avgMonthlyExpense();
+  const runwayMonths = avgExp? (state.buffer.balance/avgExp) : 0;
+  document.getElementById('cfRunway').textContent = avgExp? runwayMonths.toFixed(1)+' months' : '—';
+}
+
+/* =========================================================
+   CHECKLIST
+========================================================= */
+function renderChecklist(){
+  const host = document.getElementById('checklistCard');
+  host.innerHTML='';
+  state.checklist.forEach(item=>{
+    const row = document.createElement('div');
+    row.className = 'checklist-item' + (item.done?' done':'');
+    row.innerHTML = `<input type="checkbox" id="chk_${item.id}" ${item.done?'checked':''}><label for="chk_${item.id}">${item.text}</label>`;
+    row.querySelector('input').addEventListener('change', e=>{
+      item.done = e.target.checked; saveState(); renderChecklist();
+    });
+    host.appendChild(row);
+  });
+}
+
+/* =========================================================
+   REPORT
+========================================================= */
+function renderReport(){
+  const h = computeHealth();
+  const yr = new Date().getFullYear();
+  const incYtd = state.income.filter(r=>new Date(r.date).getFullYear()===yr).reduce((a,b)=>a+Number(b.amount),0);
+  const expYtd = state.expenses.filter(r=>new Date(r.date).getFullYear()===yr).reduce((a,b)=>a+Number(b.amount),0);
+  const bizExpYtd = state.expenses.filter(r=>new Date(r.date).getFullYear()===yr && r.nature==='business').reduce((a,b)=>a+Number(b.amount),0);
+  const net = ytdNetBusinessIncome();
+  const envelope = net*state.taxRate/100;
+  const host = document.getElementById('reportSummary');
+  host.innerHTML = `
+    <h2 style="font-family:var(--font-display); font-size:22px; margin-bottom:4px;">Freelance Financial Summary — ${yr}</h2>
+    <p style="color:var(--slate); font-size:12.5px; margin-bottom:20px;">Generated ${new Date().toLocaleDateString()}</p>
+    <div class="grid grid-3" style="margin-bottom:20px;">
+      <div class="card"><div class="card-label">Financial Health Score</div><div class="card-value tabular">${h.score} / 100</div></div>
+      <div class="card"><div class="card-label">Income YTD</div><div class="card-value tabular">${fmt(incYtd)}</div></div>
+      <div class="card"><div class="card-label">Expenses YTD</div><div class="card-value tabular">${fmt(expYtd)}</div></div>
+      <div class="card"><div class="card-label">Deductible (business) YTD</div><div class="card-value tabular">${fmt(bizExpYtd)}</div></div>
+      <div class="card"><div class="card-label">Net business income YTD</div><div class="card-value tabular">${fmt(net)}</div></div>
+      <div class="card"><div class="card-label">Tax set-aside (${state.taxRate}%)</div><div class="card-value tabular">${fmt(envelope)}</div></div>
+    </div>
+    <h3 style="font-family:var(--font-display); font-size:17px; margin:18px 0 8px;">Insights</h3>
+    <div>${generateInsights().map(i=>`<div class="insight ${i.type}"><span class="ic">${i.ic}</span><span>${i.text}</span></div>`).join('')}</div>
+  `;
+}
+
+/* =========================================================
+   COPY PROMPT BUTTONS
+========================================================= */
+document.querySelectorAll('.copy-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const text = btn.parentElement.textContent.replace('Copy','').trim();
+    navigator.clipboard?.writeText(text).then(()=>toast('Prompt copied.')).catch(()=>toast('Copy failed — select manually.'));
+  });
+});
+
+/* =========================================================
+   UTIL
+========================================================= */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* =========================================================
+   RENDER ALL
+========================================================= */
+function renderAll(){
+  renderIncome();
+  renderExpenses();
+  renderCashflowTab();
+  renderTax();
+  renderBudget();
+  renderSubs();
+  renderBuffer();
+  renderGoals();
+  renderWhatIf();
+  renderHealth();
+  renderInsights();
+  renderOverview();
+  renderChecklist();
+  renderReport();
+}
+document.getElementById('bufferBalance').value = state.buffer.balance || '';
+document.getElementById('bufferMonths').value = state.buffer.months;
+document.getElementById('taxRateSlider').value = state.taxRate;
+renderAll();
+window.addEventListener('resize', renderAll);
+</script>
+</body>
+</html>

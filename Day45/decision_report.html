@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decision Report — AWS vs AI+Full Stack</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-main:#0f0f14;
+  --bg-card:#1a1a24;
+  --bg-card-alt:#1e1e2e;
+  --text-primary:#f0f0f5;
+  --text-secondary:#8888a0;
+  --accent-green:#34d399;
+  --accent-red:#f87171;
+  --accent-blue:#60a5fa;
+  --accent-gold:#fbbf24;
+  --accent-purple:#a78bfa;
+  --border-subtle:rgba(255,255,255,0.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg-main);
+  color:var(--text-primary);
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  padding:24px 16px 60px;
+}
+.wrap{max-width:720px;margin:0 auto;}
+header{text-align:center;padding:20px 0 24px;}
+header h1{font-size:28px;font-weight:800;margin:0 0 8px;letter-spacing:0.5px;}
+header .subtitle{font-size:16px;color:var(--text-secondary);margin:0 0 6px;}
+header .date{font-size:12px;color:var(--text-secondary);}
+.gradient-line{
+  height:3px;width:100%;margin:18px 0 0;border-radius:2px;
+  background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple),var(--accent-gold));
+}
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  border-radius:16px;
+  padding:28px;
+  margin-bottom:28px;
+  box-shadow:0 4px 24px rgba(0,0,0,0.3);
+  transition:transform 0.2s ease;
+}
+.card:hover{transform:translateY(-2px);}
+.section-title{
+  font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  margin:0 0 16px;
+}
+.body-text{font-size:15px;line-height:1.7;color:var(--text-primary);margin:0 0 10px;}
+.label{font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;}
+
+/* Section accent borders */
+#sec1{border-left:4px solid var(--accent-blue);}
+#sec1 .section-title{color:var(--accent-blue);}
+#sec2{border-left:4px solid var(--accent-green);}
+#sec2 .section-title{color:var(--accent-green);}
+#sec3{border-left:4px solid var(--accent-purple);}
+#sec3 .section-title{color:var(--accent-purple);}
+#sec4{border-left:4px solid var(--accent-blue);}
+#sec4 .section-title{color:var(--accent-blue);}
+#sec5{border-left:4px solid var(--accent-red);}
+#sec5 .section-title{color:var(--accent-red);}
+#sec6{border-left:4px solid var(--accent-green);}
+#sec6 .section-title{color:var(--accent-green);}
+#sec7{border-left:4px solid var(--accent-gold);background:var(--bg-card-alt);padding:36px 28px;box-shadow:0 0 20px rgba(251,191,36,0.15),0 4px 24px rgba(0,0,0,0.3);}
+#sec7 .section-title{color:var(--accent-gold);}
+#sec8{border-left:4px solid var(--accent-gold);}
+#sec8 .section-title{color:var(--accent-gold);}
+
+/* Option cards */
+.option-grid{display:flex;flex-direction:column;gap:16px;}
+.option-card{
+  background:var(--bg-card-alt);
+  border:1px solid var(--border-subtle);
+  border-radius:12px;
+  padding:18px 20px;
+}
+.option-card h3{margin:0 0 10px;font-size:16px;font-weight:700;}
+.option-card p{margin:0 0 8px;font-size:14px;line-height:1.6;}
+.tag-strength{color:var(--accent-green);font-weight:600;}
+.tag-weakness{color:var(--accent-red);font-weight:600;}
+.tag-hidden{color:var(--accent-blue);font-weight:600;}
+.tag-value{color:var(--accent-gold);font-weight:600;}
+
+/* Assumption buster */
+ul.buster{margin:0 0 14px;padding-left:20px;}
+ul.buster li{font-size:14px;line-height:1.7;margin-bottom:6px;}
+.bias-pill{
+  display:inline-block;background:rgba(167,139,250,0.15);color:var(--accent-purple);
+  padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-right:6px;margin-bottom:6px;
+}
+
+/* Matrix */
+.matrix-row{display:flex;align-items:center;margin-bottom:14px;}
+.matrix-label{width:40%;font-size:13px;color:var(--text-secondary);padding-right:10px;}
+.matrix-bars{width:60%;display:flex;flex-direction:column;gap:6px;}
+.bar-container{
+  height:28px;background:rgba(255,255,255,0.05);border-radius:8px;position:relative;overflow:hidden;
+}
+.bar-fill{
+  height:100%;border-radius:8px;display:flex;align-items:center;justify-content:flex-end;
+  padding-right:8px;color:#fff;font-weight:700;font-size:12px;
+  width:0%;animation:growBar 0.8s ease-out forwards;
+}
+@keyframes growBar{from{width:0%;}to{width:var(--target-width);}}
+.bar-a{background:linear-gradient(90deg,#60a5fa,#3b82f6);}
+.bar-b{background:linear-gradient(90deg,#34d399,#10b981);}
+.matrix-legend{display:flex;gap:18px;margin-bottom:20px;font-size:13px;}
+.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;}
+.total-row{
+  margin-top:18px;padding:14px 16px;background:rgba(255,255,255,0.04);border-radius:10px;
+  display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:16px;
+}
+.winner-badge{
+  background:var(--accent-gold);color:#1a1a10;font-size:11px;font-weight:800;
+  padding:3px 8px;border-radius:6px;margin-left:8px;text-transform:uppercase;
+}
+
+/* Premortem */
+.premortem-block{margin-bottom:18px;}
+.premortem-block h3{font-size:15px;margin:0 0 8px;color:var(--accent-red);}
+.premortem-block ul{margin:0 0 8px;padding-left:20px;font-size:14px;line-height:1.6;}
+
+/* 7 day plan */
+.day-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-subtle);font-size:14px;}
+.day-row:last-child{border-bottom:none;}
+.day-num{min-width:70px;font-weight:700;color:var(--accent-green);}
+
+/* Verdict */
+.verdict-name{font-size:30px;font-weight:800;color:var(--accent-gold);margin:0 0 12px;}
+.hard-truth{font-style:italic;color:var(--text-secondary);margin-top:16px;font-size:14px;}
+
+/* Shareable cards */
+.share-row{display:flex;gap:16px;flex-wrap:wrap;}
+.mini-card{
+  flex:1;min-width:180px;background:var(--bg-card-alt);border-radius:12px;padding:16px;
+  border:1px solid var(--border-subtle);display:flex;flex-direction:column;justify-content:space-between;
+  aspect-ratio:1/1.1;
+}
+.mini-card h4{margin:0 0 10px;font-size:13px;text-transform:uppercase;color:var(--text-secondary);}
+.mini-card .content{font-size:14px;line-height:1.5;flex-grow:1;}
+.watermark{font-size:10px;color:var(--text-secondary);margin-top:10px;text-align:right;opacity:0.6;}
+
+footer{text-align:center;color:var(--text-secondary);font-size:12px;margin-top:40px;}
+
+@media(max-width:600px){
+  .card{padding:16px;border-radius:14px;}
+  header h1{font-size:24px;}
+  .matrix-row{flex-direction:column;align-items:flex-start;}
+  .matrix-label{width:100%;margin-bottom:6px;}
+  .matrix-bars{width:100%;}
+  .share-row{flex-direction:column;}
+  .verdict-name{font-size:26px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>DECISION REPORT</h1>
+    <div class="subtitle">AWS Cloud &amp; DevOps vs. AI + Full Stack — Choosing a Primary Focus</div>
+    <div class="date">July 15, 2026</div>
+    <div class="gradient-line"></div>
+  </header>
+
+  <!-- SECTION 1 -->
+  <div class="card" id="sec1">
+    <div class="section-title">The Real Decision</div>
+    <p class="body-text">This isn't AWS vs. AI — it's "go deep in one lane" vs. "stay broad across two." You already have traction in AWS/DevOps; AI is the shinier, faster-growing field you don't want to miss.</p>
+    <p class="body-text">The trade-off: depth gets you hired faster; breadth keeps optionality open but dilutes your next 3 months of project-building.</p>
+    <p class="body-text">It's hard because it's not really about tech — it's about tolerating the fear of picking "wrong" in a field moving too fast to predict.</p>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="card" id="sec2">
+    <div class="section-title">The Case For Each Option</div>
+    <div class="option-grid">
+
+      <div class="option-card">
+        <h3>Option A — AWS Cloud &amp; DevOps (Focus)</h3>
+        <p><span class="tag-strength">Strongest case:</span> You already have hands-on experience and projects here — that's a running head start most peers don't have. Recruiters can see concrete, demonstrable skill instead of a promise.</p>
+        <p><span class="tag-hidden">Hidden upside:</span> Cloud/DevOps roles are less crowded with fresh grads than "AI" roles, since everyone claims AI skills but few can actually deploy and operate systems reliably.</p>
+        <p><span class="tag-weakness">Biggest weakness:</span> If AI-driven automation reshapes DevOps tooling faster than expected, a narrow cloud-ops skillset alone could feel less differentiated in 2-3 years.</p>
+        <p><span class="tag-value">Best if you value:</span> Speed to a strong, fundable internship/job and building on proven momentum.</p>
+      </div>
+
+      <div class="option-card">
+        <h3>Option B — AI + Full Stack (Continue Both)</h3>
+        <p><span class="tag-strength">Strongest case:</span> AI is growing fast and full stack skills let you actually ship AI-powered products — a combination that's genuinely in demand.</p>
+        <p><span class="tag-hidden">Hidden upside:</span> Breadth now could let you pivot into higher-leverage roles (AI engineer, applied ML) later, which often pay and scale better than pure ops roles.</p>
+        <p><span class="tag-weakness">Biggest weakness:</span> Splitting attention across two large domains in 3 months means shallower projects in both — you risk showing up to interviews without a standout, deep project in either.</p>
+        <p><span class="tag-value">Best if you value:</span> Long-term flexibility and betting on where the market is headed, even at the cost of near-term depth.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="card" id="sec3">
+    <div class="section-title">Assumption Buster</div>
+    <p class="label">Assumptions you may be making</p>
+    <ul class="buster">
+      <li>That "focusing" on AWS means permanently closing the door on AI — it doesn't; it just changes what you build first.</li>
+      <li>That staying broad in both AI and Full Stack keeps you "safe" — in practice it can leave you without any single strong signal to show a recruiter in 3 months.</li>
+      <li>That the field growing fastest (AI) is automatically the smartest one for you specifically, regardless of your existing experience.</li>
+    </ul>
+    <p class="label">Biases at play</p>
+    <div>
+      <span class="bias-pill">Sunk Cost Bias</span>
+      <span class="bias-pill">FOMO / Loss Aversion</span>
+    </div>
+    <p class="body-text" style="margin-top:10px;">You're weighing your AWS effort as "already invested" (sunk cost, but this one is actually rational since it's a real head start) while treating AI as a door that will close forever if not opened now (loss aversion, largely irrational — the AI field will still be there in 6 months).</p>
+    <p class="label">What you're definitely ignoring</p>
+    <p class="body-text">You have a hard 3-month timeline and a clear goal (internship/job) — but you haven't asked which path gets you an interview-ready portfolio fastest, which is really the deciding metric here.</p>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="card" id="sec4">
+    <div class="section-title">Decision Matrix</div>
+    <div class="matrix-legend">
+      <span><span class="legend-dot" style="background:#3b82f6;"></span>Option A: AWS Cloud &amp; DevOps</span>
+      <span><span class="legend-dot" style="background:#10b981;"></span>Option B: AI + Full Stack</span>
+    </div>
+
+    <div id="matrix-rows"></div>
+
+    <div class="total-row">
+      <span>Total (out of 70)</span>
+      <span>A: 51 &nbsp;|&nbsp; B: 42 <span class="winner-badge">A Wins</span></span>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="card" id="sec5">
+    <div class="section-title">Premortem — 12 Months From Now, It Failed</div>
+
+    <div class="premortem-block">
+      <h3>If Option A (AWS Focus) failed:</h3>
+      <ul>
+        <li>Cloud market got flooded with certified candidates, no differentiation.</li>
+        <li>You built certs but no real deployed projects, so interviews felt hollow.</li>
+        <li>AI-related roles at target companies required at least basic ML exposure you skipped entirely.</li>
+      </ul>
+      <p class="body-text"><strong>Early warning sign:</strong> Interviewers keep asking "have you worked with any ML/AI systems?" and you have nothing to show.</p>
+      <p class="body-text"><strong>Prevention:</strong> Keep one lightweight AI-adjacent project (e.g., deploying an ML model on AWS) so you're not at zero.</p>
+    </div>
+
+    <div class="premortem-block">
+      <h3>If Option B (AI + Full Stack) failed:</h3>
+      <ul>
+        <li>Neither AI nor full stack project reached "portfolio-worthy" depth in 3 months.</li>
+        <li>Recruiters saw a generalist resume with no standout, deployable project.</li>
+        <li>You lost the edge your existing AWS experience already gave you.</li>
+      </ul>
+      <p class="body-text"><strong>Early warning sign:</strong> By week 6, you have two half-finished projects instead of one shippable one.</p>
+      <p class="body-text"><strong>Prevention:</strong> Pick ONE AI + Full Stack project that forces both skills together, rather than learning them in parallel tracks.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="card" id="sec6">
+    <div class="section-title">7-Day Test Plan</div>
+    <div class="day-row"><span class="day-num">Day 1-2</span><span>Research current AWS/DevOps internship postings vs. AI/Full Stack postings — compare real requirements, not hype.</span></div>
+    <div class="day-row"><span class="day-num">Day 3-4</span><span>Build one small experiment: deploy a simple project end-to-end on AWS (your strong lane) and time how long it takes.</span></div>
+    <div class="day-row"><span class="day-num">Day 5-6</span><span>Have one conversation with a senior in Cloud/DevOps or AI about what actually got them hired.</span></div>
+    <div class="day-row"><span class="day-num">Day 7</span><span>Decision day: if your AWS experiment felt energizing and fast, commit to Option A; if it felt like a chore, revisit.</span></div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="card" id="sec7">
+    <div class="section-title">The Verdict</div>
+    <div class="verdict-name">Focus on AWS Cloud &amp; DevOps</div>
+    <p class="body-text">You already have hands-on projects and momentum here — in a 3-month window aimed at internships, a deep, demonstrable skillset beats a diluted double-track every time.</p>
+    <p class="body-text">This wins on speed, reversibility, and lower stress, without permanently shutting the door on AI.</p>
+    <p class="body-text"><strong>What could flip it:</strong> If your 7-day AWS experiment feels flat while a quick AI/full-stack test energizes you — that's real signal worth listening to.</p>
+    <p class="hard-truth">The hard truth: you don't need to solve "AI vs. Cloud" forever — you need one strong project by month 3, and you already have a head start on where to build it.</p>
+  </div>
+
+  <!-- SECTION 8 -->
+  <div class="card" id="sec8">
+    <div class="section-title">Shareable Cards</div>
+    <div class="share-row">
+
+      <div class="mini-card">
+        <h4>Matrix Summary</h4>
+        <div class="content">
+          <strong style="color:#60a5fa;">AWS Cloud &amp; DevOps</strong><br>51/70<br><br>
+          <strong style="color:#34d399;">AI + Full Stack</strong><br>42/70
+        </div>
+        <div class="watermark">Built with Claude AI</div>
+      </div>
+
+      <div class="mini-card">
+        <h4>Verdict</h4>
+        <div class="content">
+          <strong style="color:var(--accent-gold);">AWS Cloud &amp; DevOps</strong><br><br>
+          Depth beats breadth when you have 3 months and a head start.
+        </div>
+        <div class="watermark">Built with Claude AI</div>
+      </div>
+
+      <div class="mini-card">
+        <h4>Share This</h4>
+        <div class="content">
+          "I almost split my focus across two fields — here's how I picked one in 3 months." A structured 4-question interview beat months of overthinking. Try it before your next big decision.
+        </div>
+        <div class="watermark">Built with Claude AI</div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>Built with Claude AI | ABTalks 60-Day Challenge</footer>
+
+</div>
+
+<script>
+const dimensions = [
+  {label:"Life/Career Upside", a:8, b:7},
+  {label:"Financial Safety", a:8, b:6},
+  {label:"Growth & Learning", a:6, b:8},
+  {label:"Stress Level (10=low)", a:8, b:5},
+  {label:"Reversibility (10=easy)", a:7, b:6},
+  {label:"Long-term Alignment", a:7, b:6},
+  {label:"Regret Risk (10=low)", a:7, b:4}
+];
+
+const container = document.getElementById('matrix-rows');
+dimensions.forEach((d, i) => {
+  const row = document.createElement('div');
+  row.className = 'matrix-row';
+  row.innerHTML = `
+    <div class="matrix-label">${d.label}</div>
+    <div class="matrix-bars">
+      <div class="bar-container">
+        <div class="bar-fill bar-a" style="--target-width:${d.a*10}%; animation-delay:${i*0.1}s;">${d.a}</div>
+      </div>
+      <div class="bar-container">
+        <div class="bar-fill bar-b" style="--target-width:${d.b*10}%; animation-delay:${i*0.1 + 0.05}s;">${d.b}</div>
+      </div>
+    </div>
+  `;
+  container.appendChild(row);
+});
+</script>
+</body>
+</html>

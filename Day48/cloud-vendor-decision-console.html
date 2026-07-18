@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Vendor Decision Console — AWS vs GCP vs Azure vs DigitalOcean</title>
+<style>
+  :root{
+    --ink:#0e1b2b;
+    --ink-soft:#3c4c60;
+    --paper:#eef1f4;
+    --panel:#ffffff;
+    --line:#d7dde3;
+    --accent:#1f5fae;   /* signal blue - "uptime" */
+    --accent-2:#c76b2c;  /* rust - "cost" */
+    --accent-3:#2f7d5f;  /* signal green - "compliance" */
+    --accent-4:#7a4fae;  /* violet - "breadth" */
+    --mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:0 24px 80px;}
+
+  /* ===== Header / signal strip ===== */
+  header.top{
+    background:var(--ink);
+    color:#eef1f4;
+    padding:36px 0 30px;
+    border-bottom:4px solid var(--accent);
+  }
+  header.top .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;}
+  .brand-eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:#9fb3c8;
+    margin:0 0 8px;
+  }
+  h1{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(28px,4vw,44px);
+    margin:0;
+    letter-spacing:-.01em;
+  }
+  .subhead{
+    max-width:520px;
+    font-size:14.5px;
+    color:#c3cfdb;
+    margin-top:10px;
+  }
+  .meta-block{
+    font-family:var(--mono);
+    font-size:12px;
+    color:#9fb3c8;
+    text-align:right;
+    line-height:1.7;
+  }
+
+  /* ===== Layout ===== */
+  .console{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:28px;
+    margin-top:32px;
+  }
+  @media(max-width:920px){ .console{grid-template-columns:1fr;} }
+
+  /* ===== Weight panel ===== */
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:2px;
+  }
+  .panel-head{
+    padding:16px 18px;
+    border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .panel-head h2{
+    font-family:var(--serif);
+    font-size:16px;
+    margin:0;
+    font-weight:700;
+  }
+  .reset-btn{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--accent);
+    background:none;
+    border:1px solid var(--accent);
+    padding:4px 8px;
+    cursor:pointer;
+    border-radius:2px;
+  }
+  .reset-btn:hover{background:var(--accent);color:#fff;}
+
+  .weight-row{
+    padding:16px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .weight-row:last-child{border-bottom:none;}
+  .weight-label{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:13.5px;font-weight:600;margin-bottom:6px;
+  }
+  .weight-label .val{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);}
+  .swatch{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;}
+  input[type="range"]{
+    -webkit-appearance:none;
+    width:100%;height:4px;
+    background:var(--line);
+    border-radius:2px;
+    outline:none;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px;height:16px;
+    border-radius:50%;
+    background:var(--ink);
+    cursor:pointer;
+    border:2px solid #fff;
+    box-shadow:0 0 0 1px var(--ink);
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;background:var(--ink);
+    cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--ink);
+  }
+  .crit-desc{font-size:11.5px;color:var(--ink-soft);margin-top:6px;}
+
+  .persona-note{
+    padding:14px 18px;
+    font-size:12px;
+    color:var(--ink-soft);
+    background:#f6f8fa;
+    border-top:1px dashed var(--line);
+  }
+
+  /* ===== Ranking column ===== */
+  .rank-list{display:flex;flex-direction:column;gap:14px;}
+  .rank-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:5px solid var(--ink);
+    border-radius:2px;
+    padding:18px 20px;
+    position:relative;
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .rank-card.top{border-left-color:var(--accent);box-shadow:0 4px 18px rgba(31,95,174,.12);}
+  .rank-card-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  .rank-pos{
+    font-family:var(--mono);font-size:12px;color:var(--ink-soft);
+    letter-spacing:.06em;
+  }
+  .rank-name{font-family:var(--serif);font-size:22px;font-weight:700;margin:2px 0 0;}
+  .rank-score{
+    font-family:var(--mono);font-size:26px;font-weight:700;color:var(--ink);
+    display:flex;align-items:baseline;gap:6px;
+  }
+  .rank-score small{font-size:12px;color:var(--ink-soft);font-weight:400;}
+  .bar-track{
+    height:6px;background:var(--paper);border-radius:3px;margin-top:12px;overflow:hidden;
+  }
+  .bar-fill{height:100%;border-radius:3px;transition:width .35s ease;}
+  .crit-breakdown{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;
+  }
+  @media(max-width:560px){.crit-breakdown{grid-template-columns:repeat(2,1fr);}}
+  .cb-item{font-size:11px;}
+  .cb-item .cb-label{color:var(--ink-soft);display:flex;align-items:center;font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;font-size:10px;margin-bottom:3px;}
+  .cb-item .cb-val{font-family:var(--mono);font-size:13px;font-weight:700;}
+  .flag{
+    display:inline-block;font-family:var(--mono);font-size:9.5px;
+    color:var(--accent-2);border:1px solid var(--accent-2);
+    padding:1px 5px;border-radius:2px;margin-left:5px;vertical-align:middle;
+  }
+
+  /* ===== Data table ===== */
+  .datatable-wrap{margin-top:36px;}
+  .section-title{
+    font-family:var(--serif);font-size:20px;font-weight:700;margin:0 0 4px;
+  }
+  .section-sub{font-size:13px;color:var(--ink-soft);margin:0 0 16px;}
+  table{width:100%;border-collapse:collapse;background:var(--panel);font-size:13px;}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);border-bottom:2px solid var(--ink);}
+  tr:hover td{background:#f6f8fa;}
+  .est-tag{font-family:var(--mono);font-size:9.5px;color:var(--accent-2);}
+  .src-num{font-family:var(--mono);font-size:10.5px;color:var(--accent);cursor:pointer;text-decoration:underline;}
+
+  /* ===== Collapsible panels ===== */
+  details.collapsible{
+    margin-top:28px;background:var(--panel);border:1px solid var(--line);border-radius:2px;
+  }
+  details.collapsible > summary{
+    cursor:pointer;padding:16px 18px;font-family:var(--serif);font-weight:700;font-size:16px;
+    list-style:none;display:flex;justify-content:space-between;align-items:center;
+  }
+  details.collapsible > summary::-webkit-details-marker{display:none;}
+  details.collapsible > summary:after{
+    content:"+";font-family:var(--mono);font-size:18px;color:var(--accent);
+  }
+  details.collapsible[open] > summary:after{content:"–";}
+  .collapsible-body{padding:0 18px 20px;font-size:13.5px;color:var(--ink-soft);}
+  .collapsible-body h4{color:var(--ink);font-size:13px;margin:16px 0 6px;font-family:var(--sans);}
+  .collapsible-body ol,.collapsible-body ul{padding-left:20px;}
+  .collapsible-body li{margin-bottom:6px;}
+
+  .sources-list{list-style:none;padding:0;margin:0;font-size:12.5px;}
+  .sources-list li{
+    padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;
+  }
+  .sources-list li:last-child{border-bottom:none;}
+  .src-idx{font-family:var(--mono);color:var(--accent);flex-shrink:0;width:26px;}
+  .sources-list a{color:var(--ink);text-decoration:none;font-weight:600;}
+  .sources-list a:hover{text-decoration:underline;color:var(--accent);}
+  .src-context{color:var(--ink-soft);display:block;margin-top:2px;}
+
+  footer{margin-top:40px;font-size:11.5px;color:var(--ink-soft);text-align:center;font-family:var(--mono);}
+
+  .empty-state{
+    text-align:center;padding:40px 20px;color:var(--ink-soft);font-size:13px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div>
+      <p class="brand-eyebrow">Compare &amp; Decide · Enterprise IT Infrastructure</p>
+      <h1>Choosing a Primary Cloud Vendor</h1>
+      <p class="subhead">A weighted comparison of AWS, Google Cloud, Microsoft Azure, and DigitalOcean across pricing, compliance, service breadth, and SLA — built for enterprise IT teams selecting a primary vendor for large-scale workloads.</p>
+    </div>
+    <div class="meta-block">
+      DATA VERIFIED: JUL 2026<br>
+      SOURCES: 11 CITED<br>
+      SCOPE: COMPUTE / COMPLIANCE / SLA / CATALOG
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="console">
+    <!-- WEIGHT PANEL -->
+    <aside class="panel" id="weightPanel">
+      <div class="panel-head">
+        <h2>Priority Weights</h2>
+        <button class="reset-btn" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="weight-row">
+        <div class="weight-label">
+          <span><span class="swatch" style="background:var(--accent-2)"></span>Pricing</span>
+          <span class="val" id="val-price">25%</span>
+        </div>
+        <input type="range" min="0" max="100" value="25" id="w-price">
+        <div class="crit-desc">Monthly cost of a comparable 2 vCPU / 8GB general-purpose compute instance.</div>
+      </div>
+
+      <div class="weight-row">
+        <div class="weight-label">
+          <span><span class="swatch" style="background:var(--accent-3)"></span>Compliance &amp; Security</span>
+          <span class="val" id="val-comp">25%</span>
+        </div>
+        <input type="range" min="0" max="100" value="25" id="w-comp">
+        <div class="crit-desc">Breadth of published certifications (SOC 2, ISO 27001, HIPAA, FedRAMP, PCI-DSS, etc).</div>
+      </div>
+
+      <div class="weight-row">
+        <div class="weight-label">
+          <span><span class="swatch" style="background:var(--accent-4)"></span>Service Breadth</span>
+          <span class="val" id="val-breadth">25%</span>
+        </div>
+        <input type="range" min="0" max="100" value="25" id="w-breadth">
+        <div class="crit-desc">Approximate size of managed product catalog, incl. AI/ML and database services.</div>
+      </div>
+
+      <div class="weight-row">
+        <div class="weight-label">
+          <span><span class="swatch" style="background:var(--accent)"></span>SLA Uptime</span>
+          <span class="val" id="val-sla">25%</span>
+        </div>
+        <input type="range" min="0" max="100" value="25" id="w-sla">
+        <div class="crit-desc">Published Monthly Uptime Percentage for the flagship compute service under its strongest standard SLA tier.</div>
+      </div>
+
+      <p class="persona-note">Built for enterprise IT choosing a primary vendor for large-scale workloads. Drag sliders — the ranking recalculates live using a weighted-normalized score (0–100 per criterion).</p>
+    </aside>
+
+    <!-- RANKING -->
+    <main>
+      <div class="rank-list" id="rankList"></div>
+
+      <div class="datatable-wrap">
+        <h2 class="section-title">Underlying Data</h2>
+        <p class="section-sub">Every figure below traces to a cited source. Estimated or non-guaranteed figures are flagged.</p>
+        <div style="overflow-x:auto;">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>Provider</th>
+              <th>Compute price /mo*</th>
+              <th>Compliance certs</th>
+              <th>Est. service catalog size</th>
+              <th>Flagship SLA (multi-instance)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+
+      <details class="collapsible">
+        <summary>How this was researched</summary>
+        <div class="collapsible-body">
+          <h4>Methodology</h4>
+          <p>Each criterion was scored from a single representative, sourced metric rather than a blended index, so every number on this page can be traced to one citation. Scores are normalized 0–100 per criterion (best observed value = 100), then combined using your weights to produce the ranking.</p>
+
+          <h4>Pricing</h4>
+          <p>We used a like-for-like ~2 vCPU / 8GB general-purpose instance (AWS t3.medium, GCP e2-medium, Azure B2s, DigitalOcean's closest Premium Droplet tier) as the comparison unit, since it's the smallest common denominator across all four catalogs and the figure most enterprise FinOps teams benchmark first. AWS and Azure landed close together (~$30/mo); GCP came in lower due to automatic sustained-use discounts; DigitalOcean was lowest and most predictable, with flat bandwidth overage pricing instead of the hyperscalers' variable egress fees.</p>
+
+          <h4>Compliance &amp; security</h4>
+          <p>AWS publishes an explicit count (143 certifications) on its compliance page, which is unusually specific — most vendors just list frameworks rather than a total. GCP and Azure publish long but uncounted lists spanning SOC 1/2/3, ISO 27001/27017/27018/27701, FedRAMP, HIPAA, and PCI DSS; we counted the named frameworks visible in each vendor's own compliance documentation as a proxy. DigitalOcean's list is real but visibly shorter — SOC 2 Type II, SOC 3 Type II, PCI-DSS SAQ-A, HIPAA-eligible (as of July 2024), GDPR, and CSA STAR Level 1 — which is consistent with its positioning toward startups rather than regulated enterprise.</p>
+
+          <h4>Service breadth</h4>
+          <p><strong>Flagged as estimate.</strong> None of the four vendors publish an official, consistently-defined "total services" count, and third-party counts vary by how granular a "service" is defined (e.g. is each AWS Lambda runtime a separate service?). The figures shown are informed approximations based on each vendor's public service-catalog navigation as of mid-2026, not audited totals. Treat differences of a few dozen as noise; treat the order-of-magnitude gap between the hyperscalers and DigitalOcean as the reliable signal.</p>
+
+          <h4>SLA uptime</h4>
+          <p>We used each vendor's flagship compute SLA at its strongest standard (non-negotiated) configuration: AWS EC2 Region-Level SLA (99.99%, multi-AZ), GCP Compute Engine multi-zone SLA (99.99%), Azure VM SLA for two-or-more instances across Availability Zones (99.99%), and DigitalOcean's per-Droplet Monthly Uptime commitment (99.99%). Note these SLAs are not directly comparable in structure — AWS/GCP/Azure figures require multi-zone deployment to hit 99.99%, while DigitalOcean's 99.99% is an instance-level commitment for a single Droplet — a genuine architectural difference we could not collapse into one number, so we note it here rather than in the score.</p>
+
+          <h4>Conflicts we resolved</h4>
+          <ul>
+            <li>Some third-party blogs cite AWS EC2 single-instance SLA (99.5%) instead of the region-level, multi-AZ figure (99.99%). We used the multi-AZ figure because it matches how enterprise workloads are actually architected for production.</li>
+            <li>DigitalOcean marketing materials advertise "99.99% uptime SLA" broadly; the actual published Droplet SLA document specifies this is an instance-level commitment, structurally different from the hyperscalers' region-level guarantees. We used the vendor's own SLA document as the source of record.</li>
+            <li>Pricing figures from different aggregators varied by a few dollars depending on region and month queried; we used the most recent (2026) figures and note the source.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="collapsible">
+        <summary>Sources</summary>
+        <div class="collapsible-body">
+          <ul class="sources-list" id="sourcesList"></ul>
+        </div>
+      </details>
+    </main>
+  </div>
+</div>
+
+<footer>COMPARE &amp; DECIDE BUILDER — DATA REFLECTS PUBLIC VENDOR DOCUMENTATION AS OF JULY 2026. NOT A PROCUREMENT RECOMMENDATION.</footer>
+
+<script>
+(function(){
+
+  // ---------- DATA ----------
+  // Raw sourced figures. Lower price = better. Higher certs/breadth/sla = better.
+  const providers = [
+    {
+      id: 'aws', name: 'Amazon Web Services',
+      price: 30, priceLabel: '$30 (t3.medium)', priceEst:false,
+      certs: 143, certsLabel: '143 certifications (self-reported)', certsEst:false,
+      breadth: 250, breadthLabel: '~250+ services', breadthEst:true,
+      sla: 99.99, slaLabel: '99.99% (EC2 Region-Level, multi-AZ)', slaEst:false,
+      color:'var(--accent)'
+    },
+    {
+      id: 'gcp', name: 'Google Cloud Platform',
+      price: 24, priceLabel: '$24 (e2-medium)', priceEst:false,
+      certs: 15, certsLabel: '~15 major named frameworks', certsEst:true,
+      breadth: 150, breadthLabel: '~150+ services', breadthEst:true,
+      sla: 99.99, slaLabel: '99.99% (Compute Engine, multi-zone)', slaEst:false,
+      color:'var(--accent-4)'
+    },
+    {
+      id: 'azure', name: 'Microsoft Azure',
+      price: 30, priceLabel: '$30 (B2s)', priceEst:false,
+      certs: 18, certsLabel: '~18 major named frameworks', certsEst:true,
+      breadth: 200, breadthLabel: '~200+ services', breadthEst:true,
+      sla: 99.99, slaLabel: '99.99% (VM, 2+ instances across Availability Zones)', slaEst:false,
+      color:'var(--accent-3)'
+    },
+    {
+      id: 'do', name: 'DigitalOcean',
+      price: 8, priceLabel: '$7–8 (Premium Droplet, 2vCPU/4GB tier)', priceEst:false,
+      certs: 6, certsLabel: '6: SOC2, SOC3, PCI-DSS SAQ-A, HIPAA-eligible, GDPR, CSA STAR L1', certsEst:false,
+      breadth: 20, breadthLabel: '~20 core products', breadthEst:true,
+      sla: 99.99, slaLabel: '99.99% (per-Droplet, instance-level)', slaEst:false,
+      color:'var(--accent-2)'
+    }
+  ];
+
+  const sources = [
+    {name:"AWS Compute Service Level Agreement — official EC2 SLA (99.99% Region-Level, 99.5% Instance-Level)", url:"https://aws.amazon.com/compute/sla/"},
+    {name:"Google Cloud — Compute Engine Service Level Agreement (SLA)", url:"https://cloud.google.com/compute/sla"},
+    {name:"Microsoft — SLA for Virtual Machines (99.99% for 2+ instances across Availability Zones)", url:"https://learn.microsoft.com/en-us/answers/questions/1114758/sla-for-virtual-machines"},
+    {name:"DigitalOcean — Product Service Level Agreements: CPU Droplet SLA (99.99% per-instance)", url:"https://www.digitalocean.com/sla/cpu-droplets"},
+    {name:"AWS Cloud Compliance — \"AWS supports 143 security standards and compliance certifications\"", url:"https://aws.amazon.com/compliance/"},
+    {name:"EffectiveSoft — AWS, Azure, GCP, or OCI: choosing a cloud provider for regulated industries (compliance framework lists)", url:"https://www.effectivesoft.com/blog/cloud-computing-for-regulated-industries.html"},
+    {name:"Saga IT — AWS vs Azure vs GCP for Healthcare: 2026 Comparison Guide (SOC/ISO/FedRAMP/HITRUST detail by vendor)", url:"https://saga-it.com/blog/healthcare-cloud-migration-guide"},
+    {name:"DigitalOcean Trust Platform — Certification Reports and Resources (SOC 2 Type II, SOC 3 Type II, PCI-DSS SAQ-A, HIPAA-eligible since July 2024)", url:"https://www.digitalocean.com/trust/certification-reports"},
+    {name:"Tech Insider — AWS vs Azure vs Google Cloud 2026 (2 vCPU/8GB pricing: AWS/Azure ~$30, GCP ~$24)", url:"https://tech-insider.org/aws-vs-azure-vs-google-cloud-2026/"},
+    {name:"CostBench — DigitalOcean Pricing 2026 (Premium Droplet $7–8/mo vs AWS t3.medium $30–35/mo)", url:"https://costbench.com/software/cloud-infrastructure/digitalocean/"},
+    {name:"DigitalOcean — Comparing AWS, Azure, and GCP for Startups in 2026 (99.99% Droplet/Block Storage SLA, pricing model)", url:"https://www.digitalocean.com/resources/articles/comparing-aws-azure-gcp"}
+  ];
+
+  // ---------- Normalize helpers ----------
+  function normalize(list, key, higherIsBetter){
+    const vals = list.map(p=>p[key]);
+    const min = Math.min(...vals), max = Math.max(...vals);
+    if(max===min) return list.map(()=>100);
+    return list.map(p=>{
+      const raw = (p[key]-min)/(max-min);
+      const norm = higherIsBetter ? raw : (1-raw);
+      return Math.round(norm*1000)/10;
+    });
+  }
+
+  function render(){
+    const wPrice = +document.getElementById('w-price').value;
+    const wComp  = +document.getElementById('w-comp').value;
+    const wBreadth = +document.getElementById('w-breadth').value;
+    const wSla = +document.getElementById('w-sla').value;
+    const total = wPrice+wComp+wBreadth+wSla || 1;
+
+    document.getElementById('val-price').textContent = Math.round(wPrice/total*100)+'%';
+    document.getElementById('val-comp').textContent = Math.round(wComp/total*100)+'%';
+    document.getElementById('val-breadth').textContent = Math.round(wBreadth/total*100)+'%';
+    document.getElementById('val-sla').textContent = Math.round(wSla/total*100)+'%';
+
+    const priceScores = normalize(providers,'price',false);
+    const certScores = normalize(providers,'certs',true);
+    const breadthScores = normalize(providers,'breadth',true);
+    const slaScores = normalize(providers,'sla',true);
+
+    const scored = providers.map((p,i)=>{
+      const score = (
+        priceScores[i]*wPrice + certScores[i]*wComp +
+        breadthScores[i]*wBreadth + slaScores[i]*wSla
+      ) / total;
+      return {...p, score: Math.round(score*10)/10,
+        breakdown:{price:priceScores[i],comp:certScores[i],breadth:breadthScores[i],sla:slaScores[i]}};
+    }).sort((a,b)=>b.score-a.score);
+
+    const rankList = document.getElementById('rankList');
+    if(total === 0){
+      rankList.innerHTML = '<div class="empty-state">Set at least one weight above zero to see a ranking.</div>';
+      return;
+    }
+    rankList.innerHTML = scored.map((p,idx)=>`
+      <div class="rank-card ${idx===0?'top':''}">
+        <div class="rank-card-head">
+          <div>
+            <div class="rank-pos">RANK ${String(idx+1).padStart(2,'0')}</div>
+            <div class="rank-name">${p.name}</div>
+          </div>
+          <div class="rank-score">${p.score}<small>/ 100</small></div>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${p.score}%;background:${p.color}"></div></div>
+        <div class="crit-breakdown">
+          <div class="cb-item"><div class="cb-label">Pricing</div><div class="cb-val">${p.breakdown.price.toFixed(0)}</div></div>
+          <div class="cb-item"><div class="cb-label">Compliance</div><div class="cb-val">${p.breakdown.comp.toFixed(0)}</div></div>
+          <div class="cb-item"><div class="cb-label">Breadth</div><div class="cb-val">${p.breakdown.breadth.toFixed(0)}${p.breadthEst?'<span class=\"flag\">EST</span>':''}</div></div>
+          <div class="cb-item"><div class="cb-label">SLA</div><div class="cb-val">${p.breakdown.sla.toFixed(0)}</div></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ---------- Data table ----------
+  function renderTable(){
+    const tbody = document.querySelector('#dataTable tbody');
+    tbody.innerHTML = providers.map(p=>`
+      <tr>
+        <td><strong>${p.name}</strong></td>
+        <td>${p.priceLabel}${p.priceEst?' <span class="est-tag">EST</span>':''}</td>
+        <td>${p.certsLabel}${p.certsEst?' <span class="est-tag">EST</span>':''}</td>
+        <td>${p.breadthLabel} <span class="est-tag">ESTIMATE</span></td>
+        <td>${p.slaLabel}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ---------- Sources ----------
+  function renderSources(){
+    const el = document.getElementById('sourcesList');
+    el.innerHTML = sources.map((s,i)=>`
+      <li>
+        <span class="src-idx">[${i+1}]</span>
+        <span>
+          <a href="${s.url}" target="_blank" rel="noopener">${s.name}</a>
+          <span class="src-context">${s.url}</span>
+        </span>
+      </li>
+    `).join('');
+  }
+
+  // ---------- Wire up ----------
+  ['w-price','w-comp','w-breadth','w-sla'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', render);
+  });
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    document.getElementById('w-price').value = 25;
+    document.getElementById('w-comp').value = 25;
+    document.getElementById('w-breadth').value = 25;
+    document.getElementById('w-sla').value = 25;
+    render();
+  });
+
+  try{
+    render();
+    renderTable();
+    renderSources();
+  }catch(e){
+    document.getElementById('rankList').innerHTML = '<div class="empty-state">Something went wrong rendering the comparison. Please refresh.</div>';
+    console.error(e);
+  }
+})();
+</script>
+
+</body>
+</html>

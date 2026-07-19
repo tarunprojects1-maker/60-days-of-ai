@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal AI Playbook</title>
+<style>
+:root{
+  --bg:#f6f4ef; --bg-elev:#ffffff; --bg-sunken:#eeece4;
+  --ink:#1c1a17; --ink-dim:#5c574d; --ink-faint:#8b8578;
+  --line:#e2ddd0; --line-strong:#cfc8b6;
+  --accent:#2f5e52; --accent-ink:#ffffff; --accent-soft:#e4ede9;
+  --amber:#b3771c; --amber-soft:#f5e8d3;
+  --danger:#a3402e; --danger-soft:#f6e2dd;
+  --radius:10px; --radius-lg:16px;
+  --shadow:0 1px 2px rgba(20,18,14,0.06), 0 8px 24px -12px rgba(20,18,14,0.18);
+  --font-display:'Fraunces', Georgia, serif;
+  --font-body:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
+}
+[data-theme="dark"]{
+  --bg:#15140f; --bg-elev:#1e1c16; --bg-sunken:#131210;
+  --ink:#f1ede2; --ink-dim:#b8b09c; --ink-faint:#8a8370;
+  --line:#332f26; --line-strong:#443f32;
+  --accent:#7fb8a3; --accent-ink:#0e1512; --accent-soft:#20302a;
+  --amber:#e0ab5c; --amber-soft:#332811;
+  --danger:#e08b78; --danger-soft:#3a201b;
+  --shadow:0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+}
+@font-face{font-family:'Fraunces';src:local('Georgia');}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font-body); background:var(--bg); color:var(--ink);
+  min-height:100vh; -webkit-font-smoothing:antialiased; transition:background .25s ease,color .25s ease;
+}
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+::selection{background:var(--accent); color:var(--accent-ink);}
+button{font-family:inherit; cursor:pointer;}
+input,textarea,select{font-family:inherit; color:inherit;}
+a{color:inherit;}
+.visually-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0);}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+/* ---------- LAYOUT ---------- */
+.app{display:flex; min-height:100vh;}
+.sidebar{
+  width:250px; flex-shrink:0; background:var(--bg-elev); border-right:1px solid var(--line);
+  display:flex; flex-direction:column; position:sticky; top:0; height:100vh; z-index:20;
+}
+.brand{padding:22px 20px 14px; display:flex; align-items:center; gap:10px;}
+.brand-mark{
+  width:32px; height:32px; border-radius:9px; background:var(--accent); color:var(--accent-ink);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:16px; flex-shrink:0;
+}
+.brand-text{font-family:var(--font-display); font-weight:600; font-size:16.5px; line-height:1.15;}
+.brand-sub{font-size:10.5px; color:var(--ink-faint); letter-spacing:.04em; text-transform:uppercase; margin-top:1px;}
+
+nav.primary-nav{padding:8px 12px; display:flex; flex-direction:column; gap:2px; flex:1; overflow-y:auto;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; border:none; background:transparent;
+  color:var(--ink-dim); font-size:13.5px; font-weight:500; text-align:left; width:100%; transition:background .15s, color .15s;
+}
+.nav-item:hover{background:var(--bg-sunken); color:var(--ink);}
+.nav-item.active{background:var(--accent-soft); color:var(--accent);}
+.nav-item .ic{width:17px; text-align:center; flex-shrink:0; font-size:14px;}
+.nav-kbd{margin-left:auto; font-size:10px; color:var(--ink-faint); font-family:var(--font-mono); background:var(--bg-sunken); padding:1px 5px; border-radius:4px;}
+
+.sidebar-foot{padding:12px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:6px;}
+.foot-btn{
+  display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; border:1px solid var(--line);
+  background:var(--bg-elev); color:var(--ink-dim); font-size:12.5px; font-weight:500; width:100%;
+}
+.foot-btn:hover{background:var(--bg-sunken); color:var(--ink);}
+
+.main{flex:1; min-width:0; display:flex; flex-direction:column;}
+.topbar{
+  position:sticky; top:0; z-index:15; background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+  padding:16px 32px; display:flex; align-items:center; gap:16px;
+}
+.page-title{font-family:var(--font-display); font-size:22px; font-weight:600;}
+.page-subtitle{font-size:12.5px; color:var(--ink-faint); margin-top:1px;}
+.topbar-spacer{flex:1;}
+.search-box{
+  display:flex; align-items:center; gap:8px; background:var(--bg-sunken); border:1px solid var(--line);
+  border-radius:8px; padding:7px 12px; width:240px;
+}
+.search-box input{background:transparent; border:none; outline:none; font-size:13px; width:100%; color:var(--ink);}
+.icon-btn{
+  width:34px; height:34px; border-radius:8px; border:1px solid var(--line); background:var(--bg-elev);
+  color:var(--ink-dim); display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0;
+}
+.icon-btn:hover{background:var(--bg-sunken); color:var(--ink);}
+
+.content{padding:26px 32px 80px; max-width:1180px; width:100%; margin:0 auto;}
+.view{display:none; animation:fadeUp .35s ease;}
+.view.active{display:block;}
+@keyframes fadeUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+/* ---------- EXPLAINER BANNER ---------- */
+.explainer{
+  background:var(--accent-soft); border:1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-radius:var(--radius-lg); padding:18px 20px; margin-bottom:22px; display:flex; gap:14px; align-items:flex-start;
+  position:relative;
+}
+.explainer .ex-ic{
+  width:34px; height:34px; border-radius:9px; background:var(--accent); color:var(--accent-ink);
+  display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;
+}
+.explainer h3{font-family:var(--font-display); font-size:15.5px; margin-bottom:4px;}
+.explainer p{font-size:13px; color:var(--ink-dim); line-height:1.55; max-width:760px;}
+.explainer .ex-list{margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;}
+.ex-chip{font-size:11px; background:var(--bg-elev); border:1px solid var(--line); padding:3px 9px; border-radius:20px; color:var(--ink-dim);}
+.explainer .ex-close{
+  position:absolute; top:12px; right:12px; width:26px; height:26px; border-radius:7px; border:none;
+  background:transparent; color:var(--ink-faint); font-size:14px;
+}
+.explainer .ex-close:hover{background:rgba(0,0,0,0.06); color:var(--ink);}
+
+/* ---------- DASHBOARD ---------- */
+.grid-stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:26px;}
+.stat-card{background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--radius-lg); padding:16px 18px;}
+.stat-num{font-family:var(--font-display); font-size:26px; font-weight:600;}
+.stat-label{font-size:12px; color:var(--ink-faint); margin-top:2px;}
+
+.section-head{display:flex; align-items:baseline; justify-content:space-between; margin:30px 0 14px;}
+.section-head h2{font-family:var(--font-display); font-size:18px; font-weight:600;}
+.section-head p{font-size:12.5px; color:var(--ink-faint); margin-top:2px;}
+.section-head .actions{display:flex; gap:8px;}
+
+.cat-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px;}
+.cat-card{
+  background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--radius); padding:16px;
+  display:flex; flex-direction:column; gap:6px; text-align:left; transition:transform .15s, box-shadow .15s, border-color .15s;
+}
+.cat-card:hover{transform:translateY(-2px); box-shadow:var(--shadow); border-color:var(--line-strong);}
+.cat-emoji{font-size:20px;}
+.cat-name{font-weight:600; font-size:14px;}
+.cat-count{font-size:11.5px; color:var(--ink-faint);}
+
+/* ---------- WORKFLOW CARDS ---------- */
+.toolbar{display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap;}
+.chip-row{display:flex; gap:6px; flex-wrap:wrap;}
+.filter-chip{
+  font-size:12px; padding:6px 12px; border-radius:20px; border:1px solid var(--line); background:var(--bg-elev);
+  color:var(--ink-dim); font-weight:500;
+}
+.filter-chip.active{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+.select-plain{
+  padding:7px 10px; border-radius:8px; border:1px solid var(--line); background:var(--bg-elev); font-size:12.5px; color:var(--ink);
+}
+
+.wf-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px;}
+.wf-card{
+  background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--radius-lg); padding:18px;
+  display:flex; flex-direction:column; gap:10px; position:relative;
+}
+.wf-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+.wf-title{font-weight:600; font-size:14.5px; line-height:1.3;}
+.wf-desc{font-size:12.5px; color:var(--ink-dim); line-height:1.5;}
+.wf-tags{display:flex; gap:5px; flex-wrap:wrap;}
+.wf-tag{font-size:10.5px; padding:2px 8px; border-radius:20px; background:var(--bg-sunken); color:var(--ink-faint);}
+.wf-fav{background:none; border:none; font-size:16px; color:var(--ink-faint); flex-shrink:0;}
+.wf-fav.on{color:var(--amber);}
+.wf-foot{display:flex; gap:8px; margin-top:4px;}
+
+.btn{
+  border-radius:8px; border:1px solid var(--line); background:var(--bg-elev); color:var(--ink);
+  padding:8px 13px; font-size:12.5px; font-weight:600; display:inline-flex; align-items:center; gap:6px; transition:all .15s;
+}
+.btn:hover{background:var(--bg-sunken);}
+.btn-primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+.btn-primary:hover{filter:brightness(1.08);}
+.btn-ghost{border-color:transparent; background:transparent;}
+.btn-ghost:hover{background:var(--bg-sunken);}
+.btn-danger{color:var(--danger);}
+.btn-sm{padding:6px 10px; font-size:11.5px;}
+.btn-block{width:100%; justify-content:center;}
+
+.empty-state{
+  border:1px dashed var(--line-strong); border-radius:var(--radius-lg); padding:44px 20px; text-align:center; color:var(--ink-faint);
+}
+.empty-state .es-ic{font-size:26px; margin-bottom:8px;}
+.empty-state h4{font-family:var(--font-display); font-size:15px; color:var(--ink); margin-bottom:4px;}
+.empty-state p{font-size:12.5px; max-width:360px; margin:0 auto;}
+
+/* ---------- MODALS ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(15,13,10,0.5); backdrop-filter:blur(2px); z-index:100;
+  display:none; align-items:center; justify-content:center; padding:24px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg-elev); border-radius:var(--radius-lg); max-width:640px; width:100%; max-height:86vh; overflow-y:auto;
+  box-shadow:0 20px 60px -10px rgba(0,0,0,0.4); border:1px solid var(--line); animation:modalIn .25s ease;
+}
+.modal.wide{max-width:820px;}
+@keyframes modalIn{from{opacity:0; transform:translateY(10px) scale(.98);} to{opacity:1; transform:translateY(0) scale(1);}}
+.modal-head{padding:20px 22px 14px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:var(--bg-elev); z-index:2;}
+.modal-head h3{font-family:var(--font-display); font-size:17px; font-weight:600;}
+.modal-body{padding:20px 22px;}
+.modal-foot{padding:16px 22px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:10px; position:sticky; bottom:0; background:var(--bg-elev);}
+
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:12px; font-weight:600; margin-bottom:6px; color:var(--ink-dim);}
+.field .hint{font-size:11px; color:var(--ink-faint); margin-top:4px; line-height:1.4;}
+.field input[type=text], .field textarea, .field select{
+  width:100%; padding:9px 11px; border-radius:8px; border:1px solid var(--line); background:var(--bg-sunken); font-size:13px;
+}
+.field textarea{min-height:90px; resize:vertical; font-family:var(--font-mono); line-height:1.5; font-size:12.5px;}
+
+/* ---------- PROMPT / LOOP BUILDER ---------- */
+.builder-layout{display:grid; grid-template-columns:1.1fr 1fr; gap:22px; align-items:start;}
+@media (max-width:960px){.builder-layout{grid-template-columns:1fr;}}
+.block-picker{background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--radius-lg); padding:16px;}
+.block-picker h4{font-family:var(--font-display); font-size:14.5px; margin-bottom:2px;}
+.block-picker>p{font-size:12px; color:var(--ink-faint); margin-bottom:12px;}
+.picker-item{
+  border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:8px; cursor:pointer; transition:border-color .15s, background .15s;
+}
+.picker-item:hover{border-color:var(--accent); background:var(--accent-soft);}
+.picker-item.added{opacity:.45; pointer-events:none;}
+.pi-top{display:flex; justify-content:space-between; align-items:center; gap:8px;}
+.pi-name{font-weight:600; font-size:13px; display:flex; align-items:center; gap:7px;}
+.pi-emoji{font-size:15px;}
+.pi-add{font-size:11px; color:var(--accent); font-weight:700;}
+.pi-desc{font-size:11.5px; color:var(--ink-faint); margin-top:4px; line-height:1.45;}
+
+.assembled{background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--radius-lg); padding:16px; min-height:200px;}
+.assembled h4{font-family:var(--font-display); font-size:14.5px; margin-bottom:2px;}
+.assembled>p{font-size:12px; color:var(--ink-faint); margin-bottom:12px;}
+.block-card{
+  border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; background:var(--bg-sunken);
+}
+.bc-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px;}
+.bc-name{font-weight:600; font-size:12.5px; display:flex; align-items:center; gap:6px;}
+.bc-why{font-size:10.5px; color:var(--ink-faint); margin-bottom:7px; line-height:1.4; border-left:2px solid var(--line-strong); padding-left:7px;}
+.bc-remove{background:none; border:none; color:var(--ink-faint); font-size:13px;}
+.bc-remove:hover{color:var(--danger);}
+.bc-select, .bc-textarea{
+  width:100%; padding:7px 9px; border-radius:7px; border:1px solid var(--line); background:var(--bg-elev); font-size:12px;
+}
+.bc-textarea{min-height:52px; resize:vertical; font-family:var(--font-mono); font-size:11.5px;}
+
+.preview-box{
+  margin-top:16px; background:var(--bg-sunken); border:1px solid var(--line); border-radius:10px; padding:14px;
+  font-family:var(--font-mono); font-size:12px; line-height:1.65; white-space:pre-wrap; max-height:340px; overflow-y:auto;
+}
+.preview-empty{color:var(--ink-faint); font-family:var(--font-body); font-style:italic;}
+
+/* ---------- misc ---------- */
+.helpdot{
+  width:16px; height:16px; border-radius:50%; border:1px solid var(--line-strong); background:var(--bg-sunken); color:var(--ink-faint);
+  font-size:10px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:help; font-weight:700;
+}
+.mobile-topbar-toggle{display:none;}
+.toast-wrap{position:fixed; bottom:22px; right:22px; z-index:200; display:flex; flex-direction:column; gap:8px;}
+.toast{
+  background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:9px; font-size:12.5px; font-weight:500;
+  box-shadow:var(--shadow); animation:toastIn .25s ease; display:flex; align-items:center; gap:8px;
+}
+[data-theme="dark"] .toast{background:var(--accent); color:var(--accent-ink);}
+@keyframes toastIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+.role-pill-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
+.role-pill{font-size:11.5px; padding:6px 12px; border-radius:20px; border:1px solid var(--line); background:var(--bg-elev); font-weight:600;}
+.role-pill.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+
+kbd{font-family:var(--font-mono); background:var(--bg-sunken); border:1px solid var(--line-strong); border-radius:4px; padding:1px 6px; font-size:11px;}
+
+@media (max-width:820px){
+  .sidebar{position:fixed; left:-260px; top:0; height:100vh; transition:left .2s; box-shadow:var(--shadow);}
+  .sidebar.open{left:0;}
+  .mobile-topbar-toggle{display:flex;}
+  .content{padding:20px 16px 70px;}
+  .topbar{padding:14px 16px;}
+  .search-box{width:150px;}
+  .grid-stats{grid-template-columns:repeat(2,1fr);}
+  .builder-layout{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">P</div>
+      <div>
+        <div class="brand-text">AI Playbook</div>
+        <div class="brand-sub">Personal edition</div>
+      </div>
+    </div>
+    <nav class="primary-nav" id="primaryNav">
+      <button class="nav-item active" data-view="dashboard"><span class="ic">⌂</span> Dashboard</button>
+      <button class="nav-item" data-view="workflows"><span class="ic">▤</span> Workflows</button>
+      <button class="nav-item" data-view="promptbuilder"><span class="ic">✎</span> Prompt Builder</button>
+      <button class="nav-item" data-view="loopbuilder"><span class="ic">↻</span> Loop Builder</button>
+      <button class="nav-item" data-view="favorites"><span class="ic">★</span> Favorites</button>
+      <button class="nav-item" data-view="settings"><span class="ic">⚙</span> Settings</button>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="foot-btn" id="btnHelpSidebar">❓ What is this?</button>
+      <button class="foot-btn" id="btnThemeToggle">◐ Toggle dark mode</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <button class="icon-btn mobile-topbar-toggle" id="btnMobileNav" aria-label="Open menu">☰</button>
+      <div>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+        <div class="page-subtitle" id="pageSubtitle">Your saved AI prompt workflows, at a glance</div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="search-box">
+        <span>🔎</span>
+        <input type="text" id="globalSearch" placeholder="Search workflows… (/)">
+      </div>
+      <button class="icon-btn" id="btnHelpTop" title="What is this?" aria-label="What is this?">❓</button>
+      <button class="icon-btn" id="btnNewWorkflow" title="New workflow (N)" aria-label="Create workflow">＋</button>
+    </div>
+
+    <div class="content">
+
+      <!-- EXPLAINER BANNER (persistent, dismissible) -->
+      <div class="explainer" id="explainerBanner">
+        <div class="ex-ic">💡</div>
+        <div>
+          <h3>What this tool does</h3>
+          <p>This is your personal library of reusable AI prompt systems. <strong>Workflows</strong> are saved, editable prompt templates for tasks you repeat often. The <strong>Prompt Builder</strong> lets you assemble a one-off prompt from labeled building blocks (role, objective, constraints, etc.) with a live preview. The <strong>Loop Builder</strong> turns any prompt into a self-checking, repeating instruction set with defined stop conditions. Everything is saved privately in this browser — nothing leaves your device.</p>
+          <div class="ex-list">
+            <span class="ex-chip">▤ Workflows = saved templates</span>
+            <span class="ex-chip">✎ Prompt Builder = assemble one prompt</span>
+            <span class="ex-chip">↻ Loop Builder = make a prompt self-improving</span>
+            <span class="ex-chip">★ Favorites = your most-used items</span>
+          </div>
+        </div>
+        <button class="ex-close" id="btnExplainerClose" aria-label="Dismiss">✕</button>
+      </div>
+
+      <!-- ============ DASHBOARD VIEW ============ -->
+      <div class="view active" id="view-dashboard">
+        <div class="grid-stats">
+          <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Saved workflows</div></div>
+          <div class="stat-card"><div class="stat-num" id="statFav">0</div><div class="stat-label">Favorited</div></div>
+          <div class="stat-card"><div class="stat-num" id="statCats">0</div><div class="stat-label">Active categories</div></div>
+          <div class="stat-card"><div class="stat-num" id="statRole">—</div><div class="stat-label">Current profile</div></div>
+        </div>
+
+        <div class="section-head">
+          <div>
+            <h2>Choose your profile</h2>
+            <p>This tailors which workflow categories appear below. You can change it anytime.</p>
+          </div>
+        </div>
+        <div class="role-pill-row" id="rolePillRow"></div>
+
+        <div class="section-head">
+          <div>
+            <h2>Categories for you</h2>
+            <p>Groups of workflows relevant to your selected profile — open one to see the templates inside.</p>
+          </div>
+        </div>
+        <div class="cat-grid" id="dashCatGrid"></div>
+
+        <div class="section-head">
+          <div>
+            <h2>Recently used</h2>
+            <p>Workflows you've opened or copied most recently.</p>
+          </div>
+        </div>
+        <div class="wf-grid" id="recentGrid"></div>
+      </div>
+
+      <!-- ============ WORKFLOWS VIEW ============ -->
+      <div class="view" id="view-workflows">
+        <div class="toolbar">
+          <div class="chip-row" id="categoryChips"></div>
+          <div class="topbar-spacer"></div>
+          <select class="select-plain" id="sortSelect">
+            <option value="recent">Sort: Recently used</option>
+            <option value="az">Sort: A–Z</option>
+            <option value="fav">Sort: Favorites first</option>
+          </select>
+        </div>
+        <div class="wf-grid" id="workflowGrid"></div>
+      </div>
+
+      <!-- ============ FAVORITES VIEW ============ -->
+      <div class="view" id="view-favorites">
+        <div class="wf-grid" id="favGrid"></div>
+      </div>
+
+      <!-- ============ PROMPT BUILDER VIEW ============ -->
+      <div class="view" id="view-promptbuilder">
+        <div class="explainer" style="margin-bottom:18px;">
+          <div class="ex-ic">✎</div>
+          <div>
+            <h3>How the Prompt Builder works</h3>
+            <p>Click blocks on the left to add them to your prompt on the right, in any order. Each block is one labeled part of a well-structured prompt (like "Role" or "Constraints"). Fill in the small fields inside each block, and watch the full prompt assemble itself live at the bottom. When it looks right, copy it or save it as a reusable workflow.</p>
+          </div>
+        </div>
+        <div class="builder-layout">
+          <div class="block-picker">
+            <h4>Building blocks</h4>
+            <p>Click to add a block to your prompt →</p>
+            <div id="pbPicker"></div>
+          </div>
+          <div class="assembled">
+            <h4>Your assembled prompt</h4>
+            <p>Fill in each block's fields — the preview updates live</p>
+            <div id="pbAssembled"></div>
+            <div class="preview-box" id="pbPreview"><span class="preview-empty">Add a block on the left to begin building your prompt.</span></div>
+            <div style="display:flex; gap:8px; margin-top:12px;">
+              <button class="btn btn-primary" id="pbCopy">📋 Copy prompt</button>
+              <button class="btn" id="pbSaveWorkflow">💾 Save as workflow</button>
+              <button class="btn btn-ghost" id="pbClear">Clear all</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ LOOP BUILDER VIEW ============ -->
+      <div class="view" id="view-loopbuilder">
+        <div class="explainer" style="margin-bottom:18px;">
+          <div class="ex-ic">↻</div>
+          <div>
+            <h3>How the Loop Builder works</h3>
+            <p>A "loop prompt" asks the AI to work on something, judge its own output against criteria you set, and keep improving it until a stop condition is met — instead of stopping after one pass. Paste any normal prompt below, then define the goal, how quality is judged, how it should improve each round, when to stop, and any safety limits. This produces a ready-to-use autonomous prompt.</p>
+          </div>
+        </div>
+        <div class="builder-layout">
+          <div class="block-picker">
+            <h4>1. Starting prompt</h4>
+            <p>The base task you want turned into a self-improving loop</p>
+            <div class="field">
+              <textarea id="loopBase" placeholder="e.g. Write a cold outreach email to a potential client about our design services."></textarea>
+            </div>
+            <h4 style="margin-top:18px;">2. Loop settings</h4>
+            <p>Each setting below controls one part of the autonomous behavior</p>
+            <div id="loopFields"></div>
+          </div>
+          <div class="assembled">
+            <h4>Assembled loop prompt</h4>
+            <p>This is the full autonomous instruction set, ready to paste into any AI chat</p>
+            <div class="preview-box" id="loopPreview" style="max-height:520px;"><span class="preview-empty">Fill in a starting prompt and loop settings to generate this.</span></div>
+            <div style="display:flex; gap:8px; margin-top:12px;">
+              <button class="btn btn-primary" id="loopCopy">📋 Copy loop prompt</button>
+              <button class="btn" id="loopSaveWorkflow">💾 Save as workflow</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ SETTINGS VIEW ============ -->
+      <div class="view" id="view-settings">
+        <div class="section-head"><div><h2>Preferences</h2><p>Personalize the app and manage your data — everything is stored only in this browser.</p></div></div>
+
+        <div class="cat-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="stat-card">
+            <h4 style="font-family:var(--font-display); font-size:14.5px; margin-bottom:8px;">Appearance</h4>
+            <p style="font-size:12px; color:var(--ink-faint); margin-bottom:10px;">Switch between light and dark mode.</p>
+            <button class="btn" id="settingsThemeBtn">◐ Toggle dark mode</button>
+          </div>
+          <div class="stat-card">
+            <h4 style="font-family:var(--font-display); font-size:14.5px; margin-bottom:8px;">Preferred AI model</h4>
+            <p style="font-size:12px; color:var(--ink-faint); margin-bottom:10px;">Used only as a label on your saved workflows and prompts.</p>
+            <select class="select-plain" id="modelSelect" style="width:100%;">
+              <option>Claude</option>
+              <option>ChatGPT / GPT</option>
+              <option>Gemini</option>
+              <option>Other / Multiple</option>
+            </select>
+          </div>
+          <div class="stat-card">
+            <h4 style="font-family:var(--font-display); font-size:14.5px; margin-bottom:8px;">Import / Export</h4>
+            <p style="font-size:12px; color:var(--ink-faint); margin-bottom:10px;">Back up your workflows or move them to another browser.</p>
+            <div style="display:flex; gap:8px;">
+              <button class="btn" id="btnExport">⬇ Export JSON</button>
+              <button class="btn" id="btnImport">⬆ Import JSON</button>
+            </div>
+            <input type="file" id="importFile" accept="application/json" style="display:none;">
+          </div>
+          <div class="stat-card">
+            <h4 style="font-family:var(--font-display); font-size:14.5px; margin-bottom:8px;">Reset</h4>
+            <p style="font-size:12px; color:var(--ink-faint); margin-bottom:10px;">Restore the default starter workflows. This removes anything you've customized.</p>
+            <button class="btn btn-danger" id="btnResetData">⟲ Reset to defaults</button>
+          </div>
+        </div>
+
+        <div class="section-head"><div><h2>Keyboard shortcuts</h2><p>Work faster without reaching for the mouse.</p></div></div>
+        <div class="stat-card">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:12.5px;">
+            <div><kbd>/</kbd> Focus search</div>
+            <div><kbd>N</kbd> New workflow</div>
+            <div><kbd>G</kbd> then <kbd>D</kbd> Go to Dashboard</div>
+            <div><kbd>G</kbd> then <kbd>W</kbd> Go to Workflows</div>
+            <div><kbd>G</kbd> then <kbd>P</kbd> Go to Prompt Builder</div>
+            <div><kbd>G</kbd> then <kbd>L</kbd> Go to Loop Builder</div>
+            <div><kbd>Esc</kbd> Close dialog</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- WORKFLOW DETAIL / EDIT MODAL -->
+<div class="modal-overlay" id="wfModalOverlay">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3 id="wfModalTitle">Workflow</h3>
+      <button class="icon-btn" id="wfModalClose">✕</button>
+    </div>
+    <div class="modal-body" id="wfModalBody"></div>
+    <div class="modal-foot" id="wfModalFoot"></div>
+  </div>
+</div>
+
+<!-- WELCOME / ONBOARDING MODAL -->
+<div class="modal-overlay" id="onboardModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Welcome to your AI Playbook</h3><button class="icon-btn" id="onboardClose">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13.5px; line-height:1.6; color:var(--ink-dim); margin-bottom:14px;">This app stores reusable AI prompt systems so you stop rewriting the same instructions from scratch. Everything lives only in this browser's local storage — nothing is uploaded anywhere.</p>
+      <div class="field">
+        <label>What best describes you? <span class="helpdot" title="This changes which workflow categories are shown by default">?</span></label>
+        <select id="onboardRole"></select>
+        <div class="hint">You can change this anytime from the Dashboard or Settings.</div>
+      </div>
+      <div class="field">
+        <label>Which AI model do you use most?</label>
+        <select id="onboardModel">
+          <option>Claude</option>
+          <option>ChatGPT / GPT</option>
+          <option>Gemini</option>
+          <option>Other / Multiple</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary btn-block" id="onboardStart">Set up my playbook →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal-overlay" id="helpModal">
+  <div class="modal">
+    <div class="modal-head"><h3>What is this?</h3><button class="icon-btn" id="helpModalClose">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13.5px; line-height:1.65; color:var(--ink-dim); margin-bottom:12px;"><strong>Personal AI Playbook</strong> is a private, offline library of AI prompt systems you can reuse and adapt, instead of writing prompts from scratch every time.</p>
+      <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px;">
+        <div><strong>⌂ Dashboard</strong> — overview of your stats, profile, and recently used workflows.</div>
+        <div><strong>▤ Workflows</strong> — your full library of saved, editable prompt templates, organized by category.</div>
+        <div><strong>✎ Prompt Builder</strong> — assemble a single custom prompt from labeled building blocks with a live preview.</div>
+        <div><strong>↻ Loop Builder</strong> — turn any prompt into a self-checking, repeating instruction set with a defined stop point.</div>
+        <div><strong>★ Favorites</strong> — quick access to the workflows you star.</div>
+        <div><strong>⚙ Settings</strong> — theme, preferred model, import/export, and reset.</div>
+      </div>
+      <p style="font-size:12px; color:var(--ink-faint); margin-top:14px;">Everything is saved in this browser's local storage only.</p>
+    </div>
+    <div class="modal-foot"><button class="btn btn-primary" id="helpModalOk">Got it</button></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   DATA MODEL
+   ============================================================ */
+const ROLES = [
+  {id:"writer", label:"Writer / Content", emoji:"✍️"},
+  {id:"marketer", label:"Marketing", emoji:"📣"},
+  {id:"developer", label:"Developer", emoji:"💻"},
+  {id:"pm", label:"Product / Project Mgmt", emoji:"🧭"},
+  {id:"founder", label:"Founder / Ops", emoji:"🚀"},
+  {id:"student", label:"Student / Researcher", emoji:"📚"},
+  {id:"support", label:"Customer Support", emoji:"🎧"},
+  {id:"designer", label:"Designer", emoji:"🎨"},
+  {id:"sales", label:"Sales", emoji:"🤝"},
+  {id:"general", label:"General / Everything", emoji:"🧩"}
+];
+
+const CATEGORIES = [
+  {id:"writing", name:"Writing & Editing", emoji:"📝", roles:["writer","marketer","student","general"]},
+  {id:"research", name:"Research & Analysis", emoji:"🔍", roles:["student","pm","founder","general"]},
+  {id:"code", name:"Code & Engineering", emoji:"💻", roles:["developer","general"]},
+  {id:"planning", name:"Planning & Strategy", emoji:"🧭", roles:["pm","founder","general"]},
+  {id:"comms", name:"Communication & Email", emoji:"✉️", roles:["marketer","sales","support","founder","general"]},
+  {id:"marketing", name:"Marketing & Growth", emoji:"📣", roles:["marketer","founder","general"]},
+  {id:"design", name:"Design & UX", emoji:"🎨", roles:["designer","general"]},
+  {id:"support", name:"Customer Support", emoji:"🎧", roles:["support","general"]},
+  {id:"sales", name:"Sales & Outreach", emoji:"🤝", roles:["sales","general"]},
+  {id:"meta", name:"Meta / Daily Systems", emoji:"⚙️", roles:["writer","marketer","developer","pm","founder","student","support","designer","sales","general"]}
+];
+
+// Templates use {{variable}} placeholders.
+const DEFAULT_WORKFLOWS = [
+{id:"w1", cat:"writing", title:"Blog Post Drafter", desc:"Turns a rough topic and outline into a full first draft in your voice.",
+ tags:["writing","drafting"],
+ template:`You are an experienced editor and writer.
+
+ROLE: Write in a {{tone}} tone for an audience of {{audience}}.
+TOPIC: {{topic}}
+GOAL: {{goal}}
+
+Structure the piece with a strong hook, 3-5 clear sections, and a short closing takeaway. Avoid filler sentences and clichés. Keep paragraphs under 4 sentences.
+
+Length target: {{length}}.`,
+ vars:[["tone","Conversational"],["audience","busy professionals"],["topic","..."],["goal","..."],["length","700-900 words"]]},
+
+{id:"w2", cat:"writing", title:"Ruthless Line Editor", desc:"Tightens a draft for clarity and cuts unnecessary words, sentence by sentence.",
+ tags:["editing"],
+ template:`Act as a ruthless but constructive line editor. Edit the text below for {{focus}}.
+
+Rules:
+- Preserve the author's voice and intent.
+- Cut redundant words and passive voice.
+- Flag (don't silently fix) any factual claims that need a source.
+- Return the edited version, then a short bullet list of the biggest changes made and why.
+
+TEXT:
+{{text}}`,
+ vars:[["focus","clarity and conciseness"],["text","paste your draft here"]]},
+
+{id:"w3", cat:"research", title:"Rapid Topic Briefing", desc:"Produces a structured, skimmable briefing on any unfamiliar topic.",
+ tags:["research","summary"],
+ template:`Give me a structured briefing on: {{topic}}
+
+Format:
+1. One-paragraph plain-language overview
+2. Key facts / numbers I should know
+3. Common misconceptions
+4. Open debates or unresolved questions
+5. 3 follow-up questions worth exploring next
+
+Depth level: {{depth}}. Cite the type of source where relevant (e.g. "industry report," "academic study") without inventing specific citations.`,
+ vars:[["topic","..."],["depth","intermediate, assume some background"]]},
+
+{id:"w4", cat:"research", title:"Document Summarizer", desc:"Condenses a long document into decision-ready takeaways.",
+ tags:["summary"],
+ template:`Summarize the following document for someone who has {{minutes}} minutes.
+
+Output:
+- 3-sentence executive summary
+- Key takeaways as bullets
+- Any risks, caveats, or open questions
+- One recommended next action
+
+DOCUMENT:
+{{document}}`,
+ vars:[["minutes","2"],["document","paste text here"]]},
+
+{id:"w5", cat:"code", title:"Code Reviewer", desc:"Reviews a code snippet for bugs, readability, and edge cases.",
+ tags:["code","review"],
+ template:`Review this {{language}} code as a senior engineer doing a pull request review.
+
+Check for: correctness, edge cases, readability, naming, and performance concerns. Do not rewrite the whole file — give specific, line-referenced comments and only show corrected snippets for issues you flag.
+
+CODE:
+{{code}}`,
+ vars:[["language","JavaScript"],["code","paste code here"]]},
+
+{id:"w6", cat:"code", title:"Bug Diagnosis Assistant", desc:"Walks through likely causes of a bug systematically before suggesting fixes.",
+ tags:["code","debugging"],
+ template:`I'm seeing this bug: {{bug_description}}
+
+Environment: {{environment}}
+Relevant code / error log:
+{{code_or_log}}
+
+Think through this step by step:
+1. List the 3 most likely causes, ranked by probability.
+2. For the top cause, explain how to confirm it.
+3. Suggest a fix, and note any side effects it could introduce.`,
+ vars:[["bug_description","..."],["environment","e.g. Node 20, React 18"],["code_or_log","paste here"]]},
+
+{id:"w7", cat:"planning", title:"Weekly Priority Planner", desc:"Turns a messy task list into a focused, ordered weekly plan.",
+ tags:["planning"],
+ template:`Here is my raw task list for the week: {{tasks}}
+
+My top goal this week is: {{goal}}
+Available focused hours: {{hours}}
+
+Organize these into a priority-ordered plan. Group by day, flag anything that seems low-value or should be delegated/dropped, and note if the goal is unrealistic given the hours available.`,
+ vars:[["tasks","paste your list"],["goal","..."],["hours","20"]]},
+
+{id:"w8", cat:"planning", title:"Decision Framework", desc:"Structures a hard decision using explicit criteria instead of gut feel.",
+ tags:["strategy","decisions"],
+ template:`Help me decide: {{decision}}
+
+Options: {{options}}
+Constraints: {{constraints}}
+What matters most to me, in order: {{priorities}}
+
+Build a simple weighted comparison across the options against my priorities, call out what information I'm missing, and give a reasoned recommendation — but flag it clearly as a recommendation, not a final answer.`,
+ vars:[["decision","..."],["options","A, B, C"],["constraints","budget, time, etc."],["priorities","..."]]},
+
+{id:"w9", cat:"comms", title:"Email Rewriter", desc:"Rewrites a rough email draft to match a specific tone and goal.",
+ tags:["email"],
+ template:`Rewrite this email to be {{tone}}, while keeping it {{length}}.
+
+Goal of the email: {{goal}}
+Recipient context: {{recipient}}
+
+DRAFT:
+{{draft}}
+
+Return only the rewritten email, subject line included.`,
+ vars:[["tone","warm but professional"],["length","concise, under 150 words"],["goal","..."],["recipient","..."],["draft","paste your rough draft"]]},
+
+{id:"w10", cat:"comms", title:"Difficult Conversation Scripter", desc:"Drafts talking points for a sensitive conversation, with objection handling.",
+ tags:["email","conversation"],
+ template:`Help me prepare for a difficult conversation: {{situation}}
+
+My goal for the conversation: {{goal}}
+Their likely reaction: {{reaction}}
+
+Give me: 
+1. An opening line
+2. 3 key points to make, in order
+3. Responses to 2 likely objections
+4. A way to close the conversation constructively`,
+ vars:[["situation","..."],["goal","..."],["reaction","..."]]},
+
+{id:"w11", cat:"marketing", title:"Social Post Generator", desc:"Turns one idea into platform-specific social copy variants.",
+ tags:["social","copy"],
+ template:`Turn this idea into a {{platform}} post: {{idea}}
+
+Tone: {{tone}}
+Include a hook in the first line and one clear call to action. Give me {{count}} variants with different angles.`,
+ vars:[["platform","LinkedIn"],["idea","..."],["tone","confident, no corporate jargon"],["count","3"]]},
+
+{id:"w12", cat:"marketing", title:"Landing Page Copy Builder", desc:"Drafts structured landing page copy from a product description.",
+ tags:["copy","conversion"],
+ template:`Write landing page copy for: {{product}}
+
+Target audience: {{audience}}
+Main benefit to lead with: {{benefit}}
+
+Structure: headline, subheadline, 3 benefit bullets, social-proof placeholder, and a final CTA block. Keep sentences short and skimmable.`,
+ vars:[["product","..."],["audience","..."],["benefit","..."]]},
+
+{id:"w13", cat:"design", title:"UX Critique", desc:"Gives structured, actionable feedback on an interface description or screenshot.",
+ tags:["ux","feedback"],
+ template:`Critique this interface as a senior product designer: {{description}}
+
+Evaluate: clarity of primary action, visual hierarchy, accessibility concerns, and consistency. Give a short list of the top 3 highest-impact changes, ranked by effort vs. impact.`,
+ vars:[["description","describe the screen or paste a link/notes"]]},
+
+{id:"w14", cat:"support", title:"Support Reply Drafter", desc:"Drafts an empathetic, on-brand support reply to a customer message.",
+ tags:["support"],
+ template:`Draft a support reply to this customer message: {{message}}
+
+Our policy / relevant facts: {{policy}}
+Tone: {{tone}}
+
+Acknowledge their issue first, be specific about next steps, and avoid over-apologizing or making promises we can't confirm.`,
+ vars:[["message","paste customer message"],["policy","..."],["tone","empathetic and direct"]]},
+
+{id:"w15", cat:"sales", title:"Cold Outreach Drafter", desc:"Writes a short, personalized first-touch outreach message.",
+ tags:["sales","outreach"],
+ template:`Write a cold outreach message to {{recipient}} about {{offer}}.
+
+Context / personalization detail: {{personalization}}
+Channel: {{channel}}
+
+Keep it under {{length}}, lead with relevance to them (not us), and end with a low-friction ask.`,
+ vars:[["recipient","..."],["offer","..."],["personalization","..."],["channel","email"],["length","120 words"]]},
+
+{id:"w16", cat:"meta", title:"Daily Standup Summarizer", desc:"Turns rough end-of-day notes into a clean standup update.",
+ tags:["daily"],
+ template:`Turn these rough notes into a standup update: {{notes}}
+
+Format:
+- Yesterday: ...
+- Today: ...
+- Blockers: ...
+Keep it under 80 words total.`,
+ vars:[["notes","paste raw notes"]]},
+
+{id:"w17", cat:"meta", title:"Meeting Notes → Action Items", desc:"Extracts clear owners and deadlines from messy meeting notes.",
+ tags:["daily","meetings"],
+ template:`Convert these meeting notes into action items: {{notes}}
+
+For each action item, extract: task, owner (if mentioned, else "unassigned"), and deadline (if mentioned, else "not set"). Then list any open questions that were raised but not resolved.`,
+ vars:[["notes","paste meeting notes"]]},
+
+{id:"w18", cat:"research", title:"Literature / Source Comparator", desc:"Compares multiple sources or viewpoints on the same question side by side.",
+ tags:["research"],
+ template:`Compare these sources/viewpoints on the question: {{question}}
+
+SOURCE A: {{source_a}}
+SOURCE B: {{source_b}}
+
+Summarize where they agree, where they disagree, and what might explain the disagreement (methodology, bias, timing, etc.). Do not pick a winner — present it evenhandedly.`,
+ vars:[["question","..."],["source_a","..."],["source_b","..."]]}
+];
+
+/* Prompt Builder block library */
+const PB_BLOCKS = [
+ {id:"role", emoji:"🎭", name:"Role", desc:"Tells the AI what perspective or expertise to respond from. This shapes vocabulary, priorities, and depth.", why:"Sets the lens the AI reasons through — a lawyer and a comedian answer the same question differently.", type:"text", placeholder:"e.g. a senior backend engineer with 10 years of experience"},
+ {id:"objective", emoji:"🎯", name:"Objective", desc:"The single clear outcome you want from this prompt.", why:"Without a stated objective, the AI guesses what 'done' looks like.", type:"text", placeholder:"e.g. produce a working REST API design"},
+ {id:"context", emoji:"🧩", name:"Context", desc:"Background facts the AI needs but wouldn't otherwise know.", why:"Prevents generic answers by grounding the response in your real situation.", type:"textarea", placeholder:"e.g. this is for a 3-person startup, no dedicated backend team"},
+ {id:"constraints", emoji:"🚧", name:"Constraints", desc:"Hard limits the response must respect — length, tools, format, things to avoid.", why:"Stops the AI from producing something technically correct but unusable for you.", type:"textarea", placeholder:"e.g. under 300 words, no jargon, must use Python"},
+ {id:"reasoning", emoji:"🧠", name:"Reasoning strategy", desc:"How the AI should think before answering — step by step, compare options, list pros/cons, etc.", why:"Complex tasks benefit from an explicit thinking process instead of a jump to the final answer.", type:"select", options:["Think step by step before answering","List options, weigh pros/cons, then decide","Break into sub-problems and solve each","Answer directly, no visible reasoning needed"]},
+ {id:"format", emoji:"📐", name:"Output format", desc:"The exact shape the response should take.", why:"A clear format makes the output usable immediately instead of needing rework.", type:"select", options:["Plain paragraphs","Numbered list","Bullet points","Table","Markdown with headers","Code block only"]},
+ {id:"tone", emoji:"🎨", name:"Tone", desc:"The voice and register the response should be written in.", why:"Tone determines whether output is ready to send as-is or needs a rewrite pass.", type:"select", options:["Professional and neutral","Warm and conversational","Direct and concise","Playful / casual","Formal / academic"]},
+ {id:"examples", emoji:"📎", name:"Examples", desc:"One or more sample inputs/outputs that show the pattern you want followed.", why:"Examples remove ambiguity faster than any amount of description.", type:"textarea", placeholder:"e.g. Input: ... → Output: ..."},
+ {id:"quality", emoji:"✅", name:"Quality checks", desc:"Criteria the AI should verify against before finalizing its answer.", why:"Turns a one-shot guess into a self-checked response.", type:"textarea", placeholder:"e.g. verify all claims are consistent, no contradictions, under word limit"}
+];
+
+/* Loop Builder fields */
+const LOOP_FIELDS = [
+ {id:"goal", emoji:"🎯", name:"Goal", desc:"What a successful final output looks like.", why:"The loop needs a target to measure progress against each round.", type:"textarea", placeholder:"e.g. a cold email with a >20% realistic reply-worthy quality"},
+ {id:"criteria", emoji:"📏", name:"Evaluation criteria", desc:"The specific standards used to judge each draft.", why:"Without explicit criteria, self-evaluation is just a vibe check.", type:"textarea", placeholder:"e.g. clarity, brevity, one clear CTA, no clichés"},
+ {id:"strategy", emoji:"🔁", name:"Improvement strategy", desc:"How the AI should revise between rounds.", why:"Directs *how* it improves, not just that it should.", type:"select", options:["Rewrite the weakest element each round","Get progressively more concise each round","Try a different angle/approach each round","Address only the single biggest flaw per round"]},
+ {id:"stop", emoji:"🛑", name:"Stop conditions", desc:"When the loop should stop iterating and give a final answer.", why:"Prevents endless looping with no clear finish line.", type:"select", options:["After 3 rounds, or sooner if all criteria are met","When two consecutive rounds show no meaningful improvement","As soon as all evaluation criteria pass","After 5 rounds maximum"]},
+ {id:"safety", emoji:"🛡️", name:"Safety rules", desc:"Guardrails the loop must never cross, regardless of instructions to improve.", why:"Keeps an autonomous process from drifting into unwanted territory while optimizing.", type:"textarea", placeholder:"e.g. never invent statistics, never claim credentials we don't have, stay within brand voice"}
+];
+
+/* ============================================================
+   STATE + STORAGE
+   ============================================================ */
+const LS_KEY = "aiplaybook_workflows_v1";
+const LS_STATE = "aiplaybook_state_v1";
+
+let state = {
+  theme: "light",
+  role: "general",
+  model: "Claude",
+  onboarded: false,
+  explainerDismissed: false,
+  activeCategory: "all",
+  searchQuery: "",
+  recents: []
+};
+
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem(LS_STATE));
+    if(s) state = Object.assign(state, s);
+  }catch(e){}
+}
+function saveState(){ localStorage.setItem(LS_STATE, JSON.stringify(state)); }
+
+function loadWorkflows(){
+  try{
+    const w = JSON.parse(localStorage.getItem(LS_KEY));
+    if(w && Array.isArray(w)) return w;
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_WORKFLOWS)).map(w=>Object.assign(w,{favorite:false, uses:0, lastUsed:0}));
+}
+function saveWorkflows(){ localStorage.setItem(LS_KEY, JSON.stringify(workflows)); }
+
+let workflows = loadWorkflows();
+
+/* ============================================================
+   UTIL
+   ============================================================ */
+function toast(msg, emoji){
+  const wrap = document.getElementById("toastWrap");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = `<span>${emoji||"✓"}</span><span>${msg}</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.opacity="0"; el.style.transition="opacity .3s"; setTimeout(()=>el.remove(),300); }, 2200);
+}
+function uid(){ return "w"+Date.now()+Math.random().toString(36).slice(2,7); }
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>toast("Copied to clipboard","📋")).catch(()=>toast("Couldn't copy — select manually","⚠️"));
+}
+function renderTemplate(template, vars){
+  let out = template;
+  vars.forEach(([k,v])=>{
+    out = out.split("{{"+k+"}}").join(v && v.trim() ? v : "{{"+k+"}}");
+  });
+  return out;
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+const VIEW_META = {
+  dashboard:{title:"Dashboard", sub:"Your saved AI prompt workflows, at a glance"},
+  workflows:{title:"Workflows", sub:"Browse, search, and edit your saved prompt templates"},
+  favorites:{title:"Favorites", sub:"Workflows you've starred for quick access"},
+  promptbuilder:{title:"Prompt Builder", sub:"Assemble a custom prompt from labeled building blocks"},
+  loopbuilder:{title:"Loop Builder", sub:"Turn a prompt into a self-checking, repeating instruction set"},
+  settings:{title:"Settings", sub:"Appearance, data, and shortcuts"}
+};
+function goTo(view){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById("view-"+view).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active", n.dataset.view===view));
+  document.getElementById("pageTitle").textContent = VIEW_META[view].title;
+  document.getElementById("pageSubtitle").textContent = VIEW_META[view].sub;
+  if(view==="workflows") renderWorkflowsView();
+  if(view==="favorites") renderFavoritesView();
+  if(view==="dashboard") renderDashboard();
+  document.getElementById("sidebar").classList.remove("open");
+  window.scrollTo(0,0);
+}
+document.getElementById("primaryNav").addEventListener("click", e=>{
+  const btn = e.target.closest(".nav-item");
+  if(btn) goTo(btn.dataset.view);
+});
+document.getElementById("btnMobileNav").addEventListener("click", ()=>document.getElementById("sidebar").classList.toggle("open"));
+
+/* ============================================================
+   THEME
+   ============================================================ */
+function applyTheme(){
+  document.documentElement.setAttribute("data-theme", state.theme);
+  document.body.setAttribute("data-theme", state.theme);
+}
+function toggleTheme(){
+  state.theme = state.theme === "dark" ? "light" : "dark";
+  applyTheme(); saveState();
+}
+document.getElementById("btnThemeToggle").addEventListener("click", toggleTheme);
+document.getElementById("settingsThemeBtn").addEventListener("click", toggleTheme);
+
+/* ============================================================
+   EXPLAINER BANNER
+   ============================================================ */
+function renderExplainer(){
+  document.getElementById("explainerBanner").style.display = state.explainerDismissed ? "none" : "flex";
+}
+document.getElementById("btnExplainerClose").addEventListener("click", ()=>{
+  state.explainerDismissed = true; saveState(); renderExplainer();
+});
+
+/* ============================================================
+   HELP MODAL
+   ============================================================ */
+function openModal(id){ document.getElementById(id).classList.add("open"); }
+function closeModal(id){ document.getElementById(id).classList.remove("open"); }
+document.getElementById("btnHelpSidebar").addEventListener("click", ()=>openModal("helpModal"));
+document.getElementById("btnHelpTop").addEventListener("click", ()=>openModal("helpModal"));
+document.getElementById("helpModalClose").addEventListener("click", ()=>closeModal("helpModal"));
+document.getElementById("helpModalOk").addEventListener("click", ()=>closeModal("helpModal"));
+
+/* ============================================================
+   ONBOARDING
+   ============================================================ */
+function initOnboardSelect(){
+  const sel = document.getElementById("onboardRole");
+  sel.innerHTML = ROLES.map(r=>`<option value="${r.id}">${r.emoji} ${r.label}</option>`).join("");
+}
+document.getElementById("onboardClose").addEventListener("click", ()=>closeModal("onboardModal"));
+document.getElementById("onboardStart").addEventListener("click", ()=>{
+  state.role = document.getElementById("onboardRole").value;
+  state.model = document.getElementById("onboardModel").value;
+  state.onboarded = true;
+  saveState();
+  closeModal("onboardModal");
+  renderAll();
+  toast("Playbook personalized","🎉");
+});
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+function renderRolePills(){
+  const row = document.getElementById("rolePillRow");
+  row.innerHTML = ROLES.map(r=>`<button class="role-pill ${state.role===r.id?'active':''}" data-role="${r.id}">${r.emoji} ${r.label}</button>`).join("");
+  row.querySelectorAll(".role-pill").forEach(p=>p.addEventListener("click", ()=>{
+    state.role = p.dataset.role; saveState(); renderAll();
+  }));
+}
+function categoriesForRole(){
+  return CATEGORIES.filter(c=> state.role==="general" ? true : c.roles.includes(state.role));
+}
+function renderDashboard(){
+  document.getElementById("statTotal").textContent = workflows.length;
+  document.getElementById("statFav").textContent = workflows.filter(w=>w.favorite).length;
+  const cats = categoriesForRole();
+  document.getElementById("statCats").textContent = cats.length;
+  const roleObj = ROLES.find(r=>r.id===state.role);
+  document.getElementById("statRole").textContent = roleObj ? roleObj.emoji+" "+roleObj.label : "General";
+
+  renderRolePills();
+
+  const grid = document.getElementById("dashCatGrid");
+  grid.innerHTML = cats.map(c=>{
+    const count = workflows.filter(w=>w.cat===c.id).length;
+    return `<button class="cat-card" data-cat="${c.id}">
+      <div class="cat-emoji">${c.emoji}</div>
+      <div class="cat-name">${c.name}</div>
+      <div class="cat-count">${count} workflow${count===1?"":"s"}</div>
+    </button>`;
+  }).join("") || `<div class="empty-state" style="grid-column:1/-1;"><div class="es-ic">🧭</div><h4>No categories yet</h4><p>Choose a profile above to see relevant workflow categories.</p></div>`;
+  grid.querySelectorAll(".cat-card").forEach(c=>c.addEventListener("click", ()=>{
+    state.activeCategory = c.dataset.cat; saveState(); goTo("workflows");
+  }));
+
+  const recents = workflows.filter(w=>w.lastUsed>0).sort((a,b)=>b.lastUsed-a.lastUsed).slice(0,3);
+  const rg = document.getElementById("recentGrid");
+  rg.innerHTML = recents.length ? recents.map(w=>workflowCardHtml(w)).join("") :
+    `<div class="empty-state" style="grid-column:1/-1;"><div class="es-ic">🕘</div><h4>Nothing used yet</h4><p>Open a workflow and copy its prompt — it'll show up here for quick access next time.</p></div>`;
+  bindCardEvents(rg);
+}
+
+/* ============================================================
+   WORKFLOW CARD RENDERING
+   ============================================================ */
+function workflowCardHtml(w){
+  const cat = CATEGORIES.find(c=>c.id===w.cat);
+  return `<div class="wf-card" data-id="${w.id}">
+    <div class="wf-top">
+      <div>
+        <div class="wf-title">${escapeHtml(w.title)}</div>
+      </div>
+      <button class="wf-fav ${w.favorite?'on':''}" data-fav="${w.id}" title="Favorite" aria-label="Toggle favorite">${w.favorite?'★':'☆'}</button>
+    </div>
+    <div class="wf-desc">${escapeHtml(w.desc)}</div>
+    <div class="wf-tags">
+      <span class="wf-tag">${cat?cat.emoji+' '+cat.name:'Uncategorized'}</span>
+      ${(w.tags||[]).map(t=>`<span class="wf-tag">${escapeHtml(t)}</span>`).join("")}
+    </div>
+    <div class="wf-foot">
+      <button class="btn btn-primary btn-sm" data-open="${w.id}">Open</button>
+      <button class="btn btn-sm" data-dup="${w.id}">⧉ Duplicate</button>
+    </div>
+  </div>`;
+}
+function bindCardEvents(container){
+  container.querySelectorAll("[data-fav]").forEach(b=>b.addEventListener("click", e=>{
+    e.stopPropagation();
+    const w = workflows.find(x=>x.id===b.dataset.fav);
+    w.favorite = !w.favorite; saveWorkflows(); renderAll();
+    toast(w.favorite?"Added to favorites":"Removed from favorites", w.favorite?"★":"☆");
+  }));
+  container.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click", ()=>openWorkflowModal(b.dataset.open)));
+  container.querySelectorAll("[data-dup]").forEach(b=>b.addEventListener("click", e=>{
+    e.stopPropagation();
+    const w = workflows.find(x=>x.id===b.dataset.dup);
+    const copy = JSON.parse(JSON.stringify(w));
+    copy.id = uid(); copy.title = w.title + " (copy)"; copy.favorite=false; copy.lastUsed=0;
+    workflows.push(copy); saveWorkflows(); renderAll();
+    toast("Workflow duplicated","⧉");
+  }));
+}
+
+/* ============================================================
+   WORKFLOWS VIEW (list + filter + search)
+   ============================================================ */
+function renderCategoryChips(){
+  const chips = document.getElementById("categoryChips");
+  const all = [{id:"all",name:"All",emoji:"▤"}].concat(CATEGORIES);
+  chips.innerHTML = all.map(c=>`<button class="filter-chip ${state.activeCategory===c.id?'active':''}" data-cat="${c.id}">${c.emoji||''} ${c.name}</button>`).join("");
+  chips.querySelectorAll(".filter-chip").forEach(c=>c.addEventListener("click", ()=>{
+    state.activeCategory = c.dataset.cat; saveState(); renderWorkflowsView();
+  }));
+}
+function renderWorkflowsView(){
+  renderCategoryChips();
+  const sort = document.getElementById("sortSelect").value;
+  let list = workflows.slice();
+  if(state.activeCategory !== "all") list = list.filter(w=>w.cat===state.activeCategory);
+  const q = state.searchQuery.trim().toLowerCase();
+  if(q) list = list.filter(w => (w.title+" "+w.desc+" "+(w.tags||[]).join(" ")).toLowerCase().includes(q));
+  if(sort==="az") list.sort((a,b)=>a.title.localeCompare(b.title));
+  if(sort==="fav") list.sort((a,b)=>(b.favorite-a.favorite));
+  if(sort==="recent") list.sort((a,b)=>b.lastUsed-a.lastUsed);
+
+  const grid = document.getElementById("workflowGrid");
+  grid.innerHTML = list.length ? list.map(workflowCardHtml).join("") :
+    `<div class="empty-state" style="grid-column:1/-1;"><div class="es-ic">🔍</div><h4>No workflows match</h4><p>Try a different category or search term, or create a new workflow with the ＋ button.</p></div>`;
+  bindCardEvents(grid);
+}
+document.getElementById("sortSelect").addEventListener("change", renderWorkflowsView);
+
+function renderFavoritesView(){
+  const grid = document.getElementById("favGrid");
+  const favs = workflows.filter(w=>w.favorite);
+  grid.innerHTML = favs.length ? favs.map(workflowCardHtml).join("") :
+    `<div class="empty-state" style="grid-column:1/-1;"><div class="es-ic">★</div><h4>No favorites yet</h4><p>Star any workflow from its card or detail view to pin it here for quick access.</p></div>`;
+  bindCardEvents(grid);
+}
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+const searchInput = document.getElementById("globalSearch");
+searchInput.addEventListener("input", e=>{
+  state.searchQuery = e.target.value;
+  if(document.getElementById("view-workflows").classList.contains("active")) renderWorkflowsView();
+  else goTo("workflows");
+});
+
+/* ============================================================
+   WORKFLOW DETAIL / EDIT MODAL
+   ============================================================ */
+let currentModalId = null;
+function openWorkflowModal(id, isNew){
+  currentModalId = id;
+  const w = workflows.find(x=>x.id===id);
+  if(!w) return;
+  w.lastUsed = Date.now(); w.uses = (w.uses||0)+1; saveWorkflows();
+
+  document.getElementById("wfModalTitle").textContent = isNew ? "New workflow" : w.title;
+  const cat = CATEGORIES.find(c=>c.id===w.cat);
+
+  const varsHtml = (w.vars||[]).map(([k,v],i)=>`
+    <div class="field">
+      <label>${escapeHtml(k)}</label>
+      <input type="text" data-var="${i}" value="${escapeHtml(v)}">
+    </div>`).join("");
+
+  document.getElementById("wfModalBody").innerHTML = `
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="wfEditTitle" value="${escapeHtml(w.title)}">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <input type="text" id="wfEditDesc" value="${escapeHtml(w.desc)}">
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <select id="wfEditCat">${CATEGORIES.map(c=>`<option value="${c.id}" ${c.id===w.cat?'selected':''}>${c.emoji} ${c.name}</option>`).join("")}</select>
+    </div>
+    <div class="field">
+      <label>Template <span class="helpdot" title="Use {{variable}} to mark editable parts">?</span></label>
+      <textarea id="wfEditTemplate" style="min-height:160px;">${escapeHtml(w.template)}</textarea>
+      <div class="hint">Use <code>{{variable_name}}</code> to mark editable fields — they'll appear below as fill-in boxes.</div>
+    </div>
+    <div class="section-head" style="margin:16px 0 8px;"><div><h2 style="font-size:14px;">Fill in variables</h2><p>Live preview updates as you type</p></div></div>
+    <div id="wfVarFields">${varsHtml}</div>
+    <div class="preview-box" id="wfLivePreview"></div>
+  `;
+
+  document.getElementById("wfModalFoot").innerHTML = `
+    <button class="btn btn-danger" id="wfDelete">🗑 Delete</button>
+    <div style="flex:1;"></div>
+    <button class="btn" id="wfFavToggleBtn">${w.favorite?'★ Favorited':'☆ Favorite'}</button>
+    <button class="btn" id="wfSaveEdits">💾 Save changes</button>
+    <button class="btn btn-primary" id="wfCopyBtn">📋 Copy prompt</button>
+  `;
+
+  function updatePreview(){
+    const vars = Array.from(document.querySelectorAll("#wfVarFields [data-var]")).map(inp=>{
+      const idx = +inp.dataset.var;
+      return [w.vars[idx][0], inp.value];
+    });
+    document.getElementById("wfLivePreview").textContent = renderTemplate(document.getElementById("wfEditTemplate").value, vars);
+    return vars;
+  }
+  document.getElementById("wfModalBody").addEventListener("input", updatePreview);
+  updatePreview();
+
+  document.getElementById("wfFavToggleBtn").addEventListener("click", ()=>{
+    w.favorite = !w.favorite; saveWorkflows();
+    document.getElementById("wfFavToggleBtn").textContent = w.favorite?'★ Favorited':'☆ Favorite';
+    renderAll();
+  });
+  document.getElementById("wfDelete").addEventListener("click", ()=>{
+    if(confirm("Delete this workflow? This can't be undone.")){
+      workflows = workflows.filter(x=>x.id!==w.id); saveWorkflows();
+      closeModal("wfModalOverlay"); renderAll();
+      toast("Workflow deleted","🗑");
+    }
+  });
+  document.getElementById("wfSaveEdits").addEventListener("click", ()=>{
+    w.title = document.getElementById("wfEditTitle").value || w.title;
+    w.desc = document.getElementById("wfEditDesc").value;
+    w.cat = document.getElementById("wfEditCat").value;
+    w.template = document.getElementById("wfEditTemplate").value;
+    w.vars = Array.from(document.querySelectorAll("#wfVarFields [data-var]")).map(inp=>{
+      const idx = +inp.dataset.var; return [w.vars[idx][0], inp.value];
+    });
+    saveWorkflows(); renderAll();
+    toast("Workflow saved","💾");
+  });
+  document.getElementById("wfCopyBtn").addEventListener("click", ()=>{
+    copyText(document.getElementById("wfLivePreview").textContent);
+  });
+
+  openModal("wfModalOverlay");
+}
+document.getElementById("wfModalClose").addEventListener("click", ()=>closeModal("wfModalOverlay"));
+
+document.getElementById("btnNewWorkflow").addEventListener("click", ()=>{
+  const w = {id:uid(), cat:"meta", title:"New workflow", desc:"Describe what this workflow is for.",
+    tags:[], template:"Write a {{style}} response about {{topic}}.", vars:[["style","clear and concise"],["topic","..."]],
+    favorite:false, uses:0, lastUsed:0};
+  workflows.push(w); saveWorkflows();
+  openWorkflowModal(w.id, true);
+});
+
+/* ============================================================
+   PROMPT BUILDER
+   ============================================================ */
+let pbAdded = []; // array of {blockId, value or select value}
+function renderPbPicker(){
+  document.getElementById("pbPicker").innerHTML = PB_BLOCKS.map(b=>{
+    const added = pbAdded.some(x=>x.blockId===b.id);
+    return `<div class="picker-item ${added?'added':''}" data-add="${b.id}">
+      <div class="pi-top"><div class="pi-name"><span class="pi-emoji">${b.emoji}</span>${b.name}</div><span class="pi-add">${added?'Added':'+ Add'}</span></div>
+      <div class="pi-desc">${b.desc}</div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("#pbPicker [data-add]").forEach(el=>el.addEventListener("click", ()=>{
+    const id = el.dataset.add;
+    if(pbAdded.some(x=>x.blockId===id)) return;
+    const def = PB_BLOCKS.find(b=>b.id===id);
+    pbAdded.push({blockId:id, value: def.type==="select" ? def.options[0] : ""});
+    renderPbAll();
+  }));
+}
+function renderPbAssembled(){
+  const wrap = document.getElementById("pbAssembled");
+  if(!pbAdded.length){ wrap.innerHTML = `<div class="hint">No blocks added yet. Click a block on the left.</div>`; return; }
+  wrap.innerHTML = pbAdded.map((item,i)=>{
+    const def = PB_BLOCKS.find(b=>b.id===item.blockId);
+    let fieldHtml = "";
+    if(def.type==="text") fieldHtml = `<input class="bc-select" data-i="${i}" type="text" placeholder="${def.placeholder||''}" value="${escapeHtml(item.value)}">`;
+    else if(def.type==="textarea") fieldHtml = `<textarea class="bc-textarea" data-i="${i}" placeholder="${def.placeholder||''}">${escapeHtml(item.value)}</textarea>`;
+    else if(def.type==="select") fieldHtml = `<select class="bc-select" data-i="${i}">${def.options.map(o=>`<option ${o===item.value?'selected':''}>${o}</option>`).join("")}</select>`;
+    return `<div class="block-card" data-block="${i}">
+      <div class="bc-top"><div class="bc-name">${def.emoji} ${def.name}</div><button class="bc-remove" data-remove="${i}">✕</button></div>
+      <div class="bc-why">${def.why}</div>
+      ${fieldHtml}
+    </div>`;
+  }).join("");
+  wrap.querySelectorAll("[data-i]").forEach(inp=>inp.addEventListener("input", ()=>{
+    pbAdded[+inp.dataset.i].value = inp.value; renderPbPreview();
+  }));
+  wrap.querySelectorAll("[data-remove]").forEach(btn=>btn.addEventListener("click", ()=>{
+    pbAdded.splice(+btn.dataset.remove,1); renderPbAll();
+  }));
+}
+function renderPbPreview(){
+  const box = document.getElementById("pbPreview");
+  if(!pbAdded.length){ box.innerHTML = `<span class="preview-empty">Add a block on the left to begin building your prompt.</span>`; return; }
+  const lines = pbAdded.map(item=>{
+    const def = PB_BLOCKS.find(b=>b.id===item.blockId);
+    if(!item.value || !item.value.trim()) return null;
+    return def.name.toUpperCase()+": "+item.value;
+  }).filter(Boolean);
+  box.textContent = lines.length ? lines.join("\n\n") : "Fill in the fields above to see your prompt build here.";
+}
+function renderPbAll(){ renderPbPicker(); renderPbAssembled(); renderPbPreview(); }
+document.getElementById("pbCopy").addEventListener("click", ()=>{
+  const text = document.getElementById("pbPreview").textContent;
+  if(!pbAdded.length) return toast("Add some blocks first","⚠️");
+  copyText(text);
+});
+document.getElementById("pbClear").addEventListener("click", ()=>{ pbAdded=[]; renderPbAll(); });
+document.getElementById("pbSaveWorkflow").addEventListener("click", ()=>{
+  if(!pbAdded.length) return toast("Add some blocks first","⚠️");
+  const text = document.getElementById("pbPreview").textContent;
+  const w = {id:uid(), cat:"meta", title:"Custom prompt ("+new Date().toLocaleDateString()+")", desc:"Saved from the Prompt Builder.",
+    tags:["custom"], template:text, vars:[], favorite:false, uses:0, lastUsed:Date.now()};
+  workflows.push(w); saveWorkflows(); renderAll();
+  toast("Saved to your workflows","💾");
+});
+
+/* ============================================================
+   LOOP BUILDER
+   ============================================================ */
+let loopValues = {};
+function renderLoopFields(){
+  document.getElementById("loopFields").innerHTML = LOOP_FIELDS.map(f=>{
+    let fieldHtml = "";
+    if(f.type==="textarea") fieldHtml = `<textarea class="bc-textarea" data-loop="${f.id}" placeholder="${f.placeholder||''}"></textarea>`;
+    else if(f.type==="select") fieldHtml = `<select class="bc-select" data-loop="${f.id}">${f.options.map(o=>`<option>${o}</option>`).join("")}</select>`;
+    return `<div class="block-card">
+      <div class="bc-top"><div class="bc-name">${f.emoji} ${f.name}</div></div>
+      <div class="bc-why">${f.why} — ${f.desc}</div>
+      ${fieldHtml}
+    </div>`;
+  }).join("");
+  document.querySelectorAll("#loopFields [data-loop]").forEach(el=>{
+    loopValues[el.dataset.loop] = el.value;
+    el.addEventListener("input", ()=>{ loopValues[el.dataset.loop]=el.value; renderLoopPreview(); });
+    el.addEventListener("change", ()=>{ loopValues[el.dataset.loop]=el.value; renderLoopPreview(); });
+  });
+}
+function renderLoopPreview(){
+  const base = document.getElementById("loopBase").value.trim();
+  const box = document.getElementById("loopPreview");
+  if(!base){ box.innerHTML = `<span class="preview-empty">Fill in a starting prompt and loop settings to generate this.</span>`; return; }
+  const text = `You will complete the task below using an autonomous improvement loop: draft, self-evaluate, revise, repeat until the stop condition is met.
+
+TASK:
+${base}
+
+GOAL (what "done well" means):
+${loopValues.goal || "(not set)"}
+
+EVALUATION CRITERIA (judge each draft against these):
+${loopValues.criteria || "(not set)"}
+
+IMPROVEMENT STRATEGY (how to revise each round):
+${loopValues.strategy || "(not set)"}
+
+STOP CONDITION (when to finalize and present the answer):
+${loopValues.stop || "(not set)"}
+
+SAFETY RULES (never violate these, even while optimizing):
+${loopValues.safety || "(not set)"}
+
+PROCESS:
+1. Produce Draft 1.
+2. Score Draft 1 against each evaluation criterion (pass/fail + why).
+3. If the stop condition is met, present the final answer and stop.
+4. Otherwise, revise using the improvement strategy and repeat from step 2.
+5. When presenting the final answer, briefly summarize how many rounds were used and what changed.`;
+  box.textContent = text;
+}
+document.getElementById("loopBase").addEventListener("input", renderLoopPreview);
+document.getElementById("loopCopy").addEventListener("click", ()=>{
+  if(!document.getElementById("loopBase").value.trim()) return toast("Add a starting prompt first","⚠️");
+  copyText(document.getElementById("loopPreview").textContent);
+});
+document.getElementById("loopSaveWorkflow").addEventListener("click", ()=>{
+  if(!document.getElementById("loopBase").value.trim()) return toast("Add a starting prompt first","⚠️");
+  const w = {id:uid(), cat:"meta", title:"Loop prompt ("+new Date().toLocaleDateString()+")", desc:"Self-improving loop saved from the Loop Builder.",
+    tags:["loop","autonomous"], template:document.getElementById("loopPreview").textContent, vars:[], favorite:false, uses:0, lastUsed:Date.now()};
+  workflows.push(w); saveWorkflows(); renderAll();
+  toast("Saved to your workflows","💾");
+});
+
+/* ============================================================
+   SETTINGS: import / export / reset
+   ============================================================ */
+document.getElementById("modelSelect").addEventListener("change", e=>{ state.model = e.target.value; saveState(); });
+document.getElementById("btnExport").addEventListener("click", ()=>{
+  const blob = new Blob([JSON.stringify({workflows, state}, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "ai-playbook-export.json"; a.click();
+  URL.revokeObjectURL(url);
+  toast("Exported","⬇");
+});
+document.getElementById("btnImport").addEventListener("click", ()=>document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change", e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(data.workflows) { workflows = data.workflows; saveWorkflows(); }
+      if(data.state) { state = Object.assign(state, data.state); saveState(); }
+      applyTheme(); renderAll();
+      toast("Import complete","⬆");
+    }catch(err){ toast("Invalid file","⚠️"); }
+  };
+  reader.readAsText(file);
+});
+document.getElementById("btnResetData").addEventListener("click", ()=>{
+  if(confirm("Reset to default workflows? Your custom ones will be lost.")){
+    workflows = JSON.parse(JSON.stringify(DEFAULT_WORKFLOWS)).map(w=>Object.assign(w,{favorite:false, uses:0, lastUsed:0}));
+    saveWorkflows(); renderAll();
+    toast("Reset to defaults","⟲");
+  }
+});
+
+/* ============================================================
+   KEYBOARD SHORTCUTS
+   ============================================================ */
+let gPending = false;
+document.addEventListener("keydown", e=>{
+  const tag = (e.target.tagName||"").toLowerCase();
+  const typing = tag==="input" || tag==="textarea" || tag==="select";
+  if(e.key==="Escape"){
+    document.querySelectorAll(".modal-overlay.open").forEach(m=>m.classList.remove("open"));
+    return;
+  }
+  if(typing) return;
+  if(e.key==="/"){ e.preventDefault(); searchInput.focus(); return; }
+  if(e.key.toLowerCase()==="n"){ document.getElementById("btnNewWorkflow").click(); return; }
+  if(e.key.toLowerCase()==="g"){ gPending = true; setTimeout(()=>gPending=false, 1200); return; }
+  if(gPending){
+    const map = {d:"dashboard", w:"workflows", p:"promptbuilder", l:"loopbuilder"};
+    const v = map[e.key.toLowerCase()];
+    if(v){ goTo(v); }
+    gPending = false;
+  }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function renderAll(){
+  applyTheme();
+  renderExplainer();
+  renderDashboard();
+  if(document.getElementById("view-workflows").classList.contains("active")) renderWorkflowsView();
+  if(document.getElementById("view-favorites").classList.contains("active")) renderFavoritesView();
+  document.getElementById("modelSelect").value = state.model;
+}
+
+function init(){
+  loadState();
+  applyTheme();
+  initOnboardSelect();
+  renderPbAll();
+  renderLoopFields();
+  renderLoopPreview();
+  renderAll();
+  if(!state.onboarded){
+    document.getElementById("onboardRole").value = state.role;
+    openModal("onboardModal");
+  }
+}
+init();
+
+})();
+</script>
+</body>
+</html>

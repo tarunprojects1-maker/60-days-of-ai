@@ -1,0 +1,491 @@
+[
+  {
+    "id": "w1",
+    "cat": "writing",
+    "title": "Blog Post Drafter",
+    "desc": "Turns a rough topic and outline into a full first draft in your voice.",
+    "tags": [
+      "writing",
+      "drafting"
+    ],
+    "template": "You are an experienced editor and writer.\n\nROLE: Write in a {{tone}} tone for an audience of {{audience}}.\nTOPIC: {{topic}}\nGOAL: {{goal}}\n\nStructure the piece with a strong hook, 3-5 clear sections, and a short closing takeaway. Avoid filler sentences and clichés. Keep paragraphs under 4 sentences.\n\nLength target: {{length}}.",
+    "vars": [
+      [
+        "tone",
+        "Conversational"
+      ],
+      [
+        "audience",
+        "busy professionals"
+      ],
+      [
+        "topic",
+        "..."
+      ],
+      [
+        "goal",
+        "..."
+      ],
+      [
+        "length",
+        "700-900 words"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w2",
+    "cat": "writing",
+    "title": "Ruthless Line Editor",
+    "desc": "Tightens a draft for clarity and cuts unnecessary words, sentence by sentence.",
+    "tags": [
+      "editing"
+    ],
+    "template": "Act as a ruthless but constructive line editor. Edit the text below for {{focus}}.\n\nRules:\n- Preserve the author's voice and intent.\n- Cut redundant words and passive voice.\n- Flag (don't silently fix) any factual claims that need a source.\n- Return the edited version, then a short bullet list of the biggest changes made and why.\n\nTEXT:\n{{text}}",
+    "vars": [
+      [
+        "focus",
+        "clarity and conciseness"
+      ],
+      [
+        "text",
+        "paste your draft here"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w3",
+    "cat": "research",
+    "title": "Rapid Topic Briefing",
+    "desc": "Produces a structured, skimmable briefing on any unfamiliar topic.",
+    "tags": [
+      "research",
+      "summary"
+    ],
+    "template": "Give me a structured briefing on: {{topic}}\n\nFormat:\n1. One-paragraph plain-language overview\n2. Key facts / numbers I should know\n3. Common misconceptions\n4. Open debates or unresolved questions\n5. 3 follow-up questions worth exploring next\n\nDepth level: {{depth}}. Cite the type of source where relevant (e.g. \"industry report,\" \"academic study\") without inventing specific citations.",
+    "vars": [
+      [
+        "topic",
+        "..."
+      ],
+      [
+        "depth",
+        "intermediate, assume some background"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w4",
+    "cat": "research",
+    "title": "Document Summarizer",
+    "desc": "Condenses a long document into decision-ready takeaways.",
+    "tags": [
+      "summary"
+    ],
+    "template": "Summarize the following document for someone who has {{minutes}} minutes.\n\nOutput:\n- 3-sentence executive summary\n- Key takeaways as bullets\n- Any risks, caveats, or open questions\n- One recommended next action\n\nDOCUMENT:\n{{document}}",
+    "vars": [
+      [
+        "minutes",
+        "2"
+      ],
+      [
+        "document",
+        "paste text here"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w5",
+    "cat": "code",
+    "title": "Code Reviewer",
+    "desc": "Reviews a code snippet for bugs, readability, and edge cases.",
+    "tags": [
+      "code",
+      "review"
+    ],
+    "template": "Review this {{language}} code as a senior engineer doing a pull request review.\n\nCheck for: correctness, edge cases, readability, naming, and performance concerns. Do not rewrite the whole file — give specific, line-referenced comments and only show corrected snippets for issues you flag.\n\nCODE:\n{{code}}",
+    "vars": [
+      [
+        "language",
+        "JavaScript"
+      ],
+      [
+        "code",
+        "paste code here"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w6",
+    "cat": "code",
+    "title": "Bug Diagnosis Assistant",
+    "desc": "Walks through likely causes of a bug systematically before suggesting fixes.",
+    "tags": [
+      "code",
+      "debugging"
+    ],
+    "template": "I'm seeing this bug: {{bug_description}}\n\nEnvironment: {{environment}}\nRelevant code / error log:\n{{code_or_log}}\n\nThink through this step by step:\n1. List the 3 most likely causes, ranked by probability.\n2. For the top cause, explain how to confirm it.\n3. Suggest a fix, and note any side effects it could introduce.",
+    "vars": [
+      [
+        "bug_description",
+        "..."
+      ],
+      [
+        "environment",
+        "e.g. Node 20, React 18"
+      ],
+      [
+        "code_or_log",
+        "paste here"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w7",
+    "cat": "planning",
+    "title": "Weekly Priority Planner",
+    "desc": "Turns a messy task list into a focused, ordered weekly plan.",
+    "tags": [
+      "planning"
+    ],
+    "template": "Here is my raw task list for the week: {{tasks}}\n\nMy top goal this week is: {{goal}}\nAvailable focused hours: {{hours}}\n\nOrganize these into a priority-ordered plan. Group by day, flag anything that seems low-value or should be delegated/dropped, and note if the goal is unrealistic given the hours available.",
+    "vars": [
+      [
+        "tasks",
+        "paste your list"
+      ],
+      [
+        "goal",
+        "..."
+      ],
+      [
+        "hours",
+        "20"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w8",
+    "cat": "planning",
+    "title": "Decision Framework",
+    "desc": "Structures a hard decision using explicit criteria instead of gut feel.",
+    "tags": [
+      "strategy",
+      "decisions"
+    ],
+    "template": "Help me decide: {{decision}}\n\nOptions: {{options}}\nConstraints: {{constraints}}\nWhat matters most to me, in order: {{priorities}}\n\nBuild a simple weighted comparison across the options against my priorities, call out what information I'm missing, and give a reasoned recommendation — but flag it clearly as a recommendation, not a final answer.",
+    "vars": [
+      [
+        "decision",
+        "..."
+      ],
+      [
+        "options",
+        "A, B, C"
+      ],
+      [
+        "constraints",
+        "budget, time, etc."
+      ],
+      [
+        "priorities",
+        "..."
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w9",
+    "cat": "comms",
+    "title": "Email Rewriter",
+    "desc": "Rewrites a rough email draft to match a specific tone and goal.",
+    "tags": [
+      "email"
+    ],
+    "template": "Rewrite this email to be {{tone}}, while keeping it {{length}}.\n\nGoal of the email: {{goal}}\nRecipient context: {{recipient}}\n\nDRAFT:\n{{draft}}\n\nReturn only the rewritten email, subject line included.",
+    "vars": [
+      [
+        "tone",
+        "warm but professional"
+      ],
+      [
+        "length",
+        "concise, under 150 words"
+      ],
+      [
+        "goal",
+        "..."
+      ],
+      [
+        "recipient",
+        "..."
+      ],
+      [
+        "draft",
+        "paste your rough draft"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w10",
+    "cat": "comms",
+    "title": "Difficult Conversation Scripter",
+    "desc": "Drafts talking points for a sensitive conversation, with objection handling.",
+    "tags": [
+      "email",
+      "conversation"
+    ],
+    "template": "Help me prepare for a difficult conversation: {{situation}}\n\nMy goal for the conversation: {{goal}}\nTheir likely reaction: {{reaction}}\n\nGive me: \n1. An opening line\n2. 3 key points to make, in order\n3. Responses to 2 likely objections\n4. A way to close the conversation constructively",
+    "vars": [
+      [
+        "situation",
+        "..."
+      ],
+      [
+        "goal",
+        "..."
+      ],
+      [
+        "reaction",
+        "..."
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w11",
+    "cat": "marketing",
+    "title": "Social Post Generator",
+    "desc": "Turns one idea into platform-specific social copy variants.",
+    "tags": [
+      "social",
+      "copy"
+    ],
+    "template": "Turn this idea into a {{platform}} post: {{idea}}\n\nTone: {{tone}}\nInclude a hook in the first line and one clear call to action. Give me {{count}} variants with different angles.",
+    "vars": [
+      [
+        "platform",
+        "LinkedIn"
+      ],
+      [
+        "idea",
+        "..."
+      ],
+      [
+        "tone",
+        "confident, no corporate jargon"
+      ],
+      [
+        "count",
+        "3"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w12",
+    "cat": "marketing",
+    "title": "Landing Page Copy Builder",
+    "desc": "Drafts structured landing page copy from a product description.",
+    "tags": [
+      "copy",
+      "conversion"
+    ],
+    "template": "Write landing page copy for: {{product}}\n\nTarget audience: {{audience}}\nMain benefit to lead with: {{benefit}}\n\nStructure: headline, subheadline, 3 benefit bullets, social-proof placeholder, and a final CTA block. Keep sentences short and skimmable.",
+    "vars": [
+      [
+        "product",
+        "..."
+      ],
+      [
+        "audience",
+        "..."
+      ],
+      [
+        "benefit",
+        "..."
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w13",
+    "cat": "design",
+    "title": "UX Critique",
+    "desc": "Gives structured, actionable feedback on an interface description or screenshot.",
+    "tags": [
+      "ux",
+      "feedback"
+    ],
+    "template": "Critique this interface as a senior product designer: {{description}}\n\nEvaluate: clarity of primary action, visual hierarchy, accessibility concerns, and consistency. Give a short list of the top 3 highest-impact changes, ranked by effort vs. impact.",
+    "vars": [
+      [
+        "description",
+        "describe the screen or paste a link/notes"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w14",
+    "cat": "support",
+    "title": "Support Reply Drafter",
+    "desc": "Drafts an empathetic, on-brand support reply to a customer message.",
+    "tags": [
+      "support"
+    ],
+    "template": "Draft a support reply to this customer message: {{message}}\n\nOur policy / relevant facts: {{policy}}\nTone: {{tone}}\n\nAcknowledge their issue first, be specific about next steps, and avoid over-apologizing or making promises we can't confirm.",
+    "vars": [
+      [
+        "message",
+        "paste customer message"
+      ],
+      [
+        "policy",
+        "..."
+      ],
+      [
+        "tone",
+        "empathetic and direct"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w15",
+    "cat": "sales",
+    "title": "Cold Outreach Drafter",
+    "desc": "Writes a short, personalized first-touch outreach message.",
+    "tags": [
+      "sales",
+      "outreach"
+    ],
+    "template": "Write a cold outreach message to {{recipient}} about {{offer}}.\n\nContext / personalization detail: {{personalization}}\nChannel: {{channel}}\n\nKeep it under {{length}}, lead with relevance to them (not us), and end with a low-friction ask.",
+    "vars": [
+      [
+        "recipient",
+        "..."
+      ],
+      [
+        "offer",
+        "..."
+      ],
+      [
+        "personalization",
+        "..."
+      ],
+      [
+        "channel",
+        "email"
+      ],
+      [
+        "length",
+        "120 words"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w16",
+    "cat": "meta",
+    "title": "Daily Standup Summarizer",
+    "desc": "Turns rough end-of-day notes into a clean standup update.",
+    "tags": [
+      "daily"
+    ],
+    "template": "Turn these rough notes into a standup update: {{notes}}\n\nFormat:\n- Yesterday: ...\n- Today: ...\n- Blockers: ...\nKeep it under 80 words total.",
+    "vars": [
+      [
+        "notes",
+        "paste raw notes"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w17",
+    "cat": "meta",
+    "title": "Meeting Notes → Action Items",
+    "desc": "Extracts clear owners and deadlines from messy meeting notes.",
+    "tags": [
+      "daily",
+      "meetings"
+    ],
+    "template": "Convert these meeting notes into action items: {{notes}}\n\nFor each action item, extract: task, owner (if mentioned, else \"unassigned\"), and deadline (if mentioned, else \"not set\"). Then list any open questions that were raised but not resolved.",
+    "vars": [
+      [
+        "notes",
+        "paste meeting notes"
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  },
+  {
+    "id": "w18",
+    "cat": "research",
+    "title": "Literature / Source Comparator",
+    "desc": "Compares multiple sources or viewpoints on the same question side by side.",
+    "tags": [
+      "research"
+    ],
+    "template": "Compare these sources/viewpoints on the question: {{question}}\n\nSOURCE A: {{source_a}}\nSOURCE B: {{source_b}}\n\nSummarize where they agree, where they disagree, and what might explain the disagreement (methodology, bias, timing, etc.). Do not pick a winner — present it evenhandedly.",
+    "vars": [
+      [
+        "question",
+        "..."
+      ],
+      [
+        "source_a",
+        "..."
+      ],
+      [
+        "source_b",
+        "..."
+      ]
+    ],
+    "favorite": false,
+    "uses": 0,
+    "lastUsed": 0
+  }
+]

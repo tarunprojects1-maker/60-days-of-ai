@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Certificate of Completion — SmartHire AI</title>
+<style>
+  @page { size: 297mm 210mm; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 297mm; height: 210mm; font-family: 'Georgia', serif;
+    background: #fdfcfa; position: relative; overflow: hidden;
+  }
+  .border-accent {
+    position: absolute; top: 0; left: 0; width: 100%; height: 10px;
+    background: linear-gradient(90deg, #1a1a1a 0%, #ff7a1a 50%, #1a1a1a 100%);
+  }
+  .border-accent.bottom { top: auto; bottom: 0; }
+  .side-black {
+    position: absolute; top: 0; right: 0; width: 90mm; height: 100%;
+    background: #14141a;
+    clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%);
+  }
+  .circuit-bg {
+    position: absolute; left: 15mm; top: 30mm; width: 130mm; opacity: 0.05; font-size: 200px; font-weight: bold; color: #1a1a1a;
+  }
+  .content { position: relative; z-index: 2; padding: 18mm 20mm; }
+  .logo { font-weight: bold; font-size: 15px; letter-spacing: 2px; color: #1a1a1a; }
+  .logo span { color: #ff7a1a; }
+  .cert-id { position: absolute; top: 18mm; right: 95mm; text-align: right; font-size: 9px; color: #666; letter-spacing: 1px; }
+  h1 { font-size: 52px; letter-spacing: 6px; color: #1a1a1a; margin-top: 30mm; font-family: Arial, sans-serif; font-weight: 800; }
+  .subtitle { color: #ff7a1a; font-size: 18px; letter-spacing: 4px; font-weight: 600; margin-top: 4px; font-family: Arial, sans-serif; }
+  .divider { width: 60px; height: 2px; background: #ff7a1a; margin: 14px 0; }
+  .presented { font-size: 11px; letter-spacing: 3px; color: #888; margin-top: 14mm; font-family: Arial, sans-serif; }
+  .name { font-size: 38px; color: #1a1a1a; margin-top: 6px; font-family: Georgia, serif; font-weight: bold; border-bottom: 2px solid #ff7a1a; display: inline-block; padding-bottom: 6px; }
+  .desc { font-size: 13px; color: #444; margin-top: 10mm; max-width: 150mm; line-height: 1.7; font-family: Arial, sans-serif; }
+  .project-name { color: #ff7a1a; font-weight: bold; font-size: 15px; }
+  .version { display: inline-block; background: #1a1a1a; color: white; padding: 3px 10px; border-radius: 3px; font-size: 11px; margin-left: 8px; }
+  .footer { position: absolute; bottom: 18mm; left: 20mm; right: 95mm; display: flex; justify-content: space-between; align-items: flex-end; }
+  .credit { font-size: 10px; color: #666; font-family: Arial, sans-serif; line-height: 1.5; }
+  .credit b { color: #1a1a1a; }
+  .issued { font-size: 10px; color: #666; text-align: right; font-family: Arial, sans-serif; }
+  .badge-area { position: absolute; top: 20mm; right: 15mm; text-align: center; color: white; z-index: 3; width: 60mm; }
+  .badge-circle {
+    width: 70px; height: 70px; border-radius: 50%; border: 3px solid #ff7a1a;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;
+    font-size: 30px; color: #ff7a1a;
+  }
+  .badge-label { font-size: 10px; letter-spacing: 2px; font-family: Arial, sans-serif; }
+  .badge-label.small { font-size: 8px; color: #aaa; margin-top: 4px; }
+  .links { position: absolute; bottom: 18mm; right: 15mm; text-align: right; color: #ccc; font-size: 9px; font-family: Arial, sans-serif; z-index: 3; }
+  .links a { color: #ff7a1a; text-decoration: none; }
+</style>
+</head>
+<body>
+  <div class="border-accent"></div>
+  <div class="border-accent bottom"></div>
+  <div class="side-black"></div>
+  <div class="circuit-bg">AI</div>
+
+  <div class="content">
+    <div class="logo">AB <span>TALKS</span></div>
+    <div class="cert-id">CERTIFICATE ID<br><b>SHA-CAPSTONE-V1</b></div>
+
+    <h1>CERTIFICATE</h1>
+    <div class="subtitle">OF CAPSTONE COMPLETION</div>
+    <div class="divider"></div>
+
+    <div class="presented">PROUDLY PRESENTED TO</div>
+    <div class="name">Tarun Teja Patro</div>
+
+    <div class="desc">
+      for successfully designing, building, testing, and deploying<br>
+      <span class="project-name">SmartHire AI</span><span class="version">v1.0.0</span><br><br>
+      a production-ready, AI-powered resume intelligence platform, completed as the 10-day capstone
+      project of the <b>AB Talks 60-Day Claude AI Challenge</b> — carrying a project from requirements
+      gathering through a full Software Development Lifecycle to a publicly deployed live application.
+    </div>
+  </div>
+
+  <div class="badge-area">
+    <div class="badge-circle">✓</div>
+    <div class="badge-label">VERIFIED</div>
+    <div class="badge-label small">CAPSTONE COMPLETION</div>
+  </div>
+
+  <div class="footer">
+    <div class="credit">
+      Built with <b>Claude</b> (free tier) as AI pair programmer & project mentor<br>
+      Completed as part of the AB Talks 60-Day Claude AI Challenge
+    </div>
+    <div class="issued">ISSUED ON<br><b>July 31, 2026</b></div>
+  </div>
+
+  <div class="links">
+    <a href="https://www.abtalks.in/">abtalks.in</a> &nbsp;•&nbsp;
+    <a href="https://www.linkedin.com/company/abtalks-on-ai/">LinkedIn</a>
+  </div>
+</body>
+</html>
